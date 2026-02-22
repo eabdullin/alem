@@ -1,4 +1,4 @@
-import type { AiChatMessage } from "../services/ai-service";
+import type { AiChainStep, AiChatMessage } from "../services/ai-service";
 import type { ChatAttachment } from "../types/chat-attachment";
 import { ARCHIVED_CHAT_LIST_ID } from "./chat-list-store";
 
@@ -16,6 +16,8 @@ export interface ChatSession {
   messages: ChatHistoryMessage[];
   chatListIds: string[];
   isArchived: boolean;
+  /** Optional workspace root for terminal tool; one per chat. */
+  terminalWorkspacePath?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -30,7 +32,11 @@ export interface ChatStore {
   getChat(chatId: string): Promise<ChatSession | null>;
   createChat(
     title: string,
-    options?: { chatListIds?: string[]; isArchived?: boolean },
+    options?: {
+      chatListIds?: string[];
+      isArchived?: boolean;
+      terminalWorkspacePath?: string;
+    },
   ): Promise<ChatSession>;
   updateChat(
     chatId: string,
@@ -39,6 +45,7 @@ export interface ChatStore {
       messages?: ChatHistoryMessage[];
       chatListIds?: string[];
       isArchived?: boolean;
+      terminalWorkspacePath?: string;
     },
   ): Promise<ChatSession | null>;
   archiveChats(chatIds: string[]): Promise<void>;
@@ -154,6 +161,15 @@ function normalizeSessions(value: unknown): ChatSession[] {
           content: m.content,
         };
 
+        if (typeof m.reasoning === "string" && m.reasoning.trim()) {
+          normalizedMessage.reasoning = m.reasoning;
+        }
+
+        const chainSteps = normalizeChainSteps(m.chainSteps);
+        if (chainSteps.length > 0) {
+          normalizedMessage.chainSteps = chainSteps;
+        }
+
         const attachments = normalizeAttachments(m.attachments);
         if (attachments) {
           normalizedMessage.attachments = attachments;
@@ -167,7 +183,13 @@ function normalizeSessions(value: unknown): ChatSession[] {
         candidate.isArchived === true ||
         normalizedChatListIds.includes(ARCHIVED_CHAT_LIST_ID);
 
-      return {
+      const terminalWorkspacePath =
+        typeof candidate.terminalWorkspacePath === "string" &&
+        candidate.terminalWorkspacePath.trim()
+          ? candidate.terminalWorkspacePath.trim()
+          : undefined;
+
+      const session: ChatSession = {
         id: candidate.id,
         title: candidate.title || DEFAULT_CHAT_TITLE,
         messages,
@@ -176,6 +198,10 @@ function normalizeSessions(value: unknown): ChatSession[] {
         createdAt: candidate.createdAt,
         updatedAt: candidate.updatedAt,
       };
+      if (terminalWorkspacePath !== undefined) {
+        session.terminalWorkspacePath = terminalWorkspacePath;
+      }
+      return session;
     })
     .filter((session): session is ChatSession => session !== null);
 }
@@ -218,6 +244,35 @@ function normalizeAttachments(value: unknown): ChatAttachment[] | undefined {
   return attachments.length > 0 ? attachments : undefined;
 }
 
+function normalizeChainSteps(value: unknown): AiChainStep[] {
+  if (!Array.isArray(value) || value.length === 0) {
+    return [];
+  }
+
+  const steps: AiChainStep[] = [];
+  for (const item of value) {
+    if (typeof item !== "object" || item === null) {
+      continue;
+    }
+    const part = item as Record<string, unknown>;
+    if (part.type === "reasoning" && typeof part.text === "string" && part.text.trim()) {
+      steps.push({ type: "reasoning", text: part.text.trim() });
+    } else if (
+      part.type === "tool" &&
+      typeof part.toolName === "string"
+    ) {
+      steps.push({
+        type: "tool",
+        toolName: part.toolName,
+        input: part.input ?? {},
+        output: part.output,
+        errorText: typeof part.errorText === "string" ? part.errorText : undefined,
+      });
+    }
+  }
+  return steps;
+}
+
 function emitChatHistoryUpdated(): void {
   if (typeof window === "undefined") {
     return;
@@ -242,17 +297,27 @@ export class BrowserChatStore implements ChatStore {
 
   async createChat(
     title: string,
-    options?: { chatListIds?: string[]; isArchived?: boolean },
+    options?: {
+      chatListIds?: string[];
+      isArchived?: boolean;
+      terminalWorkspacePath?: string;
+    },
   ): Promise<ChatSession> {
     const now = new Date().toISOString();
     const requestedListIds = normalizeChatListIds(options?.chatListIds);
     const isArchived = options?.isArchived ?? requestedListIds.includes(ARCHIVED_CHAT_LIST_ID);
+    const terminalWorkspacePath =
+      typeof options?.terminalWorkspacePath === "string" &&
+      options.terminalWorkspacePath.trim()
+        ? options.terminalWorkspacePath.trim()
+        : undefined;
     const session: ChatSession = {
       id: createChatId(),
       title: title.trim() || DEFAULT_CHAT_TITLE,
       messages: [],
       chatListIds: syncArchiveList(requestedListIds, isArchived),
       isArchived,
+      terminalWorkspacePath,
       createdAt: now,
       updatedAt: now,
     };
@@ -270,6 +335,7 @@ export class BrowserChatStore implements ChatStore {
       messages?: ChatHistoryMessage[];
       chatListIds?: string[];
       isArchived?: boolean;
+      terminalWorkspacePath?: string;
     },
   ): Promise<ChatSession | null> {
     const sessions = await this.storage.readSessions();
@@ -282,12 +348,20 @@ export class BrowserChatStore implements ChatStore {
     const current = sessions[index];
     const nextIsArchived = update.isArchived ?? current.isArchived;
     const requestedListIds = normalizeChatListIds(update.chatListIds ?? current.chatListIds);
+    const nextWorkspacePath =
+      update.terminalWorkspacePath !== undefined
+        ? (typeof update.terminalWorkspacePath === "string" &&
+          update.terminalWorkspacePath.trim()
+            ? update.terminalWorkspacePath.trim()
+            : undefined)
+        : current.terminalWorkspacePath;
     const updatedSession: ChatSession = {
       ...current,
       title: update.title ?? current.title,
       messages: update.messages ?? current.messages,
       chatListIds: syncArchiveList(requestedListIds, nextIsArchived),
       isArchived: nextIsArchived,
+      terminalWorkspacePath: nextWorkspacePath,
       updatedAt: new Date().toISOString(),
     };
 

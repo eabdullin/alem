@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { Tab } from "@headlessui/react";
 import { disablePageScroll, enablePageScroll } from "scroll-lock";
 import { useLocation, useNavigate } from "react-router-dom";
 import Logo from "@/components/Logo";
@@ -6,11 +7,15 @@ import Icon from "@/components/Icon";
 import Modal from "@/components/Modal";
 import Search from "@/components/Search";
 import Settings from "@/components/Settings";
+import Notifications from "@/components/LeftSidebar/Notifications";
 import Navigation from "./Navigation";
 import ChatList from "./ChatList";
 import ToggleTheme from "./ToggleTheme";
+import Faq from "@/pages/UpdatesAndFaqPage/Faq";
+import Updates from "@/pages/UpdatesAndFaqPage/Updates";
 
 import { settings } from "@/constants/settings";
+import { notifications } from "@/mocks/notifications";
 import { twMerge } from "tailwind-merge";
 import {
     CHAT_LISTS_UPDATED_EVENT,
@@ -20,6 +25,13 @@ import {
     CHAT_HISTORY_UPDATED_EVENT,
     chatService,
 } from "@/services/chat-service";
+import {
+    updatesFaqService,
+    type FaqItem,
+    type UpdateItem,
+} from "@/services/updates-faq-service";
+
+const updatesFaqTabNavigation = ["Updates", "FAQ"];
 
 type LeftSidebarProps = {
     value: boolean;
@@ -38,6 +50,9 @@ const LeftSidebar = ({
     const location = useLocation();
     const [visibleSearch, setVisibleSearch] = useState<boolean>(false);
     const [visibleSettings, setVisibleSettings] = useState<boolean>(false);
+    const [visibleUpdatesFaq, setVisibleUpdatesFaq] = useState<boolean>(false);
+    const [faqItems, setFaqItems] = useState<FaqItem[]>([]);
+    const [updateItems, setUpdateItems] = useState<UpdateItem[]>([]);
     const [chatListItems, setChatListItems] = useState<
         {
             id: string;
@@ -94,6 +109,26 @@ const LeftSidebar = ({
         };
     }, [loadChatLists]);
 
+    useEffect(() => {
+        let active = true;
+
+        const loadUpdatesFaq = async () => {
+            const content = await updatesFaqService.getContent();
+            if (!active) {
+                return;
+            }
+
+            setFaqItems(content.faqItems);
+            setUpdateItems(content.updateItems);
+        };
+
+        void loadUpdatesFaq();
+
+        return () => {
+            active = false;
+        };
+    }, []);
+
     const handleWindowKeyDown = (event: any) => {
         if (event.metaKey && event.key === "f") {
             event.preventDefault();
@@ -121,8 +156,11 @@ const LeftSidebar = ({
             title: "Updates & FAQ",
             icon: "barcode",
             color: "fill-accent-1",
-            url: "/updates-and-faq",
+            onClick: () => setVisibleUpdatesFaq(true),
         },
+    ];
+
+    const settingsNavigation = [
         {
             title: "Settings",
             icon: "settings",
@@ -186,11 +224,62 @@ const LeftSidebar = ({
                         }`}
                     ></div>
                     <Navigation visible={value} items={navigation} />
+                    <div className={value ? "px-2" : ""}>
+                        <Notifications
+                            items={notifications}
+                            className="w-full"
+                            buttonClassName={`w-full h-12 rounded-lg transition-colors hover:bg-n-6 ${
+                                value ? "justify-center px-3" : "px-5"
+                            }`}
+                            label={!value ? "Notifications" : undefined}
+                            labelClassName="ml-5"
+                        />
+                    </div>
+                    <Navigation visible={value} items={settingsNavigation} />
                 </div>
                 <div className="absolute left-0 bottom-0 right-0 pb-6 px-4 bg-n-7 before:absolute before:left-0 before:right-0 before:bottom-full before:h-10 before:bg-gradient-to-t before:from-[#131617] before:to-[rgba(19,22,23,0)] before:pointer-events-none md:px-3">
                     <ToggleTheme visible={value} />
                 </div>
             </div>
+            <Modal
+                className="md:!p-0"
+                classWrap="max-w-[62rem] md:min-h-screen-ios md:rounded-none"
+                classButtonClose="absolute top-5 right-5 fill-n-4 md:top-6 md:right-6"
+                classOverlay="md:bg-n-1"
+                visible={visibleUpdatesFaq}
+                onClose={() => setVisibleUpdatesFaq(false)}
+            >
+                <div className="p-16 md:pt-8 md:px-6 md:pb-10">
+                    <div className="max-w-[58.5rem] mx-auto">
+                        <div className="mb-4 h2 md:pr-16 md:h3">
+                            Updates & FAQ
+                        </div>
+                        <div className="mb-12 body1 text-n-4 md:mb-6">
+                            Features, fixes & improvements.
+                        </div>
+                        <Tab.Group defaultIndex={0}>
+                            <Tab.List className="mb-12 md:mb-6 space-x-3">
+                                {updatesFaqTabNavigation.map((button) => (
+                                    <Tab
+                                        className="h-10 px-6 rounded-full base1 text-n-4 transition-colors outline-none tap-highlight-color hover:text-n-7 ui-selected:bg-primary-1 ui-selected:!text-n-1 dark:hover:text-n-1"
+                                        key={button}
+                                    >
+                                        {button}
+                                    </Tab>
+                                ))}
+                            </Tab.List>
+                            <Tab.Panels>
+                                <Tab.Panel>
+                                    <Updates items={updateItems} />
+                                </Tab.Panel>
+                                <Tab.Panel>
+                                    <Faq items={faqItems} />
+                                </Tab.Panel>
+                            </Tab.Panels>
+                        </Tab.Group>
+                    </div>
+                </div>
+            </Modal>
             <Modal
                 className="md:!p-0"
                 classWrap="md:min-h-screen-ios md:rounded-none dark:shadow-[inset_0_0_0_0.0625rem_#232627,0_2rem_4rem_-1rem_rgba(0,0,0,0.33)] dark:md:shadow-none"

@@ -1,7 +1,13 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, dialog, ipcMain } from "electron";
+import fs from "node:fs";
 import path from "node:path";
 import { getStore } from "./store";
 import { ElectronFileStore, type SaveAttachmentInput } from "./file-store";
+import {
+  getTerminalWorkspaceRoot,
+  runTerminal,
+  type TerminalRunRequest,
+} from "./terminal-runner";
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -35,7 +41,7 @@ async function createWindow() {
   });
 
   // Remove the default application menu (File/Edit/etc.)
-  mainWindow.removeMenu();
+  // mainWindow.removeMenu();
 
   mainWindow.on("closed", () => {
     mainWindow = null;
@@ -98,6 +104,57 @@ function setupIpc() {
 
   ipcMain.handle("delete-attachment", (_event, attachmentId: string) => {
     return fileStore.deleteAttachment(attachmentId);
+  });
+
+  ipcMain.handle("get-terminal-workspace-root", () => {
+    const s = store.get("settings", {}) as Record<string, unknown> & {
+      terminalWorkspaceRoot?: string;
+    };
+    return getTerminalWorkspaceRoot(s) || app.getPath("documents");
+  });
+
+  ipcMain.handle(
+    "run-terminal",
+    async (
+      _event,
+      request: TerminalRunRequest
+    ): Promise<
+      import("./terminal-runner").TerminalRunResult
+    > => {
+      const s = store.get("settings", {}) as Record<string, unknown> & {
+        terminalWorkspaceRoot?: string;
+      };
+      let root: string;
+      const override = request.workspaceOverride?.trim();
+      if (override) {
+        try {
+          const resolved = path.resolve(override);
+          if (fs.existsSync(resolved) && fs.statSync(resolved).isDirectory()) {
+            root = resolved;
+          } else {
+            root = getTerminalWorkspaceRoot(s) || app.getPath("documents");
+          }
+        } catch {
+          root = getTerminalWorkspaceRoot(s) || app.getPath("documents");
+        }
+      } else {
+        root = getTerminalWorkspaceRoot(s) || app.getPath("documents");
+      }
+      return runTerminal({ request, workspaceRoot: root });
+    }
+  );
+
+  ipcMain.handle("open-folder-dialog", async () => {
+    const win = BrowserWindow.getFocusedWindow() ?? mainWindow;
+    if (!win) return null;
+    const result = await dialog.showOpenDialog(win, {
+      properties: ["openDirectory"],
+      title: "Select workspace folder for terminal",
+    });
+    if (result.canceled || result.filePaths.length === 0) {
+      return null;
+    }
+    return result.filePaths[0];
   });
 }
 

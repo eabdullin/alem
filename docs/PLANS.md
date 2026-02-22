@@ -12,12 +12,13 @@ Planning hub for `alem`.
 
 - stabilize desktop chat + attachment experience
 - improve provider and model selection UX
+- ship Agent mode v1 (`Ask` / `Agent` with provider-native web search)
 - strengthen docs, reliability and security foundations
 
 ### Next
 
 1. Hybrid UI framework for model-assisted component rendering
-2. Agent mode foundations (tool execution lifecycle and permissions)
+2. Agent mode phase 2 (local tool execution lifecycle and permissions)
 3. Storage abstraction for multi-device sync providers
 
 ### Later
@@ -34,6 +35,6 @@ Planning hub for `alem`.
 ## Current Initiative Set
 
 - Hybrid UI discovery + schema design
-- Agent mode architecture spike
+- Agent mode v1 hardening and phase-2 design
 - Storage provider abstraction
 - Mobile readiness and shared contracts

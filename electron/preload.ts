@@ -20,6 +20,9 @@ export interface AlemApi {
   readAttachment: (attachmentId: string) => Promise<string>;
   openAttachment: (attachmentId: string) => Promise<boolean>;
   deleteAttachment: (attachmentId: string) => Promise<boolean>;
+  runTerminal: (request: unknown) => Promise<unknown>;
+  getTerminalWorkspaceRoot: () => Promise<string>;
+  openFolderDialog: () => Promise<string | null>;
   platform: string;
 }
 
@@ -37,5 +40,9 @@ contextBridge.exposeInMainWorld("alem", {
     ipcRenderer.invoke("open-attachment", attachmentId),
   deleteAttachment: (attachmentId: string) =>
     ipcRenderer.invoke("delete-attachment", attachmentId),
+  runTerminal: (request: unknown) => ipcRenderer.invoke("run-terminal", request),
+  getTerminalWorkspaceRoot: () =>
+    ipcRenderer.invoke("get-terminal-workspace-root"),
+  openFolderDialog: () => ipcRenderer.invoke("open-folder-dialog"),
   platform: process.platform,
 } satisfies AlemApi);

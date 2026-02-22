@@ -1,9 +1,13 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import Icon from "@/components/Icon";
-import ModelSelector from "@/components/ModelSelector";
 import ModalShareChat from "@/components/ModalShareChat";
-import Notifications from "@/components/RightSidebar/Notifications";
-import { notifications } from "@/mocks/notifications";
+import {
+  Conversation,
+  ConversationContent,
+  ConversationScrollButton,
+  messagesToMarkdown,
+  type ConversationMessage,
+} from "@/components/ai-elements/conversation";
 import Actions from "./Actions";
 
 type ChatProps = {
@@ -11,8 +15,7 @@ type ChatProps = {
   chatListIds: string[];
   title: string;
   children: React.ReactNode;
-  hideRightSidebar?: boolean;
-  onToggleRightSidebar?: () => void;
+  downloadMessages?: ConversationMessage[];
 };
 
 const Chat = ({
@@ -20,15 +23,32 @@ const Chat = ({
   chatListIds,
   title,
   children,
-  hideRightSidebar,
-  onToggleRightSidebar,
+  downloadMessages = [],
 }: ChatProps) => {
   const [favorite, setFavorite] = useState<boolean>(false);
   const [visibleModal, setVisibleModal] = useState<boolean>(false);
+  const hasDownloadableMessages = downloadMessages.length > 0;
+
+  const handleDownloadConversation = useCallback(() => {
+    if (downloadMessages.length === 0) {
+      return;
+    }
+
+    const markdown = messagesToMarkdown(downloadMessages);
+    const blob = new Blob([markdown], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "conversation.md";
+    document.body.append(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }, [downloadMessages]);
 
   return (
     <>
-      <div className="flex items-center min-h-[4.5rem] px-10 py-3 border-b border-n-3 shadow-[0_0.75rem_2.5rem_-0.75rem_rgba(0,0,0,0.06)] 2xl:px-6 lg:-mt-18 lg:pr-20 md:pl-5 md:pr-18 dark:border-n-5 dark:shadow-[0_0.75rem_2.5rem_-0.75rem_rgba(0,0,0,0.15)]">
+      <div className="flex items-center min-h-[4.5rem] px-10 pr-20 py-3 border-b border-n-3 shadow-[0_0.75rem_2.5rem_-0.75rem_rgba(0,0,0,0.06)] 2xl:px-6 2xl:pr-20 lg:-mt-18 lg:pr-20 md:pl-5 md:pr-18 dark:border-n-5 dark:shadow-[0_0.75rem_2.5rem_-0.75rem_rgba(0,0,0,0.15)]">
         <div className="mr-auto h5 truncate md:h6">{title}</div>
         <div className="flex items-center ml-6 gap-3">
           <button
@@ -44,30 +64,28 @@ const Chat = ({
               name={favorite ? "star-fill" : "star"}
             />
           </button>
-          {onToggleRightSidebar && (
-            <>
-              <Notifications
-                items={notifications}
-                className="md:hidden flex justify-center items-center w-10 h-10 rounded-full"
+          {hasDownloadableMessages && (
+            <button
+              className="group w-8 h-8"
+              onClick={handleDownloadConversation}
+              title="Download conversation"
+              type="button"
+            >
+              <Icon
+                className="fill-n-4 transition-colors group-hover:fill-primary-1"
+                name="download"
               />
-              <button
-                className="group w-8 h-8 md:hidden"
-                onClick={onToggleRightSidebar}
-                title={hideRightSidebar ? "Show sidebar" : "Hide sidebar"}
-              >
-                <Icon
-                  className="fill-n-4 transition-colors group-hover:fill-primary-1"
-                  name="clock"
-                />
-              </button>
-            </>
+            </button>
           )}
           <Actions chatId={chatId} chatListIds={chatListIds} />
         </div>
       </div>
-      <div className="relative z-2 grow p-10 space-y-10 overflow-y-auto scroll-smooth scrollbar-none 2xl:p-6 md:p-5">
-        {children}
-      </div>
+      <Conversation className="relative z-2 grow">
+        <ConversationContent className="gap-10 p-10 2xl:p-6 md:p-5">
+          {children}
+        </ConversationContent>
+        <ConversationScrollButton />
+      </Conversation>
       <ModalShareChat
         visible={visibleModal}
         onClose={() => setVisibleModal(false)}

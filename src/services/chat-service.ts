@@ -6,6 +6,7 @@ import {
   type ChatSession,
   type ChatStore,
 } from "../stores/chat-store";
+import type { AiChainStep } from "./ai-service";
 import type { ChatAttachment } from "../types/chat-attachment";
 import { ARCHIVED_CHAT_LIST_ID } from "./chat-list-service";
 
@@ -43,6 +44,8 @@ function areMessagesEqual(
       message.id === other?.id &&
       message.role === other?.role &&
       message.content === other?.content &&
+      message.reasoning === other?.reasoning &&
+      areChainStepsEqual(message.chainSteps, other?.chainSteps) &&
       areAttachmentsEqual(message.attachments, other?.attachments)
     );
   });
@@ -67,6 +70,31 @@ function areAttachmentsEqual(
       attachment.mediaType === other?.mediaType &&
       attachment.size === other?.size
     );
+  });
+}
+
+function areChainStepsEqual(
+  left: AiChainStep[] | undefined,
+  right: AiChainStep[] | undefined,
+): boolean {
+  const a = left ?? [];
+  const b = right ?? [];
+  if (a.length !== b.length) return false;
+  return a.every((step, i) => {
+    const other = b[i];
+    if (!other || step.type !== other.type) return false;
+    if (step.type === "reasoning" && other.type === "reasoning") {
+      return step.text === other.text;
+    }
+    if (step.type === "tool" && other.type === "tool") {
+      return (
+        step.toolName === other.toolName &&
+        JSON.stringify(step.input) === JSON.stringify(other.input) &&
+        JSON.stringify(step.output) === JSON.stringify(other.output) &&
+        step.errorText === other.errorText
+      );
+    }
+    return false;
   });
 }
 
@@ -252,12 +280,14 @@ export class ChatService {
     title?: string,
     options?: {
       chatListId?: string;
+      terminalWorkspacePath?: string;
     },
   ): Promise<ChatSession> {
     const listId = options?.chatListId?.trim();
     return this.store.createChat(title?.trim() || DEFAULT_CHAT_TITLE, {
       chatListIds: listId ? [listId] : [],
       isArchived: listId === ARCHIVED_CHAT_LIST_ID,
+      terminalWorkspacePath: options?.terminalWorkspacePath?.trim() || undefined,
     });
   }
 
@@ -270,6 +300,7 @@ export class ChatService {
     const duplicatedChat = await this.store.createChat(`${current.title} (copy)`, {
       chatListIds: current.chatListIds,
       isArchived: current.isArchived,
+      terminalWorkspacePath: current.terminalWorkspacePath,
     });
     if (current.messages.length === 0) {
       return duplicatedChat;
@@ -300,6 +331,19 @@ export class ChatService {
     return this.store.updateChat(chatId, {
       chatListIds: [...current.chatListIds, trimmedListId],
     });
+  }
+
+  async updateChat(
+    chatId: string,
+    update: {
+      title?: string;
+      messages?: ChatHistoryMessage[];
+      chatListIds?: string[];
+      isArchived?: boolean;
+      terminalWorkspacePath?: string;
+    },
+  ): Promise<ChatSession | null> {
+    return this.store.updateChat(chatId, update);
   }
 
   async saveMessages(chatId: string, messages: ChatHistoryMessage[]): Promise<ChatSession | null> {

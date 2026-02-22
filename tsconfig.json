@@ -2,7 +2,11 @@
   "compilerOptions": {
     "target": "ES2020",
     "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "module": "ESNext",
     "skipLibCheck": true,
     "moduleResolution": "bundler",
@@ -19,18 +23,54 @@
     "esModuleInterop": true,
     "baseUrl": ".",
     "paths": {
-      "@/App": ["src/App.tsx"],
-      "@/components/*": ["src/components/*"],
-      "@/pages/*": ["src/pages/*"],
-      "@/hooks/*": ["src/hooks/*"],
-      "@/services/*": ["src/services/*"],
-      "@/types/*": ["src/types/*"],
-      "@/stores/*": ["src/stores/*"],
-      "@/templates/*": ["templates/*"],
-      "@/styles/*": ["styles/*"],
-      "@/constants/*": ["src/constants/*"],
-      "@/mocks/*": ["src/mocks/*"],
-      "@/utils/*": ["utils/*"]
+      "@/App": [
+        "src/App.tsx"
+      ],
+      "@/lib/*": [
+        "src/lib/*"
+      ],
+      "@/components/*": [
+        "src/components/*"
+      ],
+      "@/pages/*": [
+        "src/pages/*"
+      ],
+      "@/hooks/*": [
+        "src/hooks/*"
+      ],
+      "@/services/*": [
+        "src/services/*"
+      ],
+      "@/types/*": [
+        "src/types/*"
+      ],
+      "@/stores/*": [
+        "src/stores/*"
+      ],
+      "@/templates/*": [
+        "templates/*"
+      ],
+      "@/styles/*": [
+        "styles/*"
+      ],
+      "@/constants/*": [
+        "src/constants/*"
+      ],
+      "@/tools": [
+        "src/tools/index.ts"
+      ],
+      "@/tools/*": [
+        "src/tools/*"
+      ],
+      "@/mocks/*": [
+        "src/mocks/*"
+      ],
+      "@/utils/*": [
+        "utils/*"
+      ],
+      "@/electron/*": [
+        "electron/*"
+      ]
     }
   },
   "include": [
@@ -39,5 +79,10 @@
     "templates/**/*.ts",
     "templates/**/*.tsx"
   ],
-  "exclude": ["node_modules", "dist", "dist-electron", "electron"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "dist-electron",
+    "electron"
+  ]
 }

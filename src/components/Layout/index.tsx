@@ -9,6 +9,7 @@ import Burger from "./Burger";
 type LayoutProps = {
     smallSidebar?: boolean;
     hideRightSidebar?: boolean;
+    onToggleRightSidebar?: () => void;
     backUrl?: string;
     children: React.ReactNode;
 };
@@ -16,6 +17,7 @@ type LayoutProps = {
 const Layout = ({
     smallSidebar = false,
     hideRightSidebar = false,
+    onToggleRightSidebar,
     backUrl,
     children,
 }: LayoutProps) => {
@@ -25,15 +27,34 @@ const Layout = ({
     const [visibleRightSidebar, setVisibleRightSidebar] =
         useState<boolean>(false);
 
-    const isDesktop = useMediaQuery({
-        query: "(max-width: 1179px)",
+    const isCompactRightSidebar = useMediaQuery({
+        query: "(max-width: 1023px)",
     });
+    const canToggleRightSidebar =
+        typeof onToggleRightSidebar === "function";
+
+    useEffect(() => {
+        if (!isCompactRightSidebar) {
+            setVisibleRightSidebar(false);
+        }
+    }, [isCompactRightSidebar]);
 
     const handleClickOverlay = () => {
         setVisibleSidebar(false);
         setVisibleRightSidebar(false);
         clearQueueScrollLocks();
         enablePageScroll();
+    };
+
+    const handleToggleRightSidebar = () => {
+        if (isCompactRightSidebar) {
+            setVisibleRightSidebar((prev) => !prev);
+            return;
+        }
+
+        if (onToggleRightSidebar) {
+            onToggleRightSidebar();
+        }
     };
 
     // useEffect(() => {
@@ -75,22 +96,24 @@ const Layout = ({
                                 !hideRightSidebar && "md:pt-18"
                             }`}
                         >
-                            {!hideRightSidebar && (
+                            {(!hideRightSidebar || canToggleRightSidebar) && (
                                 <Burger
                                     className={`
                                 ${!visibleSidebar && "md:hidden"}
                             `}
-                                    visibleRightSidebar={visibleRightSidebar}
-                                    onClick={() =>
-                                        setVisibleRightSidebar(
-                                            !visibleRightSidebar
-                                        )
+                                    visibleRightSidebar={
+                                        isCompactRightSidebar
+                                            ? visibleRightSidebar
+                                            : !hideRightSidebar
                                     }
+                                    onClick={handleToggleRightSidebar}
                                 />
                             )}
                             {children}
                         </div>
-                        {!hideRightSidebar && (
+                        {(!hideRightSidebar ||
+                            (canToggleRightSidebar &&
+                                isCompactRightSidebar)) && (
                             <RightSidebar
                                 className={`
                                 ${
@@ -107,7 +130,9 @@ const Layout = ({
                     className={twMerge(
                         `fixed inset-0 z-10 bg-n-7/80 invisible opacity-0 md:hidden ${
                             (!visibleSidebar && smallSidebar) ||
-                            (visibleRightSidebar && "visible opacity-100")
+                            (isCompactRightSidebar &&
+                                visibleRightSidebar &&
+                                "visible opacity-100")
                         }`
                     )}
                     onClick={handleClickOverlay}

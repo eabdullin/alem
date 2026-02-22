@@ -6,3 +6,4 @@ dist-electron
 .env
 .env.*
 !.env.example
+.DS_Store

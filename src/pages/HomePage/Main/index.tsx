@@ -1,27 +1,22 @@
 import { useState, type FormEvent } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import Icon from "@/components/Icon";
-import Message from "@/components/Message";
-import Notifications from "@/components/RightSidebar/Notifications";
-import { notifications } from "@/mocks/notifications";
+import PromptInput from "@/components/PromptInput";
 import {
   buildChatTitle,
   chatService,
 } from "@/services/chat-service";
 import type { ChatAttachment } from "@/types/chat-attachment";
+import type { PromptMode } from "@/types/prompt-mode";
 
-type MainProps = {
-  hideRightSidebar: boolean;
-  onToggleRightSidebar: () => void;
-};
-
-const Main = ({ hideRightSidebar, onToggleRightSidebar }: MainProps) => {
+const Main = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [input, setInput] = useState("");
   const [pendingAttachments, setPendingAttachments] = useState<ChatAttachment[]>(
     [],
   );
+  const [promptMode, setPromptMode] = useState<PromptMode>("agent");
+  const [workspacePath, setWorkspacePath] = useState<string>("");
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const activeListId =
@@ -108,9 +103,12 @@ const Main = ({ hideRightSidebar, onToggleRightSidebar }: MainProps) => {
       const titleSource = prompt || `Attachment: ${pendingAttachments[0]?.name || ""}`;
       const chat = await chatService.createChat(buildChatTitle(titleSource), {
         chatListId: activeListId,
+        terminalWorkspacePath: workspacePath.trim() || undefined,
       });
       setInput("");
       setPendingAttachments([]);
+      setWorkspacePath("");
+      setPromptMode("ask");
       navigate(
         activeListId
           ? `/chat/${chat.id}?list=${encodeURIComponent(activeListId)}`
@@ -119,6 +117,7 @@ const Main = ({ hideRightSidebar, onToggleRightSidebar }: MainProps) => {
           state: {
             initialPrompt: prompt,
             initialAttachments: pendingAttachments,
+            initialMode: promptMode,
           },
         },
       );
@@ -135,35 +134,30 @@ const Main = ({ hideRightSidebar, onToggleRightSidebar }: MainProps) => {
 
   return (
     <div className="relative flex flex-col items-center justify-center grow px-10 md:px-4">
-      <div className="absolute top-3 right-10 md:right-4 flex items-center gap-1">
-        <Notifications
-          items={notifications}
-          className="flex justify-center items-center w-10 h-10 rounded-full"
-        />
-        <button
-          className="group flex justify-center items-center w-10 h-10 rounded-full text-0"
-          onClick={onToggleRightSidebar}
-          title={hideRightSidebar ? "Show sidebar" : "Hide sidebar"}
-        >
-          <Icon
-            className="fill-n-4 transition-colors group-hover:fill-primary-1"
-            name="time"
-          />
-        </button>
-      </div>
       <div className="mb-8 text-center">
         <div className="h3 leading-[4rem] 2xl:mb-2 2xl:h4">
           What can I help with?
         </div>
       </div>
       <div className="w-full max-w-[42rem]">
-        <Message
+        <PromptInput
           value={input}
           onChange={(event) => setInput(event.target.value)}
           onSubmit={handleSubmit}
           attachments={pendingAttachments}
           onAddFiles={addAttachments}
           onRemoveAttachment={removePendingAttachment}
+          mode={promptMode}
+          onModeChange={setPromptMode}
+          terminalWorkspacePath={workspacePath || undefined}
+          onSelectWorkspaceFolder={
+            window.alem?.openFolderDialog
+              ? async () => {
+                  const path = await window.alem.openFolderDialog();
+                  if (path) setWorkspacePath(path);
+                }
+              : undefined
+          }
           placeholder={isCreating ? "Creating chat..." : "Ask anything"}
           centered
         />

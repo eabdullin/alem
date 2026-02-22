@@ -11,96 +11,189 @@ const config: Config = {
         "./src/components/**/*.{js,ts,jsx,tsx}",
     ],
     theme: {
-        screens: {
-            "2xl": { max: "1419px" },
-            // => @media (max-width: 1419px) { ... }
-            xl: { max: "1179px" },
-            // => @media (max-width: 1179px) { ... }
-            lg: { max: "1023px" },
-            // => @media (max-width: 1023px) { ... }
-            md: { max: "767px" },
-            // => @media (max-width: 767px) { ... }
-            sm: { max: "480px" },
-            // => @media (max-width: 480px) { ... }
-        },
-        extend: {
-            colors: {
-                primary: {
-                    1: "#0084FF",
-                    2: "#3FDD78",
-                },
-                accent: {
-                    1: "#D84C10",
-                    2: "#3E90F0",
-                    3: "#8E55EA",
-                    4: "#8C6584",
-                    5: "#DDA73F",
-                },
-                n: {
-                    1: "#FEFEFE",
-                    2: "#F3F5F7",
-                    3: "#E8ECEF",
-                    4: "#6C7275",
-                    5: "#343839",
-                    6: "#232627",
-                    7: "#141718",
-                },
-            },
-            spacing: {
-                0.25: "0.0625rem",
-                0.75: "0.1875rem",
-                4.5: "1.125rem",
-                5.5: "1.375rem",
-                6.5: "1.75rem",
-                13: "3.25rem",
-                15: "3.75rem",
-                18: "4.5rem",
-                22: "5.5rem",
-                30: "7.5rem",
-                34: "8.5rem",
-                38: "9.5rem",
-                58: "14.5rem",
-            },
-            transitionDuration: {
-                DEFAULT: "200ms",
-            },
-            transitionTimingFunction: {
-                DEFAULT: "linear",
-            },
-            fontFamily: {
-                sans: ["var(--font-karla)"],
-                inter: "var(--font-inter)",
-            },
-            fontSize: {
-                0: ["0px", "0px"],
-                xl: ["1.125rem", "2rem"],
-                "2xl": ["1.5rem", "2.5rem"],
-                "3xl": ["1.75rem", "2.5rem"],
-                "4xl": ["2.5rem", "3rem"],
-                "5xl": ["3rem", "3.5rem"],
-                "6xl": ["4rem", "4.5rem"],
-            },
-            zIndex: {
-                1: "1",
-                2: "2",
-                3: "3",
-                4: "4",
-                5: "5",
-            },
-            borderWidth: {
-                3: "0.1875rem",
-                6: "0.375rem",
-            },
-            opacity: {
-                15: ".15",
-            },
-            keyframes: {
-                loaderDots: {
-                    "0%": { opacity: "1" },
-                    "50%,100%": { opacity: "0.15" },
-                },
-            },
-        },
+    	screens: {
+    		'2xl': {
+    			max: '1419px'
+    		},
+    		xl: {
+    			max: '1179px'
+    		},
+    		lg: {
+    			max: '1023px'
+    		},
+    		md: {
+    			max: '767px'
+    		},
+    		sm: {
+    			max: '480px'
+    		}
+    	},
+    	extend: {
+    		colors: {
+    			primary: {
+    				'1': '#0084FF',
+    				'2': '#3FDD78',
+    				DEFAULT: 'hsl(var(--primary))',
+    				foreground: 'hsl(var(--primary-foreground))'
+    			},
+    			accent: {
+    				'1': '#D84C10',
+    				'2': '#3E90F0',
+    				'3': '#8E55EA',
+    				'4': '#8C6584',
+    				'5': '#DDA73F',
+    				DEFAULT: 'hsl(var(--accent))',
+    				foreground: 'hsl(var(--accent-foreground))'
+    			},
+    			n: {
+    				'1': '#FEFEFE',
+    				'2': '#F3F5F7',
+    				'3': '#E8ECEF',
+    				'4': '#6C7275',
+    				'5': '#343839',
+    				'6': '#232627',
+    				'7': '#141718'
+    			},
+    			background: 'hsl(var(--background))',
+    			foreground: 'hsl(var(--foreground))',
+    			card: {
+    				DEFAULT: 'hsl(var(--card))',
+    				foreground: 'hsl(var(--card-foreground))'
+    			},
+    			popover: {
+    				DEFAULT: 'hsl(var(--popover))',
+    				foreground: 'hsl(var(--popover-foreground))'
+    			},
+    			secondary: {
+    				DEFAULT: 'hsl(var(--secondary))',
+    				foreground: 'hsl(var(--secondary-foreground))'
+    			},
+    			muted: {
+    				DEFAULT: 'hsl(var(--muted))',
+    				foreground: 'hsl(var(--muted-foreground))'
+    			},
+    			destructive: {
+    				DEFAULT: 'hsl(var(--destructive))',
+    				foreground: 'hsl(var(--destructive-foreground))'
+    			},
+    			border: 'hsl(var(--border))',
+    			input: 'hsl(var(--input))',
+    			ring: 'hsl(var(--ring))',
+    			chart: {
+    				'1': 'hsl(var(--chart-1))',
+    				'2': 'hsl(var(--chart-2))',
+    				'3': 'hsl(var(--chart-3))',
+    				'4': 'hsl(var(--chart-4))',
+    				'5': 'hsl(var(--chart-5))'
+    			}
+    		},
+    		spacing: {
+    			'13': '3.25rem',
+    			'15': '3.75rem',
+    			'18': '4.5rem',
+    			'22': '5.5rem',
+    			'30': '7.5rem',
+    			'34': '8.5rem',
+    			'38': '9.5rem',
+    			'58': '14.5rem',
+    			'0.25': '0.0625rem',
+    			'0.75': '0.1875rem',
+    			'4.5': '1.125rem',
+    			'5.5': '1.375rem',
+    			'6.5': '1.75rem'
+    		},
+    		transitionDuration: {
+    			DEFAULT: '200ms'
+    		},
+    		transitionTimingFunction: {
+    			DEFAULT: 'linear'
+    		},
+    		fontFamily: {
+    			sans: [
+    				'var(--font-karla)'
+    			],
+    			inter: 'var(--font-inter)'
+    		},
+    		fontSize: {
+    			'0': [
+    				'0px',
+    				'0px'
+    			],
+    			xl: [
+    				'1.125rem',
+    				'2rem'
+    			],
+    			'2xl': [
+    				'1.5rem',
+    				'2.5rem'
+    			],
+    			'3xl': [
+    				'1.75rem',
+    				'2.5rem'
+    			],
+    			'4xl': [
+    				'2.5rem',
+    				'3rem'
+    			],
+    			'5xl': [
+    				'3rem',
+    				'3.5rem'
+    			],
+    			'6xl': [
+    				'4rem',
+    				'4.5rem'
+    			]
+    		},
+    		zIndex: {
+    			'1': '1',
+    			'2': '2',
+    			'3': '3',
+    			'4': '4',
+    			'5': '5'
+    		},
+    		borderWidth: {
+    			'3': '0.1875rem',
+    			'6': '0.375rem'
+    		},
+    		opacity: {
+    			'15': '.15'
+    		},
+    		keyframes: {
+    			loaderDots: {
+    				'0%': {
+    					opacity: '1'
+    				},
+    				'50%,100%': {
+    					opacity: '0.15'
+    				}
+    			},
+    			'accordion-down': {
+    				from: {
+    					height: '0'
+    				},
+    				to: {
+    					height: 'var(--radix-accordion-content-height)'
+    				}
+    			},
+    			'accordion-up': {
+    				from: {
+    					height: 'var(--radix-accordion-content-height)'
+    				},
+    				to: {
+    					height: '0'
+    				}
+    			}
+    		},
+    		borderRadius: {
+    			lg: 'var(--radius)',
+    			md: 'calc(var(--radius) - 2px)',
+    			sm: 'calc(var(--radius) - 4px)'
+    		},
+    		animation: {
+    			'accordion-down': 'accordion-down 0.2s ease-out',
+    			'accordion-up': 'accordion-up 0.2s ease-out'
+    		}
+    	}
     },
     plugins: [
         require("@headlessui/tailwindcss")({ prefix: "ui" }),
@@ -215,6 +308,7 @@ const config: Config = {
                 },
             });
         }),
+        require("tailwindcss-animate")
     ],
 };
 export default config;

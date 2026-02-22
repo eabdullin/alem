@@ -6,11 +6,11 @@ const HomePage = () => {
   const [hideRightSidebar, setHideRightSidebar] = useState(true);
 
   return (
-    <Layout hideRightSidebar={hideRightSidebar}>
-      <Main
-        hideRightSidebar={hideRightSidebar}
-        onToggleRightSidebar={() => setHideRightSidebar((prev) => !prev)}
-      />
+    <Layout
+      hideRightSidebar={hideRightSidebar}
+      onToggleRightSidebar={() => setHideRightSidebar((prev) => !prev)}
+    >
+      <Main />
     </Layout>
   );
 };

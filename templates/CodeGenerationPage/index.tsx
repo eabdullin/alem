@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Layout from "@/components/Layout";
 import Chat from "@/components/Chat";
-import Message from "@/components/Message";
+import PromptInput from "@/components/PromptInput";
 import Question from "@/components/Question";
 import Answer from "@/components/Answer";
 import Code from "@/components/Code";

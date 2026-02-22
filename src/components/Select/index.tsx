@@ -18,6 +18,7 @@ type SelectProps = {
     onChange: any;
     small?: boolean;
     up?: boolean;
+    noShadow?: boolean;
 };
 
 const Select = ({
@@ -36,6 +37,7 @@ const Select = ({
     onChange,
     small,
     up,
+    noShadow,
 }: SelectProps) => (
     <div className={`relative ${className}`}>
         {label && <div className="flex mb-2 base2 font-semibold">{label}</div>}
@@ -45,16 +47,20 @@ const Select = ({
                     <Listbox.Button
                         className={twMerge(
                             `flex items-center w-full h-[3.25rem] px-4 rounded-xl bg-n-1 base2 outline-none tap-highlight-color ${
-                                small
-                                    ? `h-9 pr-3 rounded-md shadow-[0_0.125rem_0.25rem_rgba(0,0,0,0.15)] dark:shadow-[0_0.125rem_0.25rem_rgba(0,0,0,0.15),inset_0_0_0_0.0625rem_rgba(254,254,254,.1)] dark:bg-n-6 ${
-                                          open &&
-                                          "shadow-[0_0.125rem_0.25rem_rgba(0,0,0,0.15)]"
+                                noShadow
+                                    ? `border border-n-3 dark:border-n-5 ${
+                                          open && "border-primary-1"
                                       }`
-                                    : `shadow-[inset_0_0_0_0.0625rem_#E8ECEF] dark:shadow-[inset_0_0_0_0.0625rem_#343839] dark:bg-transparent ${
-                                          open &&
-                                          "!shadow-[inset_0_0_0_0.125rem_#0084FF]"
-                                      }`
-                            } ${classButton}`
+                                    : small
+                                      ? `h-9 pr-3 rounded-md shadow-[0_0.125rem_0.25rem_rgba(0,0,0,0.15)] dark:shadow-[0_0.125rem_0.25rem_rgba(0,0,0,0.15),inset_0_0_0_0.0625rem_rgba(254,254,254,.1)] dark:bg-n-6 ${
+                                            open &&
+                                            "shadow-[0_0.125rem_0.25rem_rgba(0,0,0,0.15)]"
+                                        }`
+                                      : `shadow-[inset_0_0_0_0.0625rem_#E8ECEF] dark:shadow-[inset_0_0_0_0.0625rem_#343839] dark:bg-transparent ${
+                                            open &&
+                                            "!shadow-[inset_0_0_0_0.125rem_#0084FF]"
+                                        }`
+                            } ${small && "h-9 pr-3 rounded-md"} ${classButton}`
                         )}
                     >
                         {title && (
@@ -107,8 +113,12 @@ const Select = ({
                     >
                         <Listbox.Options
                             className={twMerge(
-                                `absolute left-0 right-0 w-full mt-2 p-2 bg-n-1 rounded-lg shadow-[0_0_1rem_0.25rem_rgba(0,0,0,0.04),0_2rem_2rem_-1.5rem_rgba(0,0,0,0.1),inset_0_0_0_0.0625rem_#E8ECEF] outline-none dark:shadow-[0_0_1rem_0.25rem_rgba(0,0,0,0.04),0_2rem_2rem_-1.5rem_rgba(0,0,0,0.1),inset_0_0_0_0.0625rem_#343839] dark:bg-n-6 ${
-                                    small && "right-auto mt-1 shadow-md"
+                                `absolute left-0 right-0 w-full mt-2 p-2 bg-n-1 rounded-lg outline-none dark:bg-n-6 ${
+                                    noShadow
+                                        ? "border border-n-3 dark:border-n-5"
+                                        : `shadow-[0_0_1rem_0.25rem_rgba(0,0,0,0.04),0_2rem_2rem_-1.5rem_rgba(0,0,0,0.1),inset_0_0_0_0.0625rem_#E8ECEF] dark:shadow-[0_0_1rem_0.25rem_rgba(0,0,0,0.04),0_2rem_2rem_-1.5rem_rgba(0,0,0,0.1),inset_0_0_0_0.0625rem_#343839] ${
+                                              small && "right-auto mt-1 shadow-md"
+                                          }`
                                 } ${
                                     up &&
                                     `top-auto bottom-full mt-0 ${

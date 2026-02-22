@@ -16,6 +16,9 @@ interface AlemApi {
   readAttachment: (attachmentId: string) => Promise<string>;
   openAttachment: (attachmentId: string) => Promise<boolean>;
   deleteAttachment: (attachmentId: string) => Promise<boolean>;
+  runTerminal: (request: import("@/tools/terminal/types").TerminalRunRequest) => Promise<import("@/tools/terminal/types").TerminalRunResult>;
+  getTerminalWorkspaceRoot: () => Promise<string>;
+  openFolderDialog: () => Promise<string | null>;
   platform: string;
 }
 

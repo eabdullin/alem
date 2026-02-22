@@ -14,4 +14,9 @@ export const settings = [
     title: "Chat export",
     icon: "download-fill",
   },
+  {
+    id: "terminal",
+    title: "Terminal (Agent)",
+    icon: "terminal",
+  },
 ];

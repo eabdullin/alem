@@ -147,6 +147,7 @@ const iconMap: Record<string, HeroIcon> = {
     "star-fill": StarIcon,
     "star-rating": StarIcon,
     sun: SunIcon,
+    terminal: CommandLineIcon,
     "thumbs-down": HandThumbDownIcon,
     "thumbs-up": HandThumbUpIcon,
     time: ClockIcon,
@@ -166,7 +167,7 @@ const Icon = ({ name, className, ...props }: IconProps) => {
 
     const HeroIcon = iconMap[name] ?? QuestionMarkCircleIcon;
 
-    return <HeroIcon className={twMerge("w-6 h-6", className)} {...props} />;
+    return <HeroIcon className={twMerge("inline-block w-6 h-6", className)} {...props} />;
 };
 
 export default Icon;

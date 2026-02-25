@@ -14,12 +14,24 @@ export default defineConfig({
           build: {
             rollupOptions: {
               external: ["electron", "electron-store", "canvas"],
+              output: {
+                entryFileNames: "main.js",
+              },
             },
           },
         },
       },
       preload: {
         input: "src/preload/index.ts",
+        vite: {
+          build: {
+            rollupOptions: {
+              output: {
+                entryFileNames: "preload.js",
+              },
+            },
+          },
+        },
       },
     }),
   ],

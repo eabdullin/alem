@@ -8,7 +8,6 @@ const config: Config = {
         "./index.html",
         "./src/**/*.{js,ts,jsx,tsx}",
         "./templates/**/*.{js,ts,jsx,tsx}",
-        "./src/components/**/*.{js,ts,jsx,tsx}",
     ],
     theme: {
     	screens: {

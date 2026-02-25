@@ -11,5 +11,5 @@
     "skipLibCheck": true,
     "esModuleInterop": true
   },
-  "include": ["electron/**/*.ts", "vite.config.ts"]
+  "include": ["src/main/**/*.ts", "src/preload/**/*.ts", "vite.config.ts"]
 }

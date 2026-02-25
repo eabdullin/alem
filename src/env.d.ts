@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-import type { ChatAttachment } from "./types/chat-attachment";
+import type { ChatAttachment } from "./renderer/shared/types/chat-attachment";
 
 interface AlemApi {
   getSettings: () => Promise<any>;
@@ -16,12 +16,16 @@ interface AlemApi {
   readAttachment: (attachmentId: string) => Promise<string>;
   openAttachment: (attachmentId: string) => Promise<boolean>;
   deleteAttachment: (attachmentId: string) => Promise<boolean>;
-  runTerminal: (request: import("@/tools/terminal/types").TerminalRunRequest) => Promise<import("@/tools/terminal/types").TerminalRunResult>;
+  runTerminal: (request: import("@/shared/tools/terminal/types").TerminalRunRequest) => Promise<import("@/shared/tools/terminal/types").TerminalRunResult>;
   getTerminalWorkspaceRoot: () => Promise<string>;
   openFolderDialog: () => Promise<string | null>;
-  applyFilePatch: (request: import("@/tools/file-patch/types").FilePatchRequest) => Promise<import("@/tools/file-patch/types").FilePatchResult>;
+  applyFilePatch: (request: import("@/shared/tools/file-patch/types").FilePatchRequest) => Promise<import("@/shared/tools/file-patch/types").FilePatchResult>;
   restoreFilePatchCheckpoint: (checkpointId: string) => Promise<{ restored: boolean; error?: string }>;
   restoreFilePatchCheckpoints: (checkpointIds: string[]) => Promise<{ restored: boolean; error?: string }>;
+  browserSetActiveChat: (chatId: string | null) => Promise<void>;
+  browserCloseWindow: () => Promise<void>;
+  browserExecute: (request: import("@/shared/tools/browser/types").BrowserActionRequest) => Promise<import("@/shared/tools/browser/types").BrowserActionResult>;
+  browserGetStatus: () => Promise<{ activeChatId: string | null; hasWindow: boolean }>;
   platform: string;
 }
 

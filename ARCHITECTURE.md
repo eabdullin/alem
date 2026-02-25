@@ -9,56 +9,54 @@ System architecture for `alem`.
 - bring your own API keys
 - pick provider/model per preference
 - chat with attachments (files/images)
-- run either direct Ask replies or Agent mode with web search and optional terminal (workspace-restricted)
+- run either direct Ask replies or Agent mode with web search, optional terminal (workspace-restricted), and browser control (one window per chat)
 
 ## Runtime Layers
 
-1. **Electron main process**
-   - window lifecycle
-   - IPC handlers for settings, API keys, attachments, terminal runs, and file patch apply/restore
-   - files: `electron/main.ts`, `electron/store.ts`, `electron/file-store.ts`, `electron/terminal-runner.ts`, `electron/file-patch-runner.ts`, `electron/file-patch-checkpoints.ts`
-2. **Electron preload bridge**
+1. **Electron main process** (`src/main/`)
+   - app lifecycle, window creation, IPC registration
+   - files: `src/main/index.ts`, `src/main/windows/mainWindow.ts`, `src/main/ipc/*.ipc.ts`, `src/main/services/*.ts`
+   - IPC domains: shell (open-folder-dialog), app (settings, API keys, attachments), terminal, browser, filePatch
+2. **Electron preload bridge** (`src/preload/`)
    - safe renderer API exposed via `window.alem`
-   - file: `electron/preload.ts`
-3. **Renderer (React + Vite)**
+   - split by domain: `src/preload/api/*.api.ts`, composed in `src/preload/index.ts`
+3. **Renderer (React + Vite)** (`src/renderer/`)
    - routes, UI, chat workflows, settings
    - left sidebar owns shared quick actions (search, updates, notifications, settings) across home/chat
-   - updates/FAQ and notifications are available as sidebar-launched modals while the updates route remains for direct navigation
-   - checkpoint restore state and orchestration: `src/stores/checkpoint-store.ts`, `src/services/checkpoint-service.ts`
-   - ChatPage: `useChatPageController` owns chat load, message sync, initial prompt, and restore handlers; `ChatMessages` composes user/assistant message renderers; tool step rendering in `ToolStepItem`
-   - files: `src/main.tsx`, `src/App.tsx`, `src/pages/**`, `src/components/**`
+   - checkpoint restore: `src/renderer/stores/checkpoint-store.ts`, `src/renderer/services/checkpoint-service.ts`
+   - ChatPage: `useChatPageController`, `ChatMessages`, `ToolStepItem`, `tool-approval-service`
+   - files: `src/renderer/main.tsx`, `src/renderer/App.tsx`, `src/renderer/pages/**`, `src/renderer/shared/components/**`
 
 ## Directory Map
 
-- `src/components/`: reusable app components
-- `src/pages/`: app-owned, routed pages (`HomePage`, `ChatPage`, `UpdatesAndFaqPage`)
-  - `ChatPage/`: feature folder with `index.tsx` (composition), `hooks/useChatPageController.tsx` (session lifecycle, restore), `components/` (ChatMessages, UserMessageItem, AssistantMessageItem, ToolStepItem), `utils/` (messageParts, downloadableMessages)
-- `templates/`: prebuilt template pages/layouts; do not edit unless explicitly requested
-- `src/services/`: integration logic (`ai-service`, `alem-chat-transport`, `chat-service`, `checkpoint-service`, `updates-faq-service`, search helpers)
-- `src/tools/`: agent tools; each tool is a folder with type (description), action (provider proxy), and display (Chain of Thought UI)
-- `src/hooks/`: chat orchestration (`useAlemChat`), checkpoint state (`useCheckpointStore`)
-- `src/stores/`: client-side and content abstractions (`chat-store`, `checkpoint-store`, `updates-faq-store`)
-- `electron/`: desktop process code and secure bridge
-- `docs/faq/`, `docs/updates/`: markdown-driven content source for the Updates & FAQ UI
+- `src/main/`: Electron main process
+  - `index.ts`: app lifecycle, `registerAllIpc()`
+  - `windows/mainWindow.ts`: window creation
+  - `ipc/`: IPC handlers by domain (shell, app, terminal, browser, filePatch)
+  - `services/`: terminalRunner, browserController, filePatchRunner, filePatchCheckpoints, appStore, fileStore
+- `src/preload/`: context bridge; `api/` split by domain
+- `src/shared/`: safe shared code (types, constants); `tools/` for tool protocol types
+- `src/renderer/`: React app
+  - `db/`: Dexie schema (`appDb.ts`), repos (`chats.repo.ts`, `chat-groups.repo.ts`), `bootstrap.ts`
+  - `agent/tools/`: tool definitions, adapters, display components
+  - `features/`: routed pages (chat, home, updatesFaq)
+  - `shared/`: components, hooks, constants, lib, utils, types
+- `templates/`: prebuilt template pages; do not edit unless explicitly requested
+- `docs/faq/`, `docs/updates/`: markdown-driven content for Updates & FAQ UI
 
 ## Data And Persistence
 
 - **Settings and API keys**
-  - stored in `electron-store` (`alem-config`)
-  - includes active provider/model, enabled models, theme, API key map, and optional `terminalWorkspaceRoot` for agent terminal tool
+  - stored in `electron-store` (`alem-config`) via `appStore` in main process
+  - includes active provider/model, enabled models, theme, API key map, `terminalWorkspaceRoot`, `browserAllowedHosts`
 - **Attachment binaries**
-  - saved under app user data folder (`chat-attachments`)
-  - metadata tracked in store `attachments` map
-- **Chat history**
-  - stored in browser `localStorage` under `alem.chat-history.v2`
-  - messages in AI SDK format (`UIMessage[]` with `parts`)
-  - validated by `BrowserChatStore` via `isValidUIMessage`
-  - sessions include `chatGroupIds` plus `isArchived` for group grouping and archive semantics
-- **Chat groups**
-  - stored in browser `localStorage` under `alem.chat-lists.v1` (key kept for backward compatibility)
-  - normalized and validated by `BrowserChatGroupStore`
-  - default groups are `Favorites` and `Archived`
-  - active group selection is carried in route query (`?list=<groupId>`) to keep left/right sidebars in sync
+  - saved under app userData (`chat-attachments`)
+  - metadata tracked in electron-store `attachments` map
+- **Chat history and chat groups**
+  - stored in Dexie (IndexedDB) under `alem-db`; IndexedDB lives in Electron userData by default
+  - `src/renderer/db/repos/chats.repo.ts`, `chat-groups.repo.ts`
+  - migration from localStorage on first run (`bootstrap.ts`)
+  - sessions include `chatGroupIds`, `isArchived`, `toolApprovalRules`
 
 ## AI Provider Flow
 
@@ -67,21 +65,29 @@ System architecture for `alem`.
   (`model-selector`, `attachments`, `message`, `conversation`) to keep chat UI
   behavior consistent across home and chat routes
 - supported providers are currently OpenAI, Anthropic, Google
-- `src/services/ai-service.ts` maps provider IDs to SDK clients and exposes
-  `createAgent()` returning `ToolLoopAgent` with provider, model, apiKey, mode (ask/agent), and optional `terminalWorkspaceOverride`
-- chat uses `@ai-sdk/react` `useChat` with `AlemChatTransport` (`src/services/alem-chat-transport.ts`)
+- **`src/renderer/services/provider-service.ts`** is the centralized service for managing AI providers, models, and their configurations:
+  - singleton service pattern for consistent provider state
+  - handles provider and model resolution, validation, and defaults
+  - creates SDK client instances (`createChatModel()`)
+  - manages provider-specific settings (reasoning effort, thinking levels) via `createProviderOptions()`
+  - creates tool sets including web search (`createWebSearchToolSet()`)
+  - provides helper methods for provider validation, model info lookup, and API key management
+  - exports `providerService` singleton instance for use across the app
+- **`src/renderer/services/ai-service.ts`** now delegates to `providerService` and exposes
+  `createAgent()` returning `ToolLoopAgent` with `AgentConfig` (provider, model, apiKey, mode, optional `toolConfig`)
+- chat uses `@ai-sdk/react` `useChat` with `AlemChatTransport` (`src/renderer/services/alem-chat-transport.ts`)
 - `AlemChatTransport` wraps `DirectChatTransport`, resolves `alem-attachment://` file parts via `resolveAttachment`, and uses `getAgent()` so the agent is created with the current apiKey on each send
 - attachments are stored as `alem-attachment://<id>` URLs and resolved to data URLs before sending to the agent
 - chat composer supports per-message mode switching:
   - `Ask`: single-pass text generation (no tools)
-  - `Agent`: `ToolLoopAgent` with tools from `src/tools/` registry (e.g. web-search: provider proxy in `action`, display with search icon and domain-only result badges; terminal: `run_terminal` in `src/tools/terminal/`, execution in main via `electron/terminal-runner.ts` with workspace restriction and command denylist; file-patch: `apply_file_patch` in `src/tools/file-patch/`, execution in main via `electron/file-patch-runner.ts` with workspace restriction, binary blocking, and checkpoint-based revert)
+  - `Agent`: `ToolLoopAgent` with tools from `src/renderer/agent/tools/` registry (e.g. web-search: provider proxy in `action`, display with search icon and domain-only result badges; terminal: `run_terminal` in `src/renderer/agent/tools/terminal/`, execution in main via `src/main/services/terminalRunner.ts` with workspace restriction and command denylist; file-patch: `apply_file_patch` in `src/renderer/agent/tools/file-patch/`, execution in main via `src/main/services/filePatchRunner.ts` with workspace restriction, binary blocking, and checkpoint-based revert; browser: `browser_control` in `src/renderer/agent/tools/browser/`, execution in main via `src/main/services/browserController.ts` with one window per chat, http/https only; accepts a list of actions (open, navigate, click_at, type, press, scroll, wait, close) run atomically; always returns one screenshot per request resized to viewport dimensions for coordinate consistency; input actions force-focus the browser window before dispatch)
 
 ## Current Scope And Boundaries
 
 - current platform: desktop only
 - no backend service is required for basic operation
 - no shared cloud sync yet
-- agent mode includes web search, a workspace-restricted terminal tool (command denylist, default-deny network, timeout/output caps), and a file patch tool (workspace-bounded, binary blocked, checkpoint revert)
+- agent mode includes web search, a workspace-restricted terminal tool (command denylist, default-deny network, timeout/output caps), a file patch tool (workspace-bounded, binary blocked, checkpoint revert), and a browser control tool (one window per chat, http/https only; list of actions run atomically, one screenshot per request; coordinate-based clicks, typing at focus, key presses, scroll)
 
 ## Forward Architecture Needs
 
@@ -91,7 +97,7 @@ Planned expansions and expected architecture impact:
    - add model-driven UI schema/renderer boundary
    - require strict validation for model-proposed UI blocks
 2. **Agent mode**
-   - expand from web search to local tools (browser, terminal, files)
+   - expand from web search to local tools (browser, terminal, files); browser tool is implemented with one window per chat
    - permission model, audit trail, and run lifecycle state machine
 3. **Storage provider choice**
    - sync abstraction layer with pluggable providers
@@ -100,6 +106,33 @@ Planned expansions and expected architecture impact:
    - transport and persistence contracts that can be shared across desktop/mobile
 
 ## Architecture Decision Template
+
+### Centralized Provider Service
+
+- **Context**: Provider and model logic was scattered across multiple files (`providers.ts`, `ai-service.ts`, `useAlemChat.ts`, `useChatPageController.tsx`, `web-search/action.ts`) with repetitive if/else statements for provider-specific logic. This made it difficult to:
+  - Add new providers or models
+  - Maintain consistent behavior across the app
+  - Test provider-specific functionality
+  - Manage provider-specific settings (reasoning effort, thinking levels, etc.)
+
+- **Decision**: Created a centralized `ProviderService` singleton (`src/renderer/services/provider-service.ts`) that consolidates all provider/model management logic. Key responsibilities:
+  - Provider and model resolution and validation
+  - SDK client creation (`createChatModel()`)
+  - Provider-specific settings management (`createProviderOptions()`)
+  - Tool set creation including web search (`createWebSearchToolSet()`)
+  - Helper methods for provider validation, model info lookup, and API key management
+  - Exports a singleton instance (`providerService`) for consistent state across the app
+
+- **Consequences**:
+  - **Positive**: Single source of truth for provider/model logic, easier to add new providers, reduced code duplication, improved testability
+  - **Positive**: Clear separation of concerns between provider management (`provider-service.ts`) and agent creation (`ai-service.ts`)
+  - **Minimal impact**: Refactored files use the new service, existing functionality preserved
+  - **Future**: Adding new providers or provider-specific settings only requires updating `ProviderService`
+
+- **Status**: Implemented
+- **Date**: 2026-02-24
+
+---
 
 - Context:
 - Decision:

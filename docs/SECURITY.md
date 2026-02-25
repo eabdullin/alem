@@ -23,7 +23,7 @@ Primary risks:
 - renderer access to privileged actions goes through preload IPC bridge
 - attachments are stored with sanitized file names
 - attachment operations are mediated in main process
-- agent mode includes web search, a restricted terminal tool (see below), and a file patch tool (see below)
+- agent mode includes web search, a restricted terminal tool (see below), a file patch tool (see below), and a browser control tool (see below)
 - terminal tool: filesystem restricted to a configurable workspace directory; command denylist (e.g. rm -rf, sudo); network default-deny; timeout and output caps enforced in main process
 - composer mode defaults to `Ask` for each new message, reducing accidental tool use
 
@@ -38,11 +38,20 @@ Primary risks:
 ## Terminal Tool Security
 
 - **Workspace restriction**: Commands always run in the configured workspace root (per-chat workspace or setting `terminalWorkspaceRoot` or default Documents); no separate cwd parameter.
-- **Command denylist**: Blocks dangerous patterns (e.g. rm -rf, sudo, su, chmod, credential dumps); blocklist in `electron/terminal-runner.ts`.
+- **Command denylist**: Blocks dangerous patterns (e.g. rm -rf, sudo, su, chmod, credential dumps); blocklist in `src/shared/tools/terminal/denylist.ts`; runner in `src/main/services/terminalRunner.ts`.
 - **Network**: Default deny; requests with `network: { enabled: true }` are rejected in current version (domain allowlist not yet enforced).
 - **Output and time**: Hard caps on `timeout_ms` and `max_output_bytes` enforced in main process.
-- **Approval**: Per-run approval for boundary violations (new domain, write outside workspace, etc.) is planned; currently such runs are denied.
-- **IPC**: `run-terminal`, `get-terminal-workspace-root`, `apply-file-patch`, `restore-file-patch-checkpoint`, `restore-file-patch-checkpoints`; request shape validated before execution.
+- **Approval**: `needsApproval: true`; user must approve each terminal run by default. Scoped options: allow once, allow this tool for this chat, allow all tools for this chat. Auto-approval applies when chat rules match. Per-run approval for boundary violations (new domain, write outside workspace, etc.) is planned; currently such runs are denied.
+- **IPC**: `run-terminal`, `get-terminal-workspace-root`, `apply-file-patch`, `restore-file-patch-checkpoint`, `restore-file-patch-checkpoints`, `browser-set-active-chat`, `browser-close-window`, `browser-execute`, `browser-get-status`; request shape validated before execution.
+
+## Browser Tool Security
+
+- **URL restriction**: Only http and https schemes allowed; file:, javascript:, data: and other schemes rejected.
+- **One window per chat**: Active-chat-only lifecycle; switching chats closes the previous browser window; no orphaned windows.
+- **Sandbox**: Browser window uses `contextIsolation: true`, `nodeIntegration: false`, `sandbox: true`, `webSecurity: true`.
+- **Selector injection**: CSS selectors passed to `executeJavaScript` are JSON-escaped to prevent script injection.
+- **Screenshot**: Uses `webContents.capturePage()`; no DOM access for page state; coordinate-based click via `sendInputEvent`.
+- **Approval**: `needsApproval: true`; user must approve each browser action run by default. Scoped options: allow once, allow this tool for this chat, allow all tools for this chat, allow this website globally (exact host only). Auto-approval applies when chat rules or global `browserAllowedHosts` match.
 
 ## File Patch Tool Security
 
@@ -51,7 +60,7 @@ Primary risks:
 - **base_hashes**: Optional SHA-256 validation before apply; mismatch rejects that file with explicit reason.
 - **Per-file atomicity**: Each file patch is all-or-nothing; failures do not leave partial writes.
 - **Checkpoint revert**: Pre-patch state stored before writes; restore via `restore-file-patch-checkpoint` (single) or `restore-file-patch-checkpoints` (batch) IPC; restore deletes messages and reverts all file changes after that user message.
-- **Approval**: `needsApproval: true`; user must approve each patch run.
+- **Approval**: `needsApproval: true`; user must approve each patch run by default. Scoped options: allow once, allow this tool for this chat, allow all tools for this chat. Auto-approval applies when chat rules match.
 
 ## Future Security Work (Roadmap-Critical)
 

@@ -11,32 +11,32 @@ Frontend implementation guide for `alem`.
 
 ## Entry And Routing
 
-- Entry: `src/main.tsx`
-- App router: `src/App.tsx`
-- Primary pages:
-  - `src/pages/HomePage`
-  - `src/pages/ChatPage`
-  - `src/pages/UpdatesAndFaqPage`
+- Entry: `src/renderer/main.tsx`
+- App router: `src/renderer/App.tsx`; route composition in `src/renderer/app/routes/`
+- Primary pages (feature modules):
+  - `src/renderer/features/home`
+  - `src/renderer/features/chat`
+  - `src/renderer/features/updatesFaq`
 - Additional prebuilt routes still come from root `templates/` via alias `@/templates`
 
 ## State And Data Flow
 
-- `AlemContext` (`src/App.tsx`) stores user settings in memory
+- `AlemContext` (`src/renderer/App.tsx`) stores user settings in memory
 - settings persist through `window.alem` IPC bridge
-- chat orchestration lives in `src/hooks/useAlemChat.ts`
-- chat group/history persistence is in `src/stores/chat-store.ts` + `src/services/chat-service.ts`
+- chat orchestration lives in `src/renderer/shared/hooks/useAlemChat.ts`
+- chat group/history persistence is in `src/renderer/stores/chat-store.ts` + `src/renderer/services/chat-service.ts`
 - right sidebar history supports multi-select actions (`archive`, `delete`) backed by chat-store APIs
 - archive is a soft state (`isArchived`) so archived chats are hidden from active history without hard deletion
 - chat history items include the latest attached image preview when the conversation has image attachments
-- Updates and FAQ UI reads content through `src/services/updates-faq-service.ts`
-- Content loading/parsing is handled in `src/stores/updates-faq-store.ts`
+- Updates and FAQ UI reads content through `src/renderer/services/updates-faq-service.ts`
+- Content loading/parsing is handled in `src/renderer/stores/updates-faq-store.ts`
 
 ## Provider And Model Handling
 
-- provider catalog: `src/constants/providers.ts`
-- provider key management UI: `src/components/Settings/AiProviders`
-- active model switcher UI: `src/components/ModelSelector`
-- model execution adapter: `src/services/ai-service.ts`
+- provider catalog: `src/renderer/shared/constants/providers.ts`
+- provider key management UI: `src/renderer/shared/components/Settings/AiProviders`
+- active model switcher UI: `src/renderer/shared/components/ModelSelector`
+- model execution adapter: `src/renderer/services/ai-service.ts`
 
 ## Attachment Flow
 
@@ -49,9 +49,9 @@ Frontend implementation guide for `alem`.
 ## Conventions
 
 - prefer path aliases (`@/...`) over long relative imports
-- keep reusable parts in `src/components/`
-- `src/components/Icon` is the app-wide icon adapter and now maps legacy icon names to Heroicons
-- keep page composition in `src/pages/`
+- keep reusable parts in `src/renderer/shared/components/`
+- `src/renderer/shared/components/` includes Icon and other app-wide adapters (e.g. Heroicons)
+- keep page composition in `src/renderer/features/` (feature-first modules)
 - treat `templates/` as prebuilt reference surfaces; avoid editing unless requested
 
 ## Frontend Risks To Watch

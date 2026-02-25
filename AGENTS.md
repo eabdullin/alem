@@ -31,13 +31,13 @@ Notes:
 
 ## Architecture Map
 
-- Electron main process: `electron/main.ts`
-- Electron preload bridge: `electron/preload.ts`
-- Renderer app entry: `src/main.tsx` -> `src/App.tsx`
-- Chat flows: `src/pages/HomePage/`, `src/pages/ChatPage/`, `src/hooks/useAlemChat.ts`
-- AI provider routing: `src/services/ai-service.ts`
-- Chat persistence: `src/stores/chat-store.ts`, `src/services/chat-service.ts`
-- Attachment storage: `electron/file-store.ts`
+- Electron main process: `src/main/index.ts`
+- Electron preload bridge: `src/preload/index.ts`
+- Renderer app entry: `src/renderer/main.tsx` -> `src/renderer/App.tsx`
+- Chat flows: `src/renderer/pages/HomePage/`, `src/renderer/pages/ChatPage/`, `src/renderer/shared/hooks/useAlemChat.ts`
+- AI provider routing: `src/renderer/services/ai-service.ts`
+- Chat persistence: Dexie in `src/renderer/db/` (chats.repo, chat-groups.repo); `src/renderer/services/chat-service.ts`
+- Attachment storage: `src/main/services/fileStore.ts`
 
 ## Repository Conventions
 

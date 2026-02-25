@@ -24,28 +24,25 @@
     "baseUrl": ".",
     "paths": {
       "@/App": [
-        "src/App.tsx"
+        "src/renderer/App.tsx"
       ],
       "@/lib/*": [
-        "src/lib/*"
+        "src/renderer/shared/lib/*"
       ],
       "@/components/*": [
-        "src/components/*"
-      ],
-      "@/pages/*": [
-        "src/pages/*"
+        "src/renderer/shared/components/*"
       ],
       "@/hooks/*": [
-        "src/hooks/*"
+        "src/renderer/shared/hooks/*"
       ],
       "@/services/*": [
-        "src/services/*"
+        "src/renderer/services/*"
       ],
       "@/types/*": [
-        "src/types/*"
+        "src/renderer/shared/types/*"
       ],
       "@/stores/*": [
-        "src/stores/*"
+        "src/renderer/stores/*"
       ],
       "@/templates/*": [
         "templates/*"
@@ -54,22 +51,28 @@
         "styles/*"
       ],
       "@/constants/*": [
-        "src/constants/*"
+        "src/renderer/shared/constants/*"
       ],
       "@/tools": [
-        "src/tools/index.ts"
+        "src/renderer/agent/tools/index.ts"
       ],
       "@/tools/*": [
-        "src/tools/*"
+        "src/renderer/agent/tools/*"
       ],
       "@/mocks/*": [
-        "src/mocks/*"
+        "src/renderer/mocks/*"
       ],
       "@/utils/*": [
-        "src/utils/*"
+        "src/renderer/shared/utils/*"
       ],
       "@/electron/*": [
-        "electron/*"
+        "src/main/*"
+      ],
+      "@/shared/*": [
+        "src/shared/*"
+      ],
+      "@/features/*": [
+        "src/renderer/features/*"
       ]
     }
   },
@@ -81,6 +84,6 @@
     "node_modules",
     "dist",
     "dist-electron",
-    "electron"
+    ""
   ]
 }

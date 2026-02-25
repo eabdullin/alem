@@ -10,8 +10,8 @@ Design language:
 - Rounded surfaces, subtle borders, compact spacing
 
 Conventions:
-- Reuse existing components from src/components before introducing new ones
-- Keep page composition in src/pages; reusable pieces in src/components
+- Reuse existing components from src/renderer/shared/components before introducing new ones
+- Keep page composition in src/renderer/pages; reusable pieces in src/renderer/shared/components
 - Prefer existing utility class patterns (e.g. rounded-xl, border-n-*, text-n-*)
 - Use existing text styles (h3/h4/h5/base2/caption1/caption2) where applicable
 

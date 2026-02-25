@@ -12,13 +12,13 @@ Planning hub for `alem`.
 
 - stabilize desktop chat + attachment experience
 - improve provider and model selection UX
-- ship Agent mode v1 (`Ask` / `Agent` with provider-native web search)
+- ship Agent mode v1 (`Ask` / `Agent` with provider-native web search, terminal, file patch, and browser control)
 - strengthen docs, reliability and security foundations
 
 ### Next
 
 1. Hybrid UI framework for model-assisted component rendering
-2. Agent mode phase 2 (local tool execution lifecycle and permissions)
+2. Agent mode phase 2 (local tool execution lifecycle and permissions); scoped tool auto-approval (allow once, allow tool/chat, allow website globally) shipped
 3. Storage abstraction for multi-device sync providers
 
 ### Later

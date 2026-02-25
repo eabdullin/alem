@@ -22,7 +22,6 @@ import {
   ALEM_ATTACHMENT_PREFIX,
 } from "@/services/alem-chat-transport";
 import type { ChatAttachment } from "@/types/chat-attachment";
-import type { PromptMode } from "@/types/prompt-mode";
 
 interface UseAlemChatOptions {
   chatId?: string;
@@ -90,9 +89,7 @@ export function useAlemChat({
   const [attachmentError, setAttachmentError] = useState<Error | undefined>(
     undefined,
   );
-  const [promptMode, setPromptMode] = useState<PromptMode>("ask");
   const [wasStoppedByUser, setWasStoppedByUser] = useState(false);
-  const activeRequestModeRef = useRef<PromptMode>("ask");
   const inFlightChatIdRef = useRef<string | undefined>(chatId);
   const workspaceRootRef = useRef(workspaceRoot);
   const chatIdRef = useRef(chatId);
@@ -114,7 +111,6 @@ export function useAlemChat({
             provider,
             model,
             apiKey,
-            mode: activeRequestModeRef.current,
             toolConfig: {
               workspaceRoot: workspaceRootRef.current,
               browserChatId: chatIdRef.current ?? undefined,
@@ -143,9 +139,6 @@ export function useAlemChat({
     sendAutomaticallyWhen: (options) => lastAssistantMessageIsCompleteWithApprovalResponses(options) || lastAssistantMessageIsCompleteWithToolCalls(options),
     onFinish: ({ messages: finishedMessages }) => {
       onMessagesChange?.(finishedMessages, inFlightChatIdRef.current);
-      if (!hasPendingToolApprovals(finishedMessages)) {
-        activeRequestModeRef.current = "ask";
-      }
     },
   });
 
@@ -222,7 +215,6 @@ export function useAlemChat({
     async (
       rawPrompt: string,
       attachments: ChatAttachment[] = [],
-      mode: PromptMode = "ask",
     ): Promise<boolean> => {
       const prompt = rawPrompt.trim();
       if ((!prompt && attachments.length === 0) || !ready) {
@@ -235,7 +227,6 @@ export function useAlemChat({
         return false;
       }
 
-      activeRequestModeRef.current = mode;
       inFlightChatIdRef.current = chatId;
 
       setWasStoppedByUser(false);
@@ -246,7 +237,6 @@ export function useAlemChat({
         });
         return true;
       } catch {
-        activeRequestModeRef.current = "ask";
         return false;
       }
     },
@@ -257,17 +247,13 @@ export function useAlemChat({
     async (event?: FormEvent<HTMLFormElement>): Promise<void> => {
       event?.preventDefault?.();
 
-      const hasSubmitted = await submitPrompt(
-        input,
-        pendingAttachments,
-        promptMode,
-      );
+      const hasSubmitted = await submitPrompt(input, pendingAttachments);
       if (hasSubmitted) {
         setInput("");
         setPendingAttachments([]);
       }
     },
-    [input, pendingAttachments, promptMode, submitPrompt],
+    [input, pendingAttachments, submitPrompt],
   );
 
   const setInputValue = useCallback((value: string) => {
@@ -286,8 +272,6 @@ export function useAlemChat({
     addAttachments,
     removePendingAttachment,
     pendingAttachments,
-    promptMode,
-    setPromptMode,
     ready,
     provider,
     model,

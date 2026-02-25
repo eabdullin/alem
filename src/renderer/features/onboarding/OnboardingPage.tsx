@@ -6,6 +6,7 @@ import {
   CarouselItem,
   type CarouselApi,
 } from "@/components/ui/carousel";
+import ProviderLogo from "@/components/ProviderLogos";
 import { PROVIDERS } from "@/constants/providers";
 import {
   KeyRound,
@@ -50,7 +51,7 @@ const slides: Slide[] = [
   {
     title: "Built for real work",
     subtitle:
-      "Ask mode gives direct answers. Agent mode uses tools to help with browser, terminal, and file tasks.",
+      "Agent mode uses tools to help with browser, terminal, and file tasks.",
     features: [
       { icon: ShieldCheck, text: "Review agent plans before they run — you stay in control" },
       { icon: Crosshair, text: "Start with focused prompts for the best results" },
@@ -189,10 +190,9 @@ const OnboardingPage = ({ onComplete }: OnboardingPageProps) => {
                               key={p.id}
                               className="flex items-center gap-3 rounded-xl border border-n-3 bg-n-2/50 px-4 py-1 dark:border-n-5 dark:bg-n-6"
                             >
-                              <img
-                                src={p.logoPath}
-                                alt=""
-                                className="size-12 shrink-0 object-contain dark:invert-[.9]"
+                              <ProviderLogo
+                                providerId={p.id}
+                                className="size-12 shrink-0"
                               />
                               <span className="caption1 text-n-4">
                                 {p.description}

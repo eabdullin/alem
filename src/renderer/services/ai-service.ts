@@ -1,6 +1,5 @@
-import { ToolLoopAgent, stepCountIs, type ToolSet } from "ai";
+import { ToolLoopAgent, stepCountIs } from "ai";
 import { getToolSetForProvider } from "@/tools";
-import type { PromptMode } from "@/types/prompt-mode";
 import { providerService, type AgentConfig } from "./provider-service";
 
 export type { AiProvider } from "./provider-service";
@@ -14,7 +13,6 @@ export function createAgent({
   provider,
   model,
   apiKey,
-  mode = "ask",
   toolConfig,
 }: CreateAgentParams): ToolLoopAgent {
   if (!apiKey.trim()) {
@@ -23,16 +21,12 @@ export function createAgent({
 
   const resolvedModel = providerService.resolveModel(provider, model);
   const providerOptions = providerService.createProviderOptions(resolvedModel);
-
-  const tools: ToolSet | undefined =
-    mode === "agent"
-      ? getToolSetForProvider(provider, apiKey, toolConfig)
-      : undefined;
+  const tools = getToolSetForProvider(provider, apiKey, toolConfig);
 
   return new ToolLoopAgent({
     model: providerService.createChatModel(provider, resolvedModel.modelId, apiKey),
     tools,
-    stopWhen: mode === "agent" ? stepCountIs(5) : undefined,
+    stopWhen: stepCountIs(5),
     instructions: AGENT_INSTRUCTIONS,
     providerOptions,
   });

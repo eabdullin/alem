@@ -37,7 +37,6 @@ export interface AgentConfig {
   provider: AiProvider;
   model: string;
   apiKey: string;
-  mode?: "ask" | "agent";
   toolConfig?: ToolConfig;
 }
 

@@ -1,5 +1,6 @@
 import { useState, useEffect, useContext, useMemo } from "react";
 import { AlemContext } from "@/App";
+import ProviderLogo from "@/components/ProviderLogos";
 import {
   PROVIDERS,
   DEFAULT_ENABLED_MODELS,
@@ -136,11 +137,7 @@ const AiProviders = () => {
             >
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-3">
-                  <img
-                    src={provider.logoPath}
-                    alt=""
-                    className="size-16 object-contain dark:invert-[.9]"
-                  />
+                  <ProviderLogo providerId={provider.id} className="h-6" />
                   {isConfigured && (
                     <span className="px-2 py-0.5 rounded-md bg-primary-2/10 text-primary-2 caption1">
                       Connected

@@ -1,12 +1,10 @@
 import { useMemo } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import type { ChatAttachment } from "@/types/chat-attachment";
-import type { PromptMode } from "@/types/prompt-mode";
 
 export type ChatPageLocationState = {
   initialPrompt?: string;
   initialAttachments?: ChatAttachment[];
-  initialMode?: PromptMode;
 };
 
 export function useChatRouteState() {
@@ -23,11 +21,6 @@ export function useChatRouteState() {
     return state?.initialAttachments ?? [];
   }, [location.state]);
 
-  const initialMode = useMemo<PromptMode>(() => {
-    const state = location.state as ChatPageLocationState | null;
-    return state?.initialMode === "agent" ? "agent" : "ask";
-  }, [location.state]);
-
   const activeListId = useMemo(
     () => new URLSearchParams(location.search).get("list")?.trim() || "",
     [location.search],
@@ -38,6 +31,5 @@ export function useChatRouteState() {
     activeListId,
     initialPrompt,
     initialAttachments,
-    initialMode,
   };
 }

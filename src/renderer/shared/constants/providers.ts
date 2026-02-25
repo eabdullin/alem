@@ -217,7 +217,7 @@ export const PROVIDERS: ProviderInfo[] = [
     name: "Moonshot AI",
     description: "Kimi K2.5, Kimi K2 Thinking — visual agentic intelligence",
     apiKeyUrl: "https://platform.moonshot.ai",
-    logoPath: "/provider-logos/moonshotai.svg",
+    logoPath: "/provider-logos/moonshotai.png",
     models: [
       {
         id: "kimi-k2.5",

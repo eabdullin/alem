@@ -17,7 +17,7 @@ export function useChatPageController() {
   const [hideRightSidebar, setHideRightSidebar] = useState(false);
   const sentInitialPromptRef = useRef(false);
 
-  const { chatId, activeListId, initialPrompt, initialAttachments, initialMode } =
+  const { chatId, activeListId, initialPrompt, initialAttachments } =
     useChatRouteState();
 
   const {
@@ -60,8 +60,6 @@ export function useChatPageController() {
     submitPrompt,
     addAttachments,
     removePendingAttachment,
-    promptMode,
-    setPromptMode,
     isLoading,
     error,
     provider,
@@ -144,9 +142,8 @@ export function useChatPageController() {
     }
 
     sentInitialPromptRef.current = true;
-    setPromptMode(initialMode);
-    void submitPrompt(initialPrompt, initialAttachments, initialMode);
-  }, [activeChat, initialAttachments, initialMode, initialPrompt, submitPrompt, setPromptMode]);
+    void submitPrompt(initialPrompt, initialAttachments);
+  }, [activeChat, initialAttachments, initialPrompt, submitPrompt]);
 
   return {
     chatId,
@@ -161,8 +158,6 @@ export function useChatPageController() {
     handleSubmit,
     addAttachments,
     removePendingAttachment,
-    promptMode,
-    setPromptMode,
     isLoading,
     error,
     isReasoningModel,

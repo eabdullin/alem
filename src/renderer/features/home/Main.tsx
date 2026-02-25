@@ -6,7 +6,6 @@ import {
   chatService,
 } from "@/services/chat-service";
 import type { ChatAttachment } from "@/types/chat-attachment";
-import type { PromptMode } from "@/types/prompt-mode";
 
 const Main = () => {
   const navigate = useNavigate();
@@ -15,7 +14,6 @@ const Main = () => {
   const [pendingAttachments, setPendingAttachments] = useState<ChatAttachment[]>(
     [],
   );
-  const [promptMode, setPromptMode] = useState<PromptMode>("agent");
   const [workspacePath, setWorkspacePath] = useState<string>("");
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -108,7 +106,6 @@ const Main = () => {
       setInput("");
       setPendingAttachments([]);
       setWorkspacePath("");
-      setPromptMode("ask");
       navigate(
         activeListId
           ? `/chat/${chat.id}?list=${encodeURIComponent(activeListId)}`
@@ -117,7 +114,6 @@ const Main = () => {
           state: {
             initialPrompt: prompt,
             initialAttachments: pendingAttachments,
-            initialMode: promptMode,
           },
         },
       );
@@ -147,8 +143,6 @@ const Main = () => {
           attachments={pendingAttachments}
           onAddFiles={addAttachments}
           onRemoveAttachment={removePendingAttachment}
-          mode={promptMode}
-          onModeChange={setPromptMode}
           terminalWorkspacePath={workspacePath || undefined}
           onSelectWorkspaceFolder={
             window.alem?.openFolderDialog

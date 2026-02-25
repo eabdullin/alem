@@ -9,16 +9,8 @@ import TextareaAutosize from "react-textarea-autosize";
 import { Icon } from "@/utils/icons";
 import { Button } from "@/components/ui/button";
 import ModelSelector from "@/components/ModelSelector";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import AddFile from "./AddFile";
 import type { ChatAttachment } from "@/types/chat-attachment";
-import type { PromptMode } from "@/types/prompt-mode";
 import {
   Attachment,
   AttachmentInfo,
@@ -36,9 +28,7 @@ type PromptInputProps = {
   attachments?: ChatAttachment[];
   onAddFiles?: (files: File[]) => void;
   onRemoveAttachment?: (attachmentId: string) => void;
-  mode?: PromptMode;
-  onModeChange?: (mode: PromptMode) => void;
-  /** When in agent mode, optional workspace path for terminal; show folder selector when onSelectWorkspaceFolder is provided. */
+  /** Optional workspace path for terminal; show folder selector when onSelectWorkspaceFolder is provided. */
   terminalWorkspacePath?: string;
   onSelectWorkspaceFolder?: () => void;
   centered?: boolean;
@@ -55,21 +45,12 @@ const PromptInput = ({
   attachments,
   onAddFiles,
   onRemoveAttachment,
-  mode = "agent",
-  onModeChange,
   terminalWorkspacePath,
   onSelectWorkspaceFolder,
   centered,
   isLoading,
   onStop,
 }: PromptInputProps) => {
-  const modeItems: { id: PromptMode; title: string }[] = useMemo(
-    () => [
-      { id: "agent", title: "Agent" },
-      { id: "ask", title: "Ask" },
-    ],
-    [],
-  );
   const hasAttachments = (attachments?.length ?? 0) > 0;
   const attachmentItems = useMemo<AttachmentData[]>(
     () =>
@@ -164,23 +145,8 @@ const PromptInput = ({
           </div>
           <div className="relative flex flex-wrap items-center gap-2 px-3 pb-2.5">
             <AddFile onSelectFiles={onAddFiles} />
-            <Select
-              value={mode}
-              onValueChange={(value) => onModeChange?.(value as PromptMode)}
-            >
-              <SelectTrigger className="h-9 w-[5rem] px-2 rounded-md border-0 bg-n-1 dark:bg-n-6 shadow-none transition-colors hover:bg-accent hover:text-n-7 dark:hover:bg-accent dark:text-n-4 dark:hover:text-n-1">
-                <SelectValue placeholder="Mode" />
-              </SelectTrigger>
-              <SelectContent side="top">
-                {modeItems.map((item) => (
-                  <SelectItem key={item.id} value={item.id}>
-                    {item.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
             <ModelSelector direction="up" compact />
-            {mode === "agent" && onSelectWorkspaceFolder && (
+            {onSelectWorkspaceFolder && (
               <Button
                 type="button"
                 variant="ghost"

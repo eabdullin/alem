@@ -23,9 +23,8 @@ Add an agent mode where `alem` can execute tool-based workflows with explicit us
 
 ## Current Status (v1)
 
-- composer includes a per-message mode switch: `Ask` and `Agent`
-- mode defaults to `Ask` on every new send
-- `Agent` mode runs an AI SDK tool loop with one tool category: web search
+- composer runs in agent mode only (no mode switch)
+- agent mode runs an AI SDK tool loop with web search, terminal, file patch, and browser control
 - provider search mappings:
   - OpenAI: `webSearch`
   - Google: `googleSearch`
@@ -37,11 +36,11 @@ Add an agent mode where `alem` can execute tool-based workflows with explicit us
 - action log visible to users
 - permission prompts for sensitive scopes
 - clear distinction between "plan" and "execute"
-- clear UI distinction between `Ask` and `Agent` per message
+- clear UI for agent actions and tool runs
 
 ## Functional Milestones
 
-1. Per-message `Ask`/`Agent` UX and provider-native web search tool integration (complete)
+1. Agent mode with provider-native web search, terminal, file patch, and browser tools (complete)
 2. Agent run lifecycle (queued, running, waiting, completed, failed)
 3. Tool broker abstraction and provider-agnostic planner
 4. Permission model and policy checks

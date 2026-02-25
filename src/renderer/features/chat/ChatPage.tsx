@@ -17,8 +17,6 @@ const ChatPage = () => {
     handleSubmit,
     addAttachments,
     removePendingAttachment,
-    promptMode,
-    setPromptMode,
     isLoading,
     error,
     isReasoningModel,
@@ -82,8 +80,6 @@ const ChatPage = () => {
         attachments={pendingAttachments}
         onAddFiles={addAttachments}
         onRemoveAttachment={removePendingAttachment}
-        mode={promptMode}
-        onModeChange={setPromptMode}
         terminalWorkspacePath={activeChat.terminalWorkspacePath}
         onSelectWorkspaceFolder={handleSelectWorkspaceFolder}
         placeholder="Ask anything"

@@ -41,7 +41,7 @@ Without guided onboarding, users can drop off before experiencing the product's 
 
 - implemented: first-run carousel with three slides in a split layout (illustration + content)
   - slide 1: value proposition with icon-accented feature highlights
-  - slide 2: Ask/Agent mode overview reframed as empowerment, with data-local trust signals
+  - slide 2: Agent mode overview reframed as empowerment, with data-local trust signals
   - slide 3: provider setup with concrete provider cards (OpenAI, Anthropic, Google)
 - implemented: placeholder illustrations per slide (replace with branded art)
 - implemented: final onboarding action opens Settings to AI Providers

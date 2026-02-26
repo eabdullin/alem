@@ -14,7 +14,7 @@ System architecture for `alem`.
 ## Runtime Layers
 
 1. **Electron main process** (`src/main/`)
-   - app lifecycle, window creation, IPC registration
+   - app lifecycle, window creation, IPC registration, packaged auto-updates via `update-electron-app`
    - files: `src/main/index.ts`, `src/main/windows/mainWindow.ts`, `src/main/ipc/*.ipc.ts`, `src/main/services/*.ts`
    - IPC domains: shell (open-folder-dialog), app (settings, API keys, attachments, memory), terminal, browser, filePatch
 2. **Electron preload bridge** (`src/preload/`)
@@ -32,7 +32,7 @@ System architecture for `alem`.
 ## Directory Map
 
 - `src/main/`: Electron main process
-  - `index.ts`: app lifecycle, `registerAllIpc()`
+  - `index.ts`: app lifecycle, `registerAllIpc()`, auto-update bootstrap (`update-electron-app` -> GitHub Releases source)
   - `windows/mainWindow.ts`: window creation
   - `ipc/`: IPC handlers by domain (shell, app, terminal, browser, filePatch)
   - `services/`: terminalRunner, browserController, filePatchRunner, filePatchCheckpoints, appStore, fileStore, memoryStore

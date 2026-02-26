@@ -2,10 +2,17 @@ import type { ToolSet } from "ai";
 import type { AiProvider, ToolSetOptions } from "./types";
 import { browserTool } from "./browser";
 import { filePatchTool } from "./file-patch";
+import { memoryTool } from "./memory";
 import { terminalTool } from "./terminal";
 import { webSearchTool } from "./web-search";
 
-const definitions = [webSearchTool, terminalTool, filePatchTool, browserTool];
+const definitions = [
+  webSearchTool,
+  terminalTool,
+  filePatchTool,
+  browserTool,
+  memoryTool,
+];
 
 const byDisplayId = new Map<string | undefined, (typeof definitions)[number]>();
 for (const def of definitions) {
@@ -22,6 +29,12 @@ export function getToolDefinitions() {
 }
 
 /**
+ * xAI Responses API supports only server-side tools (e.g. web_search).
+ * Client-side tools (terminal, browser, file-patch, memory) cannot be mixed.
+ */
+const XAI_WEB_SEARCH_ONLY = true;
+
+/**
  * Get the ToolSet for agent mode: merge all tools' getToolSet(provider, apiKey, options).
  */
 export function getToolSetForProvider(
@@ -30,7 +43,11 @@ export function getToolSetForProvider(
   options?: ToolSetOptions
 ): ToolSet {
   const merged: Record<string, unknown> = {};
-  for (const def of definitions) {
+  const defs =
+    provider === "xai" && XAI_WEB_SEARCH_ONLY
+      ? definitions.filter((d) => d.id === "web-search")
+      : definitions;
+  for (const def of defs) {
     const set = def.getToolSet(provider, apiKey, options);
     Object.assign(merged, set);
   }

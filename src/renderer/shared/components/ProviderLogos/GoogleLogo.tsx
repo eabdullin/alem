@@ -4,7 +4,7 @@ type GoogleLogoProps = {
 
 const GoogleLogo = ({ className }: GoogleLogoProps) => (
   <img
-    src="/provider-logos/google.svg"
+    src="./provider-logos/google.svg"
     alt="Google"
     className={`object-contain dark:invert-[.9] ${className ?? ""}`}
   />

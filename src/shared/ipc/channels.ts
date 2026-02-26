@@ -27,4 +27,8 @@ export const IPC_CHANNELS = {
   BROWSER_CLOSE_WINDOW: "browser-close-window",
   BROWSER_EXECUTE: "browser-execute",
   BROWSER_GET_STATUS: "browser-get-status",
+  // Memory
+  MEMORY_READ_CORE: "memory-read-core",
+  MEMORY_APPEND_CONVERSATION: "memory-append-conversation",
+  MEMORY_RUN_COMMAND: "memory-run-command",
 } as const;

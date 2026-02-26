@@ -24,11 +24,13 @@ Add an agent mode where `alem` can execute tool-based workflows with explicit us
 ## Current Status (v1)
 
 - composer runs in agent mode only (no mode switch)
-- agent mode runs an AI SDK tool loop with web search, terminal, file patch, and browser control
+- agent mode runs an AI SDK tool loop with web search, terminal, file patch, browser control, and memory
+- memory: global long-term memory (core.md, notes.md, conversations.jsonl) with structured actions; core injected each turn; hybrid write policy (explicit remember + automatic durable facts)
 - provider search mappings:
   - OpenAI: `webSearch`
   - Google: `googleSearch`
   - Anthropic: `webSearch_20250305`
+  - Moonshot AI: `web_search` (built-in `$web_search` via `createProviderToolFactoryWithOutputSchema`)
 
 ## Trust And Control Requirements
 

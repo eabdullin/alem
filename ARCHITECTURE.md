@@ -16,7 +16,7 @@ System architecture for `alem`.
 1. **Electron main process** (`src/main/`)
    - app lifecycle, window creation, IPC registration
    - files: `src/main/index.ts`, `src/main/windows/mainWindow.ts`, `src/main/ipc/*.ipc.ts`, `src/main/services/*.ts`
-   - IPC domains: shell (open-folder-dialog), app (settings, API keys, attachments), terminal, browser, filePatch
+   - IPC domains: shell (open-folder-dialog), app (settings, API keys, attachments, memory), terminal, browser, filePatch
 2. **Electron preload bridge** (`src/preload/`)
    - safe renderer API exposed via `window.alem`
    - split by domain: `src/preload/api/*.api.ts`, composed in `src/preload/index.ts`
@@ -35,7 +35,7 @@ System architecture for `alem`.
   - `index.ts`: app lifecycle, `registerAllIpc()`
   - `windows/mainWindow.ts`: window creation
   - `ipc/`: IPC handlers by domain (shell, app, terminal, browser, filePatch)
-  - `services/`: terminalRunner, browserController, filePatchRunner, filePatchCheckpoints, appStore, fileStore
+  - `services/`: terminalRunner, browserController, filePatchRunner, filePatchCheckpoints, appStore, fileStore, memoryStore
 - `src/preload/`: context bridge; `api/` split by domain
 - `src/shared/`: safe shared code (types, constants); `tools/` for tool protocol types
 - `src/renderer/`: React app
@@ -60,6 +60,10 @@ System architecture for `alem`.
   - `src/renderer/db/repos/chats.repo.ts`, `chat-groups.repo.ts`
   - migration from localStorage on first run (`bootstrap.ts`)
   - sessions include `chatGroupIds`, `isArchived`, `toolApprovalRules`
+- **Agent memory**
+  - stored under app userData (`.memory/`) via `memoryStore` in main process
+  - files: `core.md` (injected into system prompt each turn), `notes.md` (archival notes), `conversations.jsonl` (recall history)
+  - global across all chats; structured actions tool (view, create, update, search) with strict path allowlist
 
 ## AI Provider Flow
 
@@ -68,6 +72,7 @@ System architecture for `alem`.
   (`model-selector`, `attachments`, `message`, `conversation`) to keep chat UI
   behavior consistent across home and chat routes
 - supported providers: OpenAI, Anthropic, Google, Moonshot AI (Kimi K2.5), xAI (Grok 4)
+- xAI uses Responses API (`xai.responses()`) with `web_search` tool; only web search is available (no terminal, browser, file-patch, memory) because server-side tools cannot be mixed with client-side tools
 - **`src/renderer/services/provider-service.ts`** is the centralized service for managing AI providers, models, and their configurations:
   - singleton service pattern for consistent provider state
   - handles provider and model resolution, validation, and defaults
@@ -83,14 +88,14 @@ System architecture for `alem`.
 - attachments are stored as `alem-attachment://<id>` URLs and resolved to data URLs before sending to the agent
 - chat composer supports per-message mode switching:
   - `Ask`: single-pass text generation (no tools)
-  - `Agent`: `ToolLoopAgent` with tools from `src/renderer/agent/tools/` registry (e.g. web-search: provider proxy in `action`, display with search icon and domain-only result badges; terminal: `run_terminal` in `src/renderer/agent/tools/terminal/`, execution in main via `src/main/services/terminalRunner.ts` with workspace restriction and command denylist; file-patch: `apply_file_patch` in `src/renderer/agent/tools/file-patch/`, execution in main via `src/main/services/filePatchRunner.ts` with workspace restriction, binary blocking, and checkpoint-based revert; browser: `browser_control` in `src/renderer/agent/tools/browser/`, execution in main via `src/main/services/browserController.ts` with one window per chat, http/https only; accepts a list of actions (open, navigate, click_at, type, press, scroll, wait, close) run atomically; always returns one screenshot per request resized to viewport dimensions for coordinate consistency; input actions force-focus the browser window before dispatch)
+  - `Agent`: `ToolLoopAgent` with tools from `src/renderer/agent/tools/` registry (e.g. web-search: provider proxy in `action`, display with search icon and domain-only result badges; terminal: `run_terminal` in `src/renderer/agent/tools/terminal/`, execution in main via `src/main/services/terminalRunner.ts` with workspace restriction and command denylist; file-patch: `apply_file_patch` in `src/renderer/agent/tools/file-patch/`, execution in main via `src/main/services/filePatchRunner.ts` with workspace restriction, binary blocking, and checkpoint-based revert; browser: `browser_control` in `src/renderer/agent/tools/browser/`, execution in main via `src/main/services/browserController.ts` with one window per chat, http/https only; accepts a list of actions (open, navigate, click_at, type, press, scroll, wait, close) run atomically; always returns one screenshot per request resized to viewport dimensions for coordinate consistency; input actions force-focus the browser window before dispatch; memory: `memory` tool in `src/renderer/agent/tools/memory/`, execution in main via `src/main/services/memoryStore.ts` with structured actions (view, create, update, search) over `.memory/` files; core memory injected via `prepareCall` before each model call)
 
 ## Current Scope And Boundaries
 
 - current platform: desktop only
 - no backend service is required for basic operation
 - no shared cloud sync yet
-- agent mode includes web search, a workspace-restricted terminal tool (command denylist, default-deny network, timeout/output caps), a file patch tool (workspace-bounded, binary blocked, checkpoint revert), and a browser control tool (one window per chat, http/https only; list of actions run atomically, one screenshot per request; coordinate-based clicks, typing at focus, key presses, scroll)
+- agent mode includes web search, a workspace-restricted terminal tool (command denylist, default-deny network, timeout/output caps), a file patch tool (workspace-bounded, binary blocked, checkpoint revert), a browser control tool (one window per chat, http/https only; list of actions run atomically, one screenshot per request; coordinate-based clicks, typing at focus, key presses, scroll), and a memory tool (global long-term memory with core/notes/conversations; structured actions; core injected each turn)
 
 ## Forward Architecture Needs
 

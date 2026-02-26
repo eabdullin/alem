@@ -4,7 +4,7 @@ type XaiLogoProps = {
 
 const XaiLogo = ({ className }: XaiLogoProps) => (
   <img
-    src="/provider-logos/xai.svg"
+    src="./provider-logos/xai.svg"
     alt="xAI"
     className={`object-contain dark:invert-[.9] ${className ?? ""}`}
   />

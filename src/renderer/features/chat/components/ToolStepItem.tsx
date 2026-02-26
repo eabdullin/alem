@@ -41,6 +41,7 @@ export function ToolStepItem({
         <TruncatedOutput
           text={part.text}
           className="text-muted-foreground text-sm"
+          maxLength={0}
           render={(content) => (
             <Streamdown plugins={streamdownPlugins}>{content}</Streamdown>
           )}

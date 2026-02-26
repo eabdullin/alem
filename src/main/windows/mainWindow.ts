@@ -7,7 +7,7 @@ function getDistPath(): string {
   if (app.isPackaged) {
     return path.join(app.getAppPath(), "dist");
   }
-  return path.join(__dirname, "../../dist");
+  return path.join(__dirname, "../dist");
 }
 
 function getPublicPath(): string {
@@ -29,11 +29,14 @@ export async function createMainWindow(): Promise<BrowserWindow> {
     minWidth: 900,
     minHeight: 600,
     icon: path.join(getPublicPath(), "icon.png"),
-    title: "Alem",
+    title: "alem",
     titleBarStyle: process.platform === "darwin" ? "hiddenInset" : "default",
     ...(process.platform === "darwin"
       ? { trafficLightPosition: { x: 16, y: 16 } }
       : {}),
+    titleBarOverlay: process.platform === "win32"
+    ? { color: "#1e1e1e", symbolColor: "#ffffff", height: 40 }
+    : undefined,
     webPreferences: {
       preload: getPreloadPath(),
       contextIsolation: true,
@@ -51,7 +54,7 @@ export async function createMainWindow(): Promise<BrowserWindow> {
     mainWindow.loadURL(VITE_DEV_SERVER_URL);
   } else {
     mainWindow.loadFile(path.join(getDistPath(), "index.html"));
-    mainWindow.removeMenu();
+    // mainWindow.removeMenu();
   }
 
   return mainWindow;

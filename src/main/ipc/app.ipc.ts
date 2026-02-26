@@ -1,6 +1,14 @@
 import { ipcMain } from "electron";
 import { getStore } from "../services/appStore";
 import { ElectronFileStore, type SaveAttachmentInput } from "../services/fileStore";
+import {
+  readCoreMemory,
+  appendConversation,
+  runMemoryCommand,
+  type ConversationEntry,
+  type MemoryCommandInput,
+} from "../services/memoryStore";
+import { IPC_CHANNELS } from "../../shared/ipc/channels";
 
 export function registerAppIpc(): void {
   const store = getStore();
@@ -53,4 +61,16 @@ export function registerAppIpc(): void {
   ipcMain.handle("delete-attachment", (_event, attachmentId: string) => {
     return fileStore.deleteAttachment(attachmentId);
   });
+
+  ipcMain.handle(IPC_CHANNELS.MEMORY_READ_CORE, () => readCoreMemory());
+
+  ipcMain.handle(
+    IPC_CHANNELS.MEMORY_APPEND_CONVERSATION,
+    (_event, entry: ConversationEntry) => appendConversation(entry)
+  );
+
+  ipcMain.handle(
+    IPC_CHANNELS.MEMORY_RUN_COMMAND,
+    (_event, input: MemoryCommandInput) => runMemoryCommand(input)
+  );
 }

@@ -11,9 +11,10 @@ import {
   type ProviderInfo,
   type ProviderModelInfo,
 } from "@/constants/providers";
-
+import { createMoonshotaiWebSearchTool } from "@/services/providers/moonshotai-web-search";
 export type AiProvider = "openai" | "anthropic" | "google" | "moonshotai" | "xai";
-
+import { z } from "zod";
+import { zodSchema, tool } from "ai";
 type JsonValue =
   | string
   | number
@@ -118,7 +119,7 @@ export class ProviderService {
    */
   getProviderLogo(providerId: string): string {
     const provider = this.getProvider(providerId);
-    return provider?.logoPath ?? "/provider-logos/openai.svg";
+    return provider?.logoPath ?? "./provider-logos/openai.svg";
   }
 
   /**
@@ -186,7 +187,7 @@ createChatModel(provider: AiProvider, model: string, apiKey: string): LanguageMo
       case "moonshotai":
         return createMoonshotAI({ apiKey })(model);
       case "xai":
-        return createXai({ apiKey })(model);
+        return createXai({ apiKey }).responses(model);
       default:
         throw new Error(`Unsupported provider: ${provider}`);
     }
@@ -271,9 +272,16 @@ createChatModel(provider: AiProvider, model: string, apiKey: string): LanguageMo
           }),
         } as ToolSet;
       }
+      case "xai": {
+        const xai = createXai({ apiKey });
+        return {
+          web_search: xai.tools.webSearch({
+            enableImageUnderstanding: true,
+          }),
+        } as ToolSet;
+      }
       case "moonshotai":
-      case "xai":
-        // No native client-side web search tool; agent still has terminal, file patch, browser
+        //ignored at the moment
         return {} as ToolSet;
       default:
         throw new Error(`Unsupported provider for web search: ${provider}`);

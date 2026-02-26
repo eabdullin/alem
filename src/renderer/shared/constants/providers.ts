@@ -18,7 +18,7 @@ export interface ProviderInfo {
   description: string;
   /** URL where users can obtain an API key for this provider */
   apiKeyUrl?: string;
-  /** Path to provider logo in public folder (e.g. /provider-logos/openai.svg) */
+  /** Path to provider logo in public folder (e.g. ./provider-logos/openai.svg) */
   logoPath: string;
   models: ProviderModelInfo[];
 }
@@ -31,7 +31,7 @@ export const PROVIDERS: ProviderInfo[] = [
     name: "OpenAI",
     description: "GPT-5.2, GPT-5 mini, GPT-5 nano",
     apiKeyUrl: "https://platform.openai.com/api-keys",
-    logoPath: "/provider-logos/openai.svg",
+    logoPath: "./provider-logos/openai.svg",
     models: [
       {
         id: "gpt-5.2-low",
@@ -117,7 +117,7 @@ export const PROVIDERS: ProviderInfo[] = [
     name: "Anthropic",
     description: "Claude Opus 4.6, Claude Sonnet 4.6, Claude Haiku 4.5",
     apiKeyUrl: "https://console.anthropic.com/settings/keys",
-    logoPath: "/provider-logos/anthropic.svg",
+    logoPath: "./provider-logos/anthropic.svg",
     models: [
       {
         id: "claude-opus-4-6-non-thinking",
@@ -160,7 +160,7 @@ export const PROVIDERS: ProviderInfo[] = [
     name: "Google",
     description: "Gemini 3.1 Pro, Gemini 3 Flash (preview)",
     apiKeyUrl: "https://aistudio.google.com/app/apikey",
-    logoPath: "/provider-logos/google.svg",
+    logoPath: "./provider-logos/google.svg",
     models: [
       {
         id: "gemini-3.1-pro-preview-low",
@@ -217,7 +217,7 @@ export const PROVIDERS: ProviderInfo[] = [
     name: "Moonshot AI",
     description: "Kimi K2.5, Kimi K2 Thinking — visual agentic intelligence",
     apiKeyUrl: "https://platform.moonshot.ai",
-    logoPath: "/provider-logos/moonshotai.png",
+    logoPath: "./provider-logos/moonshotai.png",
     models: [
       {
         id: "kimi-k2.5",
@@ -241,7 +241,7 @@ export const PROVIDERS: ProviderInfo[] = [
     name: "xAI",
     description: "Grok 4 — reasoning and vision models",
     apiKeyUrl: "https://console.x.ai",
-    logoPath: "/provider-logos/xai.svg",
+    logoPath: "./provider-logos/xai.svg",
     models: [
       {
         id: "grok-4-1-fast-reasoning-high",

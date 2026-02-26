@@ -95,16 +95,16 @@ const Notifications = ({
                     "max-w-[32rem] p-6 md:w-[calc(100vw-2rem)] md:p-4",
                     menuItemsClassName
                 )}
-                classButtonClose="absolute top-5 right-5 fill-n-4"
+                classButtonClose="absolute top-6 right-6 flex items-center justify-center w-10 h-10 rounded-full fill-n-4 hover:fill-primary-1 hover:bg-n-2 dark:fill-n-4 dark:hover:bg-n-6 md:top-5 md:right-5"
                 visible={visibleNotifications}
                 onClose={() =>
                     isControlled ? controlledOnClose() : setInternalVisible(false)
                 }
             >
-                <div className="flex justify-between items-center mb-3 pr-10">
+                <div className="flex justify-between items-center mb-3 pr-16">
                     <div className="h4 md:h5">Notifications</div>
                     <button
-                        className="group shrink-0"
+                        className="group shrink-0 flex items-center justify-center w-10 h-10 rounded-full hover:bg-n-2 dark:hover:bg-n-6"
                         onClick={handleOpenSettings}
                         type="button"
                     >

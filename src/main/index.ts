@@ -1,8 +1,10 @@
 import { app, BrowserWindow } from "electron";
 import { createMainWindow } from "./windows/mainWindow";
 import { registerAllIpc } from "./ipc";
+import { ensureMemoryFilesystem } from "./services/memoryStore";
 
 app.whenReady().then(async () => {
+  await ensureMemoryFilesystem();
   registerAllIpc();
   await createMainWindow();
 });

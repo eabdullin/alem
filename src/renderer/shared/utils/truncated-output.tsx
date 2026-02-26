@@ -40,7 +40,7 @@ export function TruncatedOutput({
           onClick={() => setExpanded((e) => !e)}
           className="mt-1 text-xs font-medium text-muted-foreground hover:text-foreground underline underline-offset-2"
         >
-          {expanded ? "Show less" : `Show more (${remainder.length} chars)`}
+          {expanded ? "Show less" : `Show ${maxLength > 0 ? "more " : ""}`}
         </button>
       )}
     </div>

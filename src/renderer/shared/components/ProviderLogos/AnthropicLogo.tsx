@@ -4,7 +4,7 @@ type AnthropicLogoProps = {
 
 const AnthropicLogo = ({ className }: AnthropicLogoProps) => (
   <img
-    src="/provider-logos/anthropic.svg"
+    src="./provider-logos/anthropic.svg"
     alt="Anthropic"
     className={`object-contain dark:invert-[.9] ${className ?? ""}`}
   />

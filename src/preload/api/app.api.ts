@@ -1,4 +1,19 @@
 import { ipcRenderer } from "electron";
+import { IPC_CHANNELS } from "../../shared/ipc/channels";
+
+export interface MemoryCommandInput {
+  command: "view" | "create" | "update" | "search";
+  path?: string;
+  content?: string;
+  mode?: "append" | "overwrite";
+  query?: string;
+}
+
+export interface ConversationEntry {
+  role: "user" | "assistant";
+  content: string;
+  timestamp: string;
+}
 
 export const appApi = {
   getSettings: () => ipcRenderer.invoke("get-settings"),
@@ -18,4 +33,10 @@ export const appApi = {
     ipcRenderer.invoke("open-attachment", attachmentId),
   deleteAttachment: (attachmentId: string) =>
     ipcRenderer.invoke("delete-attachment", attachmentId),
+  readCoreMemory: () =>
+    ipcRenderer.invoke(IPC_CHANNELS.MEMORY_READ_CORE) as Promise<string>,
+  appendConversation: (entry: ConversationEntry) =>
+    ipcRenderer.invoke(IPC_CHANNELS.MEMORY_APPEND_CONVERSATION, entry) as Promise<void>,
+  runMemoryCommand: (input: MemoryCommandInput) =>
+    ipcRenderer.invoke(IPC_CHANNELS.MEMORY_RUN_COMMAND, input) as Promise<string>,
 };

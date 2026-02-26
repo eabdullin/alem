@@ -12,7 +12,7 @@ Planning hub for `alem`.
 
 - stabilize desktop chat + attachment experience
 - improve provider and model selection UX
-- ship Agent mode v1 (agent-only with provider-native web search, terminal, file patch, and browser control)
+- ship Agent mode v1 (agent-only with provider-native web search, terminal, file patch, browser control, and memory)
 - strengthen docs, reliability and security foundations
 
 ### Next

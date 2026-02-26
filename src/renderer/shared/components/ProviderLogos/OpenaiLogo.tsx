@@ -4,7 +4,7 @@ type OpenaiLogoProps = {
 
 const OpenaiLogo = ({ className }: OpenaiLogoProps) => (
   <img
-    src="/provider-logos/openai.svg"
+    src="./provider-logos/openai.svg"
     alt="OpenAI"
     className={`object-contain dark:invert-[.9] ${className ?? ""}`}
   />

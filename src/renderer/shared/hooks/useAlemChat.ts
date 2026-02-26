@@ -15,6 +15,7 @@ import {
   type UIMessage,
 } from "ai";
 import { AlemContext } from "@/App";
+import { getTextFromParts } from "@/lib/chat/messageParts";
 import { createAgent } from "@/services/ai-service";
 import { type AiProvider, providerService } from "@/services/provider-service";
 import {
@@ -75,6 +76,36 @@ function attachmentsToFileParts(attachments: ChatAttachment[]) {
   }));
 }
 
+async function appendNewTurnsToMemory(
+  messages: UIMessage[],
+  lastLoggedRef: { current: number },
+): Promise<void> {
+  if (typeof window === "undefined" || !window.alem?.appendConversation) {
+    return;
+  }
+  const from = lastLoggedRef.current;
+  const to = messages.length;
+  if (from >= to) return;
+
+  const timestamp = new Date().toISOString();
+  for (let i = from; i < to; i++) {
+    const msg = messages[i];
+    if (!msg || (msg.role !== "user" && msg.role !== "assistant")) continue;
+    const content = getTextFromParts(msg.parts).trim();
+    if (!content) continue;
+    try {
+      await window.alem.appendConversation({
+        role: msg.role,
+        content,
+        timestamp,
+      });
+    } catch {
+      // Ignore append failures; do not block chat flow
+    }
+  }
+  lastLoggedRef.current = to;
+}
+
 export function useAlemChat({
   chatId,
   initialMessages = [],
@@ -93,6 +124,7 @@ export function useAlemChat({
   const inFlightChatIdRef = useRef<string | undefined>(chatId);
   const workspaceRootRef = useRef(workspaceRoot);
   const chatIdRef = useRef(chatId);
+  const lastLoggedMessageCountRef = useRef(0);
   workspaceRootRef.current = workspaceRoot;
   chatIdRef.current = chatId;
 
@@ -139,6 +171,10 @@ export function useAlemChat({
     sendAutomaticallyWhen: (options) => lastAssistantMessageIsCompleteWithApprovalResponses(options) || lastAssistantMessageIsCompleteWithToolCalls(options),
     onFinish: ({ messages: finishedMessages }) => {
       onMessagesChange?.(finishedMessages, inFlightChatIdRef.current);
+      void appendNewTurnsToMemory(
+        finishedMessages,
+        lastLoggedMessageCountRef,
+      );
     },
   });
 
@@ -147,7 +183,12 @@ export function useAlemChat({
 
   useEffect(() => {
     setWasStoppedByUser(false);
+    lastLoggedMessageCountRef.current = 0;
   }, [chatId]);
+
+  useEffect(() => {
+    lastLoggedMessageCountRef.current = initialMessages.length;
+  }, [chatId, initialMessages.length]);
 
   const stopWithTracking = useCallback(() => {
     setWasStoppedByUser(true);
@@ -247,13 +288,24 @@ export function useAlemChat({
     async (event?: FormEvent<HTMLFormElement>): Promise<void> => {
       event?.preventDefault?.();
 
-      const hasSubmitted = await submitPrompt(input, pendingAttachments);
-      if (hasSubmitted) {
-        setInput("");
-        setPendingAttachments([]);
+      const prompt = input.trim();
+      const attachments = pendingAttachments;
+      if ((!prompt && attachments.length === 0) || !ready) {
+        return;
+      }
+
+      // Clear immediately so the input is empty as soon as the message is posted
+      setInput("");
+      setPendingAttachments([]);
+
+      const hasSubmitted = await submitPrompt(prompt, attachments);
+      if (!hasSubmitted) {
+        // Restore input on failure so the user can retry
+        setInput(prompt);
+        setPendingAttachments(attachments);
       }
     },
-    [input, pendingAttachments, submitPrompt],
+    [input, pendingAttachments, ready, submitPrompt],
   );
 
   const setInputValue = useCallback((value: string) => {

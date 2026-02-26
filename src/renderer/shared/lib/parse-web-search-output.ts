@@ -53,6 +53,7 @@ export function parseWebSearchOutput(
   const obj = output as Record<string, unknown>;
 
   // OpenAI: { action, sources?: Array<{ type: 'url', url } | { type: 'api', name }> }
+  // xAI: { query, sources?: Array<{ title, url, snippet }> }
   const sources = obj.sources;
   if (Array.isArray(sources)) {
     for (const s of sources) {
@@ -62,6 +63,13 @@ export function parseWebSearchOutput(
         out.push({ url: src.url, title: undefined, snippet: undefined });
       } else if (src.type === "api" && typeof src.name === "string") {
         out.push({ url: "", title: src.name, snippet: undefined });
+      } else if (typeof src.url === "string") {
+        // xAI format: { title, url, snippet }
+        out.push({
+          url: src.url,
+          title: typeof src.title === "string" ? src.title : undefined,
+          snippet: typeof src.snippet === "string" ? src.snippet : undefined,
+        });
       }
     }
     if (out.length > 0) return out;

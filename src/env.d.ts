@@ -16,6 +16,19 @@ interface AlemApi {
   readAttachment: (attachmentId: string) => Promise<string>;
   openAttachment: (attachmentId: string) => Promise<boolean>;
   deleteAttachment: (attachmentId: string) => Promise<boolean>;
+  readCoreMemory: () => Promise<string>;
+  appendConversation: (entry: {
+    role: "user" | "assistant";
+    content: string;
+    timestamp: string;
+  }) => Promise<void>;
+  runMemoryCommand: (input: {
+    command: "view" | "create" | "update" | "search";
+    path?: string;
+    content?: string;
+    mode?: "append" | "overwrite";
+    query?: string;
+  }) => Promise<string>;
   runTerminal: (request: import("@/shared/tools/terminal/types").TerminalRunRequest) => Promise<import("@/shared/tools/terminal/types").TerminalRunResult>;
   openFolderDialog: () => Promise<string | null>;
   openExternal: (url: string) => Promise<void>;

@@ -36,17 +36,21 @@ export function getConfirmationPreview(input: unknown): ReactNode {
 export function formatAction(action: BrowserAction): string {
   switch (action.action) {
     case "open":
-      return action.url ? `Open ${action.url}` : "Open browser";
+      return "Open browser";
     case "navigate":
       return `Navigate to ${action.url}`;
-    case "click_at":
+    case "click":
       return `Click at (${action.x}, ${action.y})`;
+    case "move_mouse":
+      return `Move mouse to (${action.x}, ${action.y})`;
     case "type":
       return `Type "${action.text}"`;
     case "press":
       return `Press ${action.key}`;
     case "scroll":
       return `Scroll ${action.direction}`;
+    case "get_content":
+      return `Get content from ${action.selector}`;
     case "wait":
       return `Wait ${action.seconds}s`;
     case "close":

@@ -132,7 +132,7 @@ export function useAlemChat({
   const provider: AiProvider = providerService.validateProvider(activeProvider, "openai");
 
   const ready = typeof window !== "undefined" && !!window.alem;
-  const model = settings?.activeModel || "gpt-5-mini-medium";
+  const model = settings?.activeModel ?? "";
 
   const transport = useMemo(
     () =>

@@ -18,7 +18,7 @@ export function registerAppIpc(): void {
     return store.get("settings", {
       providers: {},
       activeProvider: "openai",
-      activeModel: "gpt-5-mini",
+      activeModel: "",
       hasSeenOnboarding: false,
       theme: "dark",
       browserAllowedHosts: [],

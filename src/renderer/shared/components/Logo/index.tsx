@@ -8,7 +8,7 @@ type LogoProps = {
 const Logo = ({ className, dark }: LogoProps) => (
   <Link className={`flex items-center gap-2 ${className}`} to="/">
     <img
-      src="/logo-horiz.small.png"
+      src="./logo-horiz.small.png"
       alt="Alem"
       className="h-14 w-auto rounded-lg object-contain shrink-0"
     />

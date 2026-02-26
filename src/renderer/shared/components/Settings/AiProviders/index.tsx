@@ -1,11 +1,7 @@
 import { useState, useEffect, useContext, useMemo } from "react";
 import { AlemContext } from "@/App";
 import ProviderLogo from "@/components/ProviderLogos";
-import {
-  PROVIDERS,
-  DEFAULT_ENABLED_MODELS,
-  type ProviderInfo,
-} from "@/constants/providers";
+import { PROVIDERS, type ProviderInfo } from "@/constants/providers";
 
 const AiProviders = () => {
   const { settings, updateSettings } = useContext(AlemContext);
@@ -17,7 +13,7 @@ const AiProviders = () => {
   );
 
   const enabledModels: Record<string, string[]> =
-    settings?.enabledModels || DEFAULT_ENABLED_MODELS;
+    settings?.enabledModels ?? {};
 
   const sortedProviders = useMemo(() => {
     const configured: ProviderInfo[] = [];
@@ -68,6 +64,8 @@ const AiProviders = () => {
       if (fallback) {
         newSettings.activeProvider = fallback.provider;
         newSettings.activeModel = fallback.model;
+      } else {
+        newSettings.activeModel = "";
       }
     }
 
@@ -130,7 +128,7 @@ const AiProviders = () => {
             <div
               key={provider.id}
               className={`p-5 rounded-xl border-2 transition-colors ${
-                isConfigured
+                isConfigured || editingProvider === provider.id
                   ? "border-n-3 dark:border-n-5"
                   : "border-n-3 dark:border-n-5 opacity-70"
               }`}
@@ -150,6 +148,9 @@ const AiProviders = () => {
                     e.stopPropagation();
                     setEditingProvider(provider.id);
                     setTempKey(apiKeys[provider.id] || "");
+                    if (!isConfigured) {
+                      setExpandedProviders((prev) => new Set(prev).add(provider.id));
+                    }
                   }}
                 >
                   {isConfigured ? "Edit Key" : "Add Key"}
@@ -192,6 +193,13 @@ const AiProviders = () => {
                     onClick={() => {
                       setEditingProvider(null);
                       setTempKey("");
+                      if (!isConfigured) {
+                        setExpandedProviders((prev) => {
+                          const next = new Set(prev);
+                          next.delete(provider.id);
+                          return next;
+                        });
+                      }
                     }}
                   >
                     Cancel

@@ -10,12 +10,14 @@ export function getStore(): Store<any> {
         settings: {
           providers: {},
           activeProvider: "openai",
-          activeModel: "gpt-5-mini",
+          activeModel: "",
           hasSeenOnboarding: false,
           enabledModels: {
-            openai: ["gpt-5-mini"],
-            anthropic: ["claude-sonnet-4-6"],
-            google: ["gemini-3-flash-preview"],
+            openai: [],
+            anthropic: [],
+            google: [],
+            moonshotai: [],
+            xai: [],
           },
           theme: "dark",
         },

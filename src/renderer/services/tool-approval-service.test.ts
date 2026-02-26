@@ -45,11 +45,11 @@ describe("extractBrowserHosts", () => {
     ).toEqual([]);
   });
 
-  it("ignores click_at, type, scroll, wait, close", () => {
+  it("ignores click, type, scroll, wait, close", () => {
     expect(
       extractBrowserHosts({
         actions: [
-          { action: "click_at", x: 10, y: 20 },
+          { action: "click", x: 10, y: 20 },
           { action: "type", text: "hello" },
           { action: "scroll", direction: "down" },
           { action: "wait", seconds: 1 },
@@ -162,7 +162,7 @@ describe("shouldAutoApprove", () => {
       shouldAutoApprove({
         toolName: "browser_control",
         input: {
-          actions: [{ action: "click_at", x: 10, y: 20 }],
+          actions: [{ action: "click", x: 10, y: 20 }],
         },
         chatId: "c1",
         chatRules: undefined,

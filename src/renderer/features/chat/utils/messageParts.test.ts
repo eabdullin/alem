@@ -4,6 +4,7 @@ import {
   getAttachmentIdFromUrl,
   getToolPartName,
   getToolStepStatus,
+  filterMessagesByKnownTools,
 } from "./messageParts";
 
 describe("getTextFromParts", () => {
@@ -131,5 +132,62 @@ describe("getToolStepStatus", () => {
       output: "",
     };
     expect(getToolStepStatus(part)).toBe("complete");
+  });
+});
+
+describe("filterMessagesByKnownTools", () => {
+  it("keeps non-tool parts", () => {
+    const messages = [
+      {
+        id: "1",
+        role: "assistant" as const,
+        parts: [{ type: "text" as const, text: "Hello" }],
+      },
+    ];
+    expect(filterMessagesByKnownTools(messages)).toEqual(messages);
+  });
+
+  it("keeps known tool parts", () => {
+    const messages = [
+      {
+        id: "1",
+        role: "assistant" as const,
+        parts: [
+          { type: "text" as const, text: "Hi" },
+          {
+            type: "dynamic-tool" as const,
+            toolName: "memory",
+            toolCallId: "tc-1",
+            state: "output-available" as const,
+            input: {},
+            output: "",
+          },
+        ],
+      },
+    ];
+    expect(filterMessagesByKnownTools(messages)).toEqual(messages);
+  });
+
+  it("filters out unknown tool parts", () => {
+    const messages = [
+      {
+        id: "1",
+        role: "assistant" as const,
+        parts: [
+          { type: "text" as const, text: "Hi" },
+          {
+            type: "dynamic-tool" as const,
+            toolName: "google:memory",
+            toolCallId: "tc-1",
+            state: "output-available" as const,
+            input: {},
+            output: "",
+          },
+        ],
+      },
+    ];
+    const result = filterMessagesByKnownTools(messages);
+    expect(result[0].parts).toHaveLength(1);
+    expect(result[0].parts[0]).toEqual({ type: "text", text: "Hi" });
   });
 });

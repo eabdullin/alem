@@ -212,30 +212,30 @@ export const PROVIDERS: ProviderInfo[] = [
       },
     ],
   },
-  {
-    id: "moonshotai",
-    name: "Moonshot AI",
-    description: "Kimi K2.5, Kimi K2 Thinking — visual agentic intelligence",
-    apiKeyUrl: "https://platform.moonshot.ai",
-    logoPath: "./provider-logos/moonshotai.png",
-    models: [
-      {
-        id: "kimi-k2.5",
-        modelId: "kimi-k2.5",
-        displayName: "Kimi K2.5",
-        description:
-          "Most powerful open-source model with vision, coding, and agent swarm. Native multimodal.",
-      },
-      {
-        id: "kimi-k2-thinking",
-        modelId: "kimi-k2-thinking",
-        moonshotaiThinkingBudgetTokens: 2048,
-        displayName: "Kimi K2 Thinking",
-        description:
-          "Step-by-step reasoning model for complex multi-step tasks.",
-      },
-    ],
-  },
+  // {
+  //   id: "moonshotai",
+  //   name: "Moonshot AI",
+  //   description: "Kimi K2.5, Kimi K2 Thinking — visual agentic intelligence",
+  //   apiKeyUrl: "https://platform.moonshot.ai",
+  //   logoPath: "./provider-logos/moonshotai.png",
+  //   models: [
+  //     {
+  //       id: "kimi-k2.5",
+  //       modelId: "kimi-k2.5",
+  //       displayName: "Kimi K2.5",
+  //       description:
+  //         "Most powerful open-source model with vision, coding, and agent swarm. Native multimodal.",
+  //     },
+  //     {
+  //       id: "kimi-k2-thinking",
+  //       modelId: "kimi-k2-thinking",
+  //       moonshotaiThinkingBudgetTokens: 2048,
+  //       displayName: "Kimi K2 Thinking",
+  //       description:
+  //         "Step-by-step reasoning model for complex multi-step tasks.",
+  //     },
+  //   ],
+  // },
   {
     id: "xai",
     name: "xAI",
@@ -264,11 +264,11 @@ export const PROVIDERS: ProviderInfo[] = [
 ];
 
 export const DEFAULT_ENABLED_MODELS: Record<string, string[]> = {
-  openai: ["gpt-5-mini-medium"],
-  anthropic: ["claude-sonnet-4-6-non-thinking"],
-  google: ["gemini-3-flash-preview-medium"],
-  moonshotai: ["kimi-k2.5"],
-  xai: ["grok-4-1-fast-reasoning-high"],
+  openai: [],
+  anthropic: [],
+  google: [],
+  moonshotai: [],
+  xai: [],
 };
 
 export function resolveProviderModel(

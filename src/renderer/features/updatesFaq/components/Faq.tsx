@@ -20,7 +20,7 @@ const Faq = ({ items }: FaqProps) => (
     <div className="mt-12 p-20 bg-n-2/50 rounded-[1.25rem] text-center md:py-16 md:px-8 dark:bg-n-7/50">
       <div className="w-28 mx-auto mb-8">
         <img
-          src="/logo-horiz.small.png"
+          src="./logo-horiz.small.png"
           alt="Alem"
           className="h-28 w-auto mx-auto rounded-lg object-contain"
         />

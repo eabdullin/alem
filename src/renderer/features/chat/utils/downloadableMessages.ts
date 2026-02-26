@@ -78,17 +78,21 @@ function formatToolOutputForMarkdown(
 function formatBrowserAction(a: BrowserAction): string {
   switch (a.action) {
     case "open":
-      return a.url ? `Open ${a.url}` : "Open browser";
+      return "Open browser";
     case "navigate":
       return `Navigate to ${a.url}`;
-    case "click_at":
+    case "click":
       return `Click at (${a.x}, ${a.y})`;
+    case "move_mouse":
+      return `Move mouse to (${a.x}, ${a.y})`;
     case "type":
       return `Type "${a.text}"`;
     case "press":
       return `Press ${a.key}`;
     case "scroll":
       return `Scroll ${a.direction}`;
+    case "get_content":
+      return `Get content from ${a.selector}`;
     case "wait":
       return `Wait ${a.seconds}s`;
     case "close":

@@ -55,8 +55,8 @@ export function AssistantMessageItem({
   const hasChain = message.parts.some(
     (part) =>
       (part.type === "reasoning" && part.text.trim()) ||
-      part.type === "dynamic-tool" ||
-      part.type.startsWith("tool-"),
+      ((part.type === "dynamic-tool" || part.type.startsWith("tool-")) &&
+        getToolDefinition(getToolPartName(part)) != null),
   );
 
   return (

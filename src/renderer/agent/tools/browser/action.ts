@@ -10,22 +10,50 @@ import type {
 } from "@/shared/tools/browser/types";
 
 const browserActionSchema = z.discriminatedUnion("action", [
-  z.object({ action: z.literal("open"), url: z.string().url().optional() }),
-  z.object({ action: z.literal("navigate"), url: z.string().url() }),
   z.object({
-    action: z.literal("click_at"),
+    action: z.literal("open").describe("Open browser (loads default page). No params."),
+  }),
+  z.object({
+    action: z.literal("navigate"),
+    url: z.string().url().describe("URL to navigate to (http/https only)."),
+  }),
+  z.object({
+    action: z.literal("click").describe("Click at (x, y)."),
     x: z.number().min(0),
     y: z.number().min(0),
   }),
-  z.object({ action: z.literal("type"), text: z.string() }),
-  z.object({ action: z.literal("press"), key: z.string() }),
   z.object({
-    action: z.literal("scroll"),
+    action: z.literal("move_mouse").describe("Move mouse to (x, y)."),
+    x: z.number().min(0),
+    y: z.number().min(0),
+  }),
+  z.object({
+    action: z.literal("type").describe("Type text into the focused element. Focus with click first."),
+    text: z.string(),
+  }),
+  z.object({
+    action: z.literal("press").describe("Press key (e.g. Enter, Tab, Escape)."),
+    key: z.string(),
+  }),
+  z.object({
+    action: z.literal("scroll").describe("Scroll direction."),
     direction: z.enum(["up", "down"]),
     amount: z.number().min(1).max(2000).optional(),
   }),
-  z.object({ action: z.literal("wait"), seconds: z.number().min(0).max(60) }),
-  z.object({ action: z.literal("close") }),
+  z.object({
+    action: z.literal("get_content"),
+    selector: z
+      .string()
+      .min(1)
+      .describe("CSS selector for the element (e.g. '#main', '.article', 'h1')."),
+  }),
+  z.object({
+    action: z.literal("wait"),
+    seconds: z.number().min(0).max(60).describe("Seconds to pause (0–60)."),
+  }),
+  z.object({
+    action: z.literal("close").describe("Close the browser window."),
+  }),
 ]);
 
 const browserToolInputSchema = z.object({
@@ -38,28 +66,32 @@ const browserToolInputSchema = z.object({
     .min(1)
     .max(20)
     .describe(
-      "List of browser actions to run atomically. Use click_at to focus an input, then type to enter text, then press for keys like Enter.",
+      "List of browser actions to run atomically. See tool description for flows.",
     ),
 });
 
 export type BrowserToolInputSchema = z.infer<typeof browserToolInputSchema>;
 
 const description = `
-Control a built-in browser window. Send a list of actions to run atomically (e.g. click search box, type "milk", press Enter).
-Each request returns one screenshot of the page after all actions complete.
-Actions: 
-- open (optional url)
-- navigate (url)
-- click_at (x,y coordinates on the latest screenshot)
-- type (text at focused element)
-- press (key name)
-- scroll (up/down, optional amount)
-- wait (seconds)
-- close
-Use click_at to focus an input, then type to enter text. Only http and https URLs.
-Allow more time between actions when needed.
-Use grid coordinates from the screenshot to click at the correct position.
-One browser window per chat; switching chats closes the previous window.
+Control a built-in browser window to navigate and interact with web pages. One window per chat.
+Each request runs a list of actions atomically and returns one screenshot plus optional text.
+
+## Usage tips
+**Wait times**
+- After navigate: wait 2–3s for heavy pages before interacting.
+- After scroll: wait 0.5–1s for smooth scroll to finish.
+- After click: wait 0.2–0.5s before type or next action.
+- For SPAs/dynamic content: wait 1–3s after navigation.
+
+**Common flows**
+1. Search: open → navigate(url) → wait(2) → click(searchBox) → wait(0.5) → type(query) → press(Enter) → wait(2).
+2. Hover-then-scroll: move_mouse(x,y) → wait(0.3) → scroll(down) — some dropdowns/menus need hover before scroll.
+3. Form fill: click(input) → type(value) → press(Tab) → type(next) → … → click(submit).
+4. Extract text: get_content(selector) — use after page loads; selector by visible text or aria-label.
+
+**Coordinates**
+- Screenshots include a 100px grid for better accuracy.
+- Origin (0,0) is top-left. Click near element center for best results.
 `;
 
 export function getBrowserToolSet(
@@ -122,14 +154,14 @@ export function getBrowserToolSet(
             value: 'Invalid screenshot format',
           };
         }
-        const currentUrl = `Current URL: ${output.url}`
-        return {
-          type: 'content',
-          value: [
-            { type: 'text', text: currentUrl },
-            { type: 'image-data', data: match[2], mediaType: 'image/png' }
-          ],
-        };
+        const parts: Array<{ type: 'text'; text: string } | { type: 'image-data'; data: string; mediaType: string }> = [
+          { type: 'text', text: `Current URL: ${output.url}` },
+        ];
+        if (output.text != null && output.text !== '') {
+          parts.unshift({ type: 'text', text: `Extracted content:\n${output.text}` });
+        }
+        parts.push({ type: 'image-data', data: match[2], mediaType: 'image/png' });
+        return { type: 'content', value: parts };
       },
     }),
   };

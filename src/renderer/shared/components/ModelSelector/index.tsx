@@ -1,6 +1,6 @@
 import { useContext, useMemo } from "react";
 import { AlemContext } from "@/App";
-import { DEFAULT_ENABLED_MODELS, PROVIDERS } from "@/constants/providers";
+import { PROVIDERS } from "@/constants/providers";
 import {
   Select,
   SelectContent,
@@ -28,9 +28,9 @@ const ModelSelector = ({
   const { settings, updateSettings } = useContext(AlemContext);
 
   const activeProvider = settings?.activeProvider || "openai";
-  const activeModel = settings?.activeModel || "gpt-5-mini-medium";
+  const activeModel = settings?.activeModel ?? "";
   const enabledModels: Record<string, string[]> = useMemo(
-    () => settings?.enabledModels || DEFAULT_ENABLED_MODELS,
+    () => settings?.enabledModels ?? {},
     [settings?.enabledModels],
   );
 
@@ -53,9 +53,12 @@ const ModelSelector = ({
 
   const value = useMemo(
     () =>
-      items.find(
-        (item) => item.providerId === activeProvider && item.modelId === activeModel,
-      ) ?? items[0],
+      activeModel
+        ? items.find(
+            (item) =>
+              item.providerId === activeProvider && item.modelId === activeModel,
+          ) ?? items[0]
+        : undefined,
     [items, activeProvider, activeModel],
   );
 

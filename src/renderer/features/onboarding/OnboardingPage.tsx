@@ -127,7 +127,7 @@ const OnboardingPage = ({ onComplete }: OnboardingPageProps) => {
           {/* Header */}
           <div className="flex items-center justify-between px-8 pt-6">
             <img
-              src="/logo-horiz.small.png"
+              src="./logo-horiz.small.png"
               alt="Alem"
               className="h-10 w-auto shrink-0 object-contain"
             />
@@ -192,7 +192,7 @@ const OnboardingPage = ({ onComplete }: OnboardingPageProps) => {
                             >
                               <ProviderLogo
                                 providerId={p.id}
-                                className="size-12 shrink-0"
+                                className="h-6 shrink-0"
                               />
                               <span className="caption1 text-n-4">
                                 {p.description}

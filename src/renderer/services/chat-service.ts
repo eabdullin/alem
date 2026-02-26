@@ -6,6 +6,7 @@ import {
   type ChatStore,
 } from "../stores/chat-store";
 import { ALEM_ATTACHMENT_PREFIX } from "./alem-chat-transport";
+import { filterMessagesByKnownTools } from "@/features/chat/utils/messageParts";
 import type { UIMessage } from "ai";
 import { ARCHIVED_CHAT_GROUP_ID } from "./chat-group-service";
 
@@ -330,7 +331,9 @@ export class ChatService {
       return null;
     }
 
-    const firstUserMessage = messages.find((m) => m.role === "user");
+    const messagesToSave = filterMessagesByKnownTools(messages);
+
+    const firstUserMessage = messagesToSave.find((m) => m.role === "user");
     const firstUserText = firstUserMessage
       ? getTextFromParts(firstUserMessage.parts)
       : "";
@@ -344,13 +347,13 @@ export class ChatService {
         ? buildChatTitle(titleSource)
         : current.title;
 
-    if (nextTitle === current.title && areMessagesEqual(current.messages, messages)) {
+    if (nextTitle === current.title && areMessagesEqual(current.messages, messagesToSave)) {
       return current;
     }
 
     return this.store.updateChat(chatId, {
       title: nextTitle,
-      messages,
+      messages: messagesToSave,
     });
   }
 

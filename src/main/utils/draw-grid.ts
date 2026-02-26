@@ -1,6 +1,6 @@
 /**
  * Draws a coordinate grid overlay on an image for agent mode.
- * Helps the AI reference pixel coordinates when issuing click_at actions.
+ * Helps the AI reference pixel coordinates when issuing click actions.
  */
 
 import {

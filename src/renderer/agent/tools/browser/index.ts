@@ -23,17 +23,23 @@ function getStepLabel(input: unknown): string {
       };
       switch (a.action) {
         case "open":
-          return a.url ? `Open ${a.url}` : "Open browser";
+          return "Open browser";
         case "navigate":
           return a.url ? `Navigate to ${a.url}` : "Navigate";
-        case "click_at":
+        case "click":
           return `Click at (${a.x ?? 0}, ${a.y ?? 0})`;
+        case "move_mouse":
+          return `Move mouse to (${a.x ?? 0}, ${a.y ?? 0})`;
         case "type":
           return a.text ? `Type "${a.text}"` : "Type";
         case "press":
           return "Press key";
         case "scroll":
           return `Scroll ${a.direction ?? "down"}`;
+        case "get_content": {
+          const sel = (a as { selector?: string }).selector;
+          return sel ? `Get content from ${sel}` : "Get content";
+        }
         case "wait":
           return `Wait ${a.seconds ?? 0}s`;
         case "close":

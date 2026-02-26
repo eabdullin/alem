@@ -5,9 +5,9 @@
   "main": "dist-electron/main.js",
   "build": {
     "files": ["dist", "!dist/win-unpacked${/*}", "dist-electron", "package.json"],
-    "icon": "build/icon.png",
+    "icon": "public/icon.png",
     "win": {
-      "icon": "build/icon.png"
+      "icon": "public/icon.png"
     }
   },
   "scripts": {

@@ -55,7 +55,10 @@ export function ToolStepItem({
   }
 
   const toolName = getToolPartName(part);
-  const def = toolDef ?? null;
+  if (!toolDef) {
+    return null;
+  }
+  const def = toolDef;
   const input = "input" in part ? part.input : {};
   const output = "output" in part ? part.output : undefined;
   const errorText = "errorText" in part ? part.errorText : undefined;

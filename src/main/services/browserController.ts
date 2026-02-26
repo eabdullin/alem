@@ -2,7 +2,7 @@
  * Browser session controller for agent mode.
  * - One browser window per active chat; switching chats closes the previous window.
  * - Secure defaults: contextIsolation, nodeIntegration false, http/https only.
- * - Actions: open, navigate, click_at, type, press, scroll, wait, screenshot, close.
+ * - Actions: open, navigate, click, type, press, scroll, wait, screenshot, close.
  * - Uses screenshots for page state; mouse clicks, scrolls, and typing for interaction.
  */
 
@@ -41,6 +41,15 @@ function getPublicPath(): string {
   // In dev, use project root so public/icon.png resolves correctly
   return path.join(app.getAppPath(), "public");
 }
+
+/** Default page shown when opening the browser (minimal HTML). */
+const DEFAULT_INDEX_HTML =
+  "data:text/html;charset=utf-8," +
+  encodeURIComponent(
+    "<!DOCTYPE html><html><head><meta charset='utf-8'><title>Alem Browser</title></head>" +
+      "<body style='font-family:system-ui;padding:2rem;background:#1a1a1a;color:#eee;'>" +
+      "<h1>Alem Browser</h1><p>Ready. Use navigate to go to a URL.</p></body></html>"
+  );
 
 function createBrowserWindow(): BrowserWindow {
   return new BrowserWindow({
@@ -123,7 +132,7 @@ export class BrowserController {
     this.window.on("closed", () => {
       this.window = null;
     });
-    this.window.loadURL("about:blank");
+    this.window.loadURL(DEFAULT_INDEX_HTML);
     return this.window;
   }
 
@@ -138,7 +147,6 @@ export class BrowserController {
       return { ok: true };
     }
 
-    // wait 3 seconds to ensure the window is ready
     await this.pause(1000);
 
     const win = this.ensureWindowForChat(chatId);
@@ -150,10 +158,13 @@ export class BrowserController {
     }
 
     const wc = win.webContents;
+    let capturedText: string | undefined;
 
     try {
       for (const action of actions) {
-        const result = await this.runAction(wc, action);
+        const result = await this.runAction(wc, action, (text) => {
+          capturedText = text;
+        });
         if (result) return result;
       }
 
@@ -166,7 +177,12 @@ export class BrowserController {
       });
       const dataUrl = normalizedImage.toDataURL();
       const screenshotWithGrid = await drawImageWithGrid(dataUrl);
-      return { ok: true, url: wc.getURL(), screenshot: screenshotWithGrid };
+      return {
+        ok: true,
+        url: wc.getURL(),
+        screenshot: screenshotWithGrid,
+        ...(capturedText !== undefined && { text: capturedText }),
+      };
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       return { ok: false, error: msg };
@@ -175,17 +191,13 @@ export class BrowserController {
 
   private async runAction(
     wc: WebContents,
-    action: BrowserAction
+    action: BrowserAction,
+    onGetContent?: (text: string) => void
   ): Promise<BrowserActionResult | null> {
     switch (action.action) {
       case "open": {
-        if (action.url) {
-          if (!isUrlAllowed(action.url)) {
-            return { ok: false, error: `URL scheme not allowed: ${action.url}` };
-          }
-          await wc.loadURL(action.url);
-        }
-        await this.pause(100);
+        await wc.loadURL(DEFAULT_INDEX_HTML);
+        await this.pause(200);
         return null;
       }
 
@@ -194,29 +206,36 @@ export class BrowserController {
           return { ok: false, error: `URL scheme not allowed: ${action.url}` };
         }
         await wc.loadURL(action.url);
+        await this.pause(1000);
+        return null;
+      }
+
+      case "move_mouse": {
+        this.ensureInputFocus(wc);
+        const movePoint = this.clampPointToViewport(wc, action.x, action.y);
+        wc.sendInputEvent({
+          type: "mouseMove",
+          x: movePoint.x,
+          y: movePoint.y,
+        });
         await this.pause(100);
         return null;
       }
 
-      case "click_at": {
+      case "click": {
         this.ensureInputFocus(wc);
-        wc.sendInputEvent({
-          type: "mouseMove",
-          x: action.x,
-          y: action.y
-        });
-        await this.pause(100);
+        const clickPoint = this.clampPointToViewport(wc, action.x, action.y);
         wc.sendInputEvent({
           type: "mouseDown",
-          x: action.x,
-          y: action.y,
+          x: clickPoint.x,
+          y: clickPoint.y,
           button: "left",
           clickCount: 1,
         });
         wc.sendInputEvent({
           type: "mouseUp",
-          x: action.x,
-          y: action.y,
+          x: clickPoint.x,
+          y: clickPoint.y,
           button: "left",
           clickCount: 1,
         });
@@ -231,7 +250,7 @@ export class BrowserController {
           (function() {
             const el = document.activeElement;
             if (!el) {
-              return { ok: false, error: "No focused input to type into. Use click_at first." };
+              return { ok: false, error: "No focused input to type into. Use click first." };
             }
             if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
               el.focus();
@@ -246,7 +265,7 @@ export class BrowserController {
               el.dispatchEvent(new Event("input", { bubbles: true }));
               return { ok: true };
             }
-            return { ok: false, error: "No focused input to type into. Use click_at first." };
+            return { ok: false, error: "No focused input to type into. Use click first." };
           })()
         `);
         if (result?.ok === false) return result;
@@ -274,6 +293,24 @@ export class BrowserController {
           window.scrollBy({ top: ${deltaY}, behavior: 'smooth' });
         `);
         await this.pause(500); // Wait for smooth scrolling to complete
+        return null;
+      }
+
+      case "get_content": {
+        const result = await wc.executeJavaScript(`
+          (function() {
+            try {
+              const el = document.querySelector(${JSON.stringify(action.selector)});
+              if (!el) return { ok: false, error: "No element found for selector: " + ${JSON.stringify(action.selector)} };
+              const text = el.innerText || el.textContent || "";
+              return { ok: true, text: text.trim() };
+            } catch (e) {
+              return { ok: false, error: String(e) };
+            }
+          })()
+        `);
+        if (result?.ok === false) return result;
+        if (result?.text != null && onGetContent) onGetContent(result.text);
         return null;
       }
 

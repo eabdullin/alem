@@ -37,21 +37,31 @@ jobs:
           node-version: 20
           cache: npm
 
-      - name: Install dependencies
-        run: npm ci
+      # macOS notarization via App Store Connect API key (recommended by action)
+      # Requires secrets: api_key (.p8 content), api_key_id, api_key_issuer_id
+      # If unset, notarization falls back to APPLE_ID / APPLE_APP_SPECIFIC_PASSWORD / APPLE_TEAM_ID
+      - name: Prepare for app notarization
+        if: startsWith(matrix.os, 'macos')
+        run: |
+          if [ -n "${{ secrets.api_key }}" ]; then
+            mkdir -p ~/private_keys/
+            echo '${{ secrets.api_key }}' > ~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8
+          fi
 
-      - name: Build distributable
+      - name: Build/release Electron app
+        uses: samuelmeuli/action-electron-builder@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          args: ${{ matrix.dist_args }}
+          release: false
+          # macOS code signing (secrets: MACOS_CERTIFICATE_BASE64, MACOS_CERTIFICATE_PASSWORD)
+          mac_certs: ${{ secrets.MACOS_CERTIFICATE_BASE64 }}
+          mac_certs_password: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
-          # macOS: Developer ID Application (base64 .p12)
-          CSC_LINK: ${{ matrix.os == 'macos-latest' && secrets.MACOS_CERTIFICATE_BASE64 || '' }}
-          CSC_KEY_PASSWORD: ${{ matrix.os == 'macos-latest' && secrets.MACOS_CERTIFICATE_PASSWORD || '' }}
-          # macOS notarization (optional; add secrets to enable)
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_ID_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-        run: npm run dist -- ${{ matrix.dist_args }}
+          # macOS notarization – API key method (secrets: api_key, api_key_id, api_key_issuer_id)
+          API_KEY_ID: ${{ secrets.api_key_id }}
+          API_KEY_ISSUER_ID: ${{ secrets.api_key_issuer_id }}
 
       - name: Upload dist artifacts
         uses: actions/upload-artifact@v4

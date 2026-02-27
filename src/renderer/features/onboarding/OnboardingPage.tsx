@@ -39,14 +39,14 @@ const slides: Slide[] = [
   {
     title: "Your AI, your rules",
     subtitle:
-      "qurt is a desktop AI workspace where you pick the provider, the model, and keep your keys.",
+      "qurt is an AI Coworker and assistant where you pick the provider, the model, and keep your keys.",
     features: [
       { icon: KeyRound, text: "Bring your own API keys — no vendor lock-in" },
       { icon: MessageSquareText, text: "Chat with any supported model in one place" },
       { icon: Paperclip, text: "Attach files and images for richer conversations" },
     ],
     image: "onboarding-1.png",
-    imageAlt: "AI workspace illustration — replace with a desktop workspace showing provider logos",
+    imageAlt: "AI Coworker and assistant illustration — replace with a desktop workspace showing provider logos",
   },
   {
     title: "Built for real work",

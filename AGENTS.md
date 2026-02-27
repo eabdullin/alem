@@ -4,7 +4,7 @@ Agent guide for `qurt`.
 
 ## Project Overview
 
-`qurt` is a desktop AI workspace designed for provider freedom:
+`qurt` is an AI Coworker and assistant designed for provider freedom:
 
 - users bring their own API keys
 - users choose their preferred provider/model

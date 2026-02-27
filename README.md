@@ -4,7 +4,7 @@
   <img src="public/logo.horiz.png" alt="Qurt logo" width="260" />
 </p>
 
-Desktop AI workspace with provider freedom: bring your own API keys, choose your model, and chat with files/images in one place.
+AI Coworker and assistant with provider freedom: bring your own API keys, choose your model, and chat with files/images in one place.
 
 [![Release](https://img.shields.io/github/v/release/eabdullin/qurt?display_name=tag&sort=semver)](https://github.com/eabdullin/qurt/releases)
 [![Build Desktop](https://github.com/eabdullin/qurt/actions/workflows/build-desktop.yml/badge.svg)](https://github.com/eabdullin/qurt/actions/workflows/build-desktop.yml)

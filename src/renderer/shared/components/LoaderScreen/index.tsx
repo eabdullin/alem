@@ -4,7 +4,7 @@ const SLOGANS = [
   "One workspace. Every model.",
   "AI without lock-in.",
   "Choose your model. Own your data.",
-  "The AI workspace that works for you.",
+  "The AI Coworker and assistant that works for you.",
   "Smarter chats, your way.",
   "Your models. Your keys. Your world.",
 ];

@@ -12,3 +12,4 @@ out
 artifacts/
 landing/
 /temp-forge-vite
+/coverage

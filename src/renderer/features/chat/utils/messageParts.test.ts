@@ -133,6 +133,11 @@ describe("getToolStepStatus", () => {
     };
     expect(getToolStepStatus(part)).toBe("complete");
   });
+
+  it("returns complete when part has no state property", () => {
+    const part = { type: "text" as const, text: "x" };
+    expect(getToolStepStatus(part)).toBe("complete");
+  });
 });
 
 describe("filterMessagesByKnownTools", () => {

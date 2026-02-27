@@ -26,8 +26,9 @@ Current status:
 
 Notes:
 
-- There is currently no dedicated `npm test` script.
+- Run tests: `npm run test` (or `npm run test:coverage` for coverage).
 - Keep lint clean on touched files before finishing work.
+- Use Conventional Commits for commit messages (see Commit Message Convention below).
 
 ## Architecture Map
 
@@ -43,6 +44,23 @@ Notes:
 
 - Use Radix-based primitives from `src/renderer/shared/components/ui/` for new controls.
 - Typography: Inter font family; prefer semantic classes (`.base1`, `.base2`, `.caption1`, etc.) over raw `text-sm`/`text-base`. See `docs/FRONTEND.md` for the typography scale.
+
+## Commit Message Convention
+
+Follow [Conventional Commits](https://www.conventionalcommits.org/) (enforced via commitlint + husky):
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer]
+```
+
+- **Types:** feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert
+- **Examples:** `feat: add dark mode`, `fix(chat): resolve duplication`, `test: add url-to-domain tests`, `ci: add commitlint to workflow`
+- **Rules:** Header max 100 chars; body lines max 200 chars
+- **Enforcement:** Local (husky commit-msg hook) and CI (GitHub Actions on PRs)
 
 ## Repository Conventions
 

@@ -39,6 +39,10 @@ describe("AssistantMessageItem", () => {
       />,
     );
     expect(screen.getByText("The answer is 42.")).toBeInTheDocument();
+    expect(screen.getByText("Reasoning")).toBeInTheDocument();
+    // Reasoning content is truncated by default; expand to see full text
+    const showBtn = screen.getByRole("button", { name: /show/i });
+    fireEvent.click(showBtn);
     expect(screen.getByText("Let me think...")).toBeInTheDocument();
   });
 

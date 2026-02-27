@@ -43,8 +43,8 @@ jobs:
       - name: Prepare macOS notarization API key
         if: startsWith(matrix.os, 'macos')
         env:
-          API_KEY_CONTENT: ${{ secrets.api_key }}
-          API_KEY_ID: ${{ secrets.api_key_id }}
+          API_KEY_CONTENT: ${{ secrets.API_KEY }}
+          API_KEY_ID: ${{ secrets.API_KEY_ID }}
         run: |
           if [ -n "$API_KEY_CONTENT" ]; then
             mkdir -p ~/private_keys/
@@ -73,8 +73,8 @@ jobs:
         run: npm run make
         env:
           # macOS notarization – API key method (secrets: api_key, api_key_id, api_key_issuer_id)
-          API_KEY_ID: ${{ secrets.api_key_id }}
-          API_KEY_ISSUER_ID: ${{ secrets.api_key_issuer_id }}
+          API_KEY_ID: ${{ secrets.API_KEY_ID }}
+          API_KEY_ISSUER_ID: ${{ secrets.API_KEY_ISSUER_ID }}
           # macOS notarization – App-specific password fallback (secrets: APPLE_ID, APPLE_APP_SPECIFIC_PASSWORD, APPLE_TEAM_ID)
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}

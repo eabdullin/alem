@@ -3,18 +3,10 @@ import path from "node:path";
 
 let mainWindow: BrowserWindow | null = null;
 
-function getDistPath(): string {
-  if (app.isPackaged) {
-    return path.join(app.getAppPath(), "dist");
-  }
-  return path.join(__dirname, "../dist");
-}
-
 function getPublicPath(): string {
   if (app.isPackaged) {
-    return getDistPath();
+    return app.getAppPath();
   }
-  // In dev, use project root so public/icon.png resolves correctly
   return path.join(app.getAppPath(), "public");
 }
 
@@ -48,13 +40,10 @@ export async function createMainWindow(): Promise<BrowserWindow> {
     mainWindow = null;
   });
 
-  const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
-
-  if (VITE_DEV_SERVER_URL) {
-    mainWindow.loadURL(VITE_DEV_SERVER_URL);
+  if (typeof MAIN_WINDOW_VITE_DEV_SERVER_URL !== "undefined") {
+    mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
   } else {
-    mainWindow.loadFile(path.join(getDistPath(), "index.html"));
-    // mainWindow.removeMenu();
+    mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
   }
 
   return mainWindow;

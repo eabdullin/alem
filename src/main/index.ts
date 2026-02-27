@@ -1,5 +1,8 @@
 import { app, BrowserWindow } from "electron";
+import squirrelStartup from "electron-squirrel-startup";
 import { UpdateSourceType, updateElectronApp } from "update-electron-app";
+
+if (squirrelStartup) app.quit();
 import { createMainWindow } from "./windows/mainWindow";
 import { registerAllIpc } from "./ipc";
 import { ensureMemoryFilesystem } from "./services/memoryStore";

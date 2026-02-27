@@ -27,10 +27,6 @@ AI Coworker and assistant with provider freedom: bring your own API keys, choose
 - Local-first data approach for keys and chat context
 - Modern Electron + React + TypeScript stack
 
-## Landing Page
-
-A static marketing landing page lives in [`landing/`](landing). Preview it with `npm run landing:preview` or deploy the `landing/` folder to GitHub Pages, Netlify, or any static host.
-
 ## Install
 
 ### Option 1: Download from GitHub Releases

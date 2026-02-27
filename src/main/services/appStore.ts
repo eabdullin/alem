@@ -20,6 +20,8 @@ export function getStore(): Store<any> {
             xai: [],
           },
           theme: "dark",
+          /** Custom shell for terminal tool. Empty = platform default (PowerShell on Windows, /bin/sh on Unix). */
+          terminalShell: "",
         },
         apiKeys: {},
         chats: [],

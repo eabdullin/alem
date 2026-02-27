@@ -20,4 +20,15 @@ export const DENYLIST_COMMANDS = new Set([
   "scp",
   "sftp",
   "eval",
+  // Shells – prevent spawning interactive shells that could bypass restrictions
+  "cmd",
+  "powershell",
+  "pwsh",
+  "bash",
+  "sh",
+  "zsh",
+  "fish",
+  "ksh",
+  "csh",
+  "tcsh",
 ]);

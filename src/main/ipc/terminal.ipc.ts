@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { ipcMain } from "electron";
+import { getStore } from "../services/appStore";
 import {
   runTerminal,
   type TerminalRunRequest,
@@ -35,7 +36,9 @@ export function registerTerminalIpc(): void {
             truncated: false,
           };
         }
-        return runTerminal({ request, workspaceRoot: resolved });
+        const settings = getStore().get("settings", {}) as { terminalShell?: string };
+        const shell = settings.terminalShell?.trim() || undefined;
+        return runTerminal({ request, workspaceRoot: resolved, shell });
       } catch {
         return {
           stdout: "",

@@ -22,6 +22,7 @@ export function registerAppIpc(): void {
       hasSeenOnboarding: false,
       theme: "dark",
       browserAllowedHosts: [],
+      terminalShell: "",
     });
   });
 

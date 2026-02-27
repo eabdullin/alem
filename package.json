@@ -1,6 +1,8 @@
 {
   "name": "qurt",
   "version": "0.1.0",
+  "description": "AI Coworker and assistant with provider freedom: bring your own API keys, choose your model, and chat with files/images in one place.",
+  "author": "Yelaman Abdullin",
   "private": true,
   "main": ".vite/build/main.js",
   "scripts": {

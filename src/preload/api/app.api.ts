@@ -1,6 +1,8 @@
 import { ipcRenderer } from "electron";
 import { IPC_CHANNELS } from "../../shared/ipc/channels";
 
+export type UpdateCheckResult = { ok: true } | { ok: false; reason: string };
+
 export interface MemoryCommandInput {
   command: "view" | "create" | "update" | "search";
   path?: string;
@@ -39,4 +41,18 @@ export const appApi = {
     ipcRenderer.invoke(IPC_CHANNELS.MEMORY_APPEND_CONVERSATION, entry) as Promise<void>,
   runMemoryCommand: (input: MemoryCommandInput) =>
     ipcRenderer.invoke(IPC_CHANNELS.MEMORY_RUN_COMMAND, input) as Promise<string>,
+  checkForUpdates: () =>
+    ipcRenderer.invoke(IPC_CHANNELS.CHECK_FOR_UPDATES) as Promise<UpdateCheckResult>,
+  applyUpdate: () =>
+    ipcRenderer.invoke(IPC_CHANNELS.APPLY_UPDATE) as Promise<void>,
+  onUpdateReady: (callback: () => void) => {
+    const handler = () => callback();
+    ipcRenderer.on(IPC_CHANNELS.UPDATE_READY, handler);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.UPDATE_READY, handler);
+  },
+  onUpToDate: (callback: () => void) => {
+    const handler = () => callback();
+    ipcRenderer.on(IPC_CHANNELS.UP_TO_DATE, handler);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.UP_TO_DATE, handler);
+  },
 };

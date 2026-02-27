@@ -16,7 +16,7 @@ System architecture for `qurt`.
 1. **Electron main process** (`src/main/`)
    - app lifecycle, window creation, IPC registration, packaged auto-updates via `update-electron-app`
    - files: `src/main/index.ts`, `src/main/windows/mainWindow.ts`, `src/main/ipc/*.ipc.ts`, `src/main/services/*.ts`
-   - IPC domains: shell (open-folder-dialog), app (settings, API keys, attachments, memory), terminal, browser, filePatch
+   - IPC domains: shell (open-folder-dialog), app (settings, API keys, attachments, memory), terminal, browser, filePatch, update (check-for-updates, apply-update; update-ready/up-to-date events)
 2. **Electron preload bridge** (`src/preload/`)
    - safe renderer API exposed via `window.qurt`
    - split by domain: `src/preload/api/*.api.ts`, composed in `src/preload/index.ts`
@@ -32,9 +32,9 @@ System architecture for `qurt`.
 ## Directory Map
 
 - `src/main/`: Electron main process
-  - `index.ts`: app lifecycle, `registerAllIpc()`, auto-update bootstrap (`update-electron-app` -> GitHub Releases source)
+  - `index.ts`: app lifecycle, `registerAllIpc()`, auto-update bootstrap (`update-electron-app` -> GitHub Releases; checks every 24h; applies via Settings "Check for Updates" or update-ready toast)
   - `windows/mainWindow.ts`: window creation
-  - `ipc/`: IPC handlers by domain (shell, app, terminal, browser, filePatch)
+  - `ipc/`: IPC handlers by domain (shell, app, terminal, browser, filePatch, update)
   - `services/`: terminalRunner, browserController, filePatchRunner, filePatchCheckpoints, appStore, fileStore, memoryStore
 - `src/preload/`: context bridge; `api/` split by domain
 - `src/shared/`: safe shared code (types, constants); `tools/` for tool protocol types

@@ -7,6 +7,7 @@
  */
 
 import { spawn } from "node:child_process";
+import os from "node:os";
 import path from "node:path";
 
 import {
@@ -105,11 +106,14 @@ class OutputCap {
 export interface RunTerminalOptions {
   request: TerminalRunRequest;
   workspaceRoot: string;
+  /** Custom shell executable. Empty/undefined = platform default. */
+  shell?: string;
 }
 
 export async function runTerminal({
   request,
   workspaceRoot,
+  shell: shellOverride,
 }: RunTerminalOptions): Promise<TerminalRunResult> {
   const start = Date.now();
   const maxBytes = request.max_output_bytes ?? DEFAULT_MAX_OUTPUT_BYTES;
@@ -143,10 +147,16 @@ export async function runTerminal({
     const stdoutCap = new OutputCap(maxBytes);
     const stderrCap = new OutputCap(maxBytes);
 
+    const shell =
+      shellOverride && shellOverride.length > 0
+        ? shellOverride
+        : os.platform() === "win32"
+          ? "powershell.exe"
+          : true;
     const proc = spawn(cmd, args, {
       cwd: workspaceRoot,
       env: spawnEnv,
-      shell: false,
+      shell,
       windowsHide: true,
     });
 

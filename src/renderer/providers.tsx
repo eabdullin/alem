@@ -1,12 +1,14 @@
 import { ChakraProvider, ColorModeScript } from "@chakra-ui/react";
 import { Toaster, resolveValue } from "react-hot-toast";
 import theme from "./theme";
+import { UpdateToastListener } from "./features/updates/UpdateToastListener";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <>
       <ColorModeScript initialColorMode={theme.config.initialColorMode} />
       <ChakraProvider>{children}</ChakraProvider>
+      <UpdateToastListener />
       <Toaster
         containerStyle={{
           bottom: 40,

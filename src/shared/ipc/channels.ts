@@ -31,4 +31,9 @@ export const IPC_CHANNELS = {
   MEMORY_READ_CORE: "memory-read-core",
   MEMORY_APPEND_CONVERSATION: "memory-append-conversation",
   MEMORY_RUN_COMMAND: "memory-run-command",
+  // Updates
+  CHECK_FOR_UPDATES: "check-for-updates",
+  APPLY_UPDATE: "apply-update",
+  UPDATE_READY: "update-ready",
+  UP_TO_DATE: "up-to-date",
 } as const;

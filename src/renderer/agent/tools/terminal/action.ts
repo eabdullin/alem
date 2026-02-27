@@ -60,7 +60,8 @@ function getPlatformLabel(): string {
  * Execution is done via IPC to the Electron main process (same for all providers).
  */
 const description = `
-Run a single command in the workspace terminal. Commands always run in the chat's workspace folder.
+Run a single command in the workspace terminal. Uses the platform default shell (PowerShell on Windows, /bin/sh on macOS/Linux), or the shell configured in Settings > Terminal.
+Commands always run in the chat's workspace folder.
 Current platform: ${getPlatformLabel()}. 
 Use platform-appropriate commands (e.g. on Windows prefer Get-Content; on macOS/Linux use cat). 
 Use ripgrep to search for files (e.g. 'rg -l "search term"').

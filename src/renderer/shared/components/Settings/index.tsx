@@ -5,6 +5,8 @@ import Menu from "./Menu";
 import AiProviders from "./AiProviders";
 import ChatExport from "./ChatExport";
 import Appearance from "./Appearance";
+import Terminal from "./Terminal";
+import Help from "./Help";
 
 type SettingsType = {
   id: string;
@@ -44,6 +46,8 @@ const Settings = ({ items, activeItem }: SettingsProps) => {
         <div className="grow pl-12 md:pl-0">
           {active.id === "ai-providers" && <AiProviders />}
           {active.id === "appearance" && <Appearance />}
+          {active.id === "help" && <Help />}
+          {active.id === "terminal" && <Terminal />}
           {active.id === "chat-export" && <ChatExport />}
         </div>
       </div>

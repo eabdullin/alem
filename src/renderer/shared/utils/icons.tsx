@@ -127,6 +127,7 @@ const iconMap: Record<string, LucideIcon> = {
   "star-fill": Star,
   "delete-chat": Trash2,
   lock: Lock,
+  terminal: Terminal,
 };
 
 type IconProps = React.SVGProps<SVGSVGElement> & {

@@ -41,7 +41,10 @@ const config: ForgeConfig = {
   makers: [
     new MakerSquirrel({
       name: "qurt",
+      authors: "Yelaman Abdullin",
+      description: "AI Coworker and assistant with provider freedom: bring your own API keys, choose your model, and chat with files/images in one place.",
       // setupIcon requires .ico format; add public/icon.ico when available
+      // certificateFile/certificatePassword for code signing when you have a cert
     }),
     new MakerZIP({}, ["darwin"]),
     new MakerDMG({

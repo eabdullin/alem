@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import Image from "@/components/Image";
+import { PLACEHOLDER_AVATAR } from "@/constants/placeholders";
 
 type ProfileProps = {
     visible?: boolean;
@@ -22,7 +23,7 @@ const Profile = ({ visible }: ProfileProps) => (
                 <div className="relative w-10 h-10">
                     <Image
                         className="rounded-full object-cover"
-                        src="/images/avatar.jpg"
+                        src={PLACEHOLDER_AVATAR}
                         fill
                         alt="Avatar"
                     />

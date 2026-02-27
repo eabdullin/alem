@@ -39,7 +39,7 @@ const RangeSlider = ({ className, title }: RangeSliderProps) => {
                         boxShadow: "none",
                         backgroundColor: isDarkMode ? "#E8ECEF" : "#343839",
                         border: `0.125rem solid ${
-                            isDarkMode ? "#141718" : "#FEFEFE"
+                            isDarkMode ? "#121212" : "#FAF8F4"
                         }`,
                         opacity: 1,
                     }}

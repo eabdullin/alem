@@ -85,10 +85,10 @@ export function getRestoreContextForUserMessage(
 export async function restoreCheckpoints(
   checkpointIds: string[]
 ): Promise<{ restored: boolean; error?: string }> {
-  if (!window.alem?.restoreFilePatchCheckpoints) {
+  if (!window.qurt?.restoreFilePatchCheckpoints) {
     return { restored: false, error: "Restore is not available." };
   }
-  return window.alem.restoreFilePatchCheckpoints(checkpointIds);
+  return window.qurt.restoreFilePatchCheckpoints(checkpointIds);
 }
 
 /**

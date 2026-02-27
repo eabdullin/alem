@@ -21,7 +21,7 @@ const Main = () => {
     new URLSearchParams(location.search).get("list")?.trim() || undefined;
 
   const addAttachments = async (files: File[]) => {
-    if (!window.alem || files.length === 0) {
+    if (!window.qurt || files.length === 0) {
       return;
     }
 
@@ -45,7 +45,7 @@ const Main = () => {
           reader.readAsDataURL(file);
         });
 
-        const attachment = await window.alem.saveAttachment({
+        const attachment = await window.qurt.saveAttachment({
           name: file.name || "attachment",
           mediaType: file.type || "application/octet-stream",
           dataBase64,
@@ -56,7 +56,7 @@ const Main = () => {
     } catch (unknownError) {
       for (const attachment of nextAttachments) {
         try {
-          await window.alem.deleteAttachment(attachment.id);
+          await window.qurt.deleteAttachment(attachment.id);
         } catch {
           // Ignore cleanup errors when a draft upload fails.
         }
@@ -80,7 +80,7 @@ const Main = () => {
     );
 
     try {
-      await window.alem.deleteAttachment(attachmentId);
+      await window.qurt.deleteAttachment(attachmentId);
     } catch {
       // Ignore delete failures in draft state.
     }
@@ -145,9 +145,9 @@ const Main = () => {
           onRemoveAttachment={removePendingAttachment}
           terminalWorkspacePath={workspacePath || undefined}
           onSelectWorkspaceFolder={
-            window.alem?.openFolderDialog
+            window.qurt?.openFolderDialog
               ? async () => {
-                  const path = await window.alem.openFolderDialog();
+                  const path = await window.qurt.openFolderDialog();
                   if (path) setWorkspacePath(path);
                 }
               : undefined

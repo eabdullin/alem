@@ -30,7 +30,7 @@ const config: Config = {
     	extend: {
     		colors: {
     			primary: {
-    				'1': '#0084FF',
+    				'1': '#E9A341',
     				'2': '#3FDD78',
     				DEFAULT: 'hsl(var(--primary))',
     				foreground: 'hsl(var(--primary-foreground))'
@@ -45,13 +45,13 @@ const config: Config = {
     				foreground: 'hsl(var(--accent-foreground))'
     			},
     			n: {
-    				'1': '#FEFEFE',
+    				'1': '#FAF8F4',
     				'2': '#F3F5F7',
     				'3': '#E8ECEF',
     				'4': '#6C7275',
     				'5': '#343839',
     				'6': '#232627',
-    				'7': '#141718'
+    				'7': '#121212'
     			},
     			background: 'hsl(var(--background))',
     			foreground: 'hsl(var(--foreground))',

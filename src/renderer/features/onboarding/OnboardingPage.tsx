@@ -39,7 +39,7 @@ const slides: Slide[] = [
   {
     title: "Your AI, your rules",
     subtitle:
-      "alem is a desktop AI workspace where you pick the provider, the model, and keep your keys.",
+      "qurt is a desktop AI workspace where you pick the provider, the model, and keep your keys.",
     features: [
       { icon: KeyRound, text: "Bring your own API keys — no vendor lock-in" },
       { icon: MessageSquareText, text: "Chat with any supported model in one place" },
@@ -127,8 +127,8 @@ const OnboardingPage = ({ onComplete }: OnboardingPageProps) => {
           {/* Header */}
           <div className="flex items-center justify-between px-8 pt-6">
             <img
-              src="./logo-horiz.small.png"
-              alt="Alem"
+              src="./logo.horiz.png"
+              alt="Qurt"
               className="h-10 w-auto shrink-0 object-contain"
             />
             <span className="caption1 text-n-4">

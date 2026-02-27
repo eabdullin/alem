@@ -42,8 +42,8 @@ const terminalInputSchema = z.object({
 export type TerminalToolInput = z.infer<typeof terminalInputSchema>;
 
 function getPlatformLabel(): string {
-  if (typeof window === "undefined" || !window.alem?.platform) return "unknown";
-  switch (window.alem.platform) {
+  if (typeof window === "undefined" || !window.qurt?.platform) return "unknown";
+  switch (window.qurt.platform) {
     case "win32":
       return "Windows";
     case "darwin":
@@ -51,7 +51,7 @@ function getPlatformLabel(): string {
     case "linux":
       return "Linux";
     default:
-      return window.alem.platform;
+      return window.qurt.platform;
   }
 }
 
@@ -85,7 +85,7 @@ export function getTerminalToolSet(
       inputSchema: zodSchema(terminalInputSchema),
       needsApproval: true,
       execute: async (input) => {
-        if (typeof window === "undefined" || !window.alem?.runTerminal) {
+        if (typeof window === "undefined" || !window.qurt?.runTerminal) {
           return {
             stdout: "",
             stderr: "Terminal is not available in this environment.",
@@ -103,7 +103,7 @@ export function getTerminalToolSet(
             truncated: false,
           };
         }
-        return window.alem.runTerminal({
+        return window.qurt.runTerminal({
           ...input,
           workspaceRoot,
         }) as Promise<TerminalRunResult>;

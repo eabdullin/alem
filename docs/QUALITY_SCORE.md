@@ -1,6 +1,6 @@
 # QUALITY SCORE
 
-Quality scoring framework for `alem` releases.
+Quality scoring framework for `qurt` releases.
 
 ## Scoring Model
 

@@ -1,19 +1,19 @@
-# Alem
+# qurt
 
 <p align="left">
-  <img src="public/logo-horiz.small.png" alt="Alem logo" width="260" />
+  <img src="public/logo.horiz.png" alt="Qurt logo" width="260" />
 </p>
 
 Desktop AI workspace with provider freedom: bring your own API keys, choose your model, and chat with files/images in one place.
 
-[![Release](https://img.shields.io/github/v/release/eabdullin/alem?display_name=tag&sort=semver)](https://github.com/eabdullin/alem/releases)
-[![Build Desktop](https://github.com/eabdullin/alem/actions/workflows/build-desktop.yml/badge.svg)](https://github.com/eabdullin/alem/actions/workflows/build-desktop.yml)
-[![Downloads](https://img.shields.io/github/downloads/eabdullin/alem/total)](https://github.com/eabdullin/alem/releases)
-[![Stars](https://img.shields.io/github/stars/eabdullin/alem?style=social)](https://github.com/eabdullin/alem/stargazers)
+[![Release](https://img.shields.io/github/v/release/eabdullin/qurt?display_name=tag&sort=semver)](https://github.com/eabdullin/qurt/releases)
+[![Build Desktop](https://github.com/eabdullin/qurt/actions/workflows/build-desktop.yml/badge.svg)](https://github.com/eabdullin/qurt/actions/workflows/build-desktop.yml)
+[![Downloads](https://img.shields.io/github/downloads/eabdullin/qurt/total)](https://github.com/eabdullin/qurt/releases)
+[![Stars](https://img.shields.io/github/stars/eabdullin/qurt?style=social)](https://github.com/eabdullin/qurt/stargazers)
 [![Electron](https://img.shields.io/badge/Electron-40-47848F?logo=electron&logoColor=white)](https://www.electronjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
-## Why Alem
+## Why Qurt
 
 - **Provider freedom first**: connect your own provider keys and avoid lock-in.
 - **Desktop-native workflow**: keep your chats, files, and context in one local app.
@@ -27,13 +27,17 @@ Desktop AI workspace with provider freedom: bring your own API keys, choose your
 - Local-first data approach for keys and chat context
 - Modern Electron + React + TypeScript stack
 
+## Landing Page
+
+A static marketing landing page lives in [`landing/`](landing). Preview it with `npm run landing:preview` or deploy the `landing/` folder to GitHub Pages, Netlify, or any static host.
+
 ## Install
 
 ### Option 1: Download from GitHub Releases
 
-1. Open the [latest release](https://github.com/eabdullin/alem/releases/latest).
+1. Open the [latest release](https://github.com/eabdullin/qurt/releases/latest).
 2. Download the installer for your platform.
-3. Install and launch `Alem`.
+3. Install and launch `Qurt`.
 
 ### Option 2: Run from source
 

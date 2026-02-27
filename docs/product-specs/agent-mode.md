@@ -6,7 +6,7 @@ Users increasingly need AI help for executable tasks (browse, inspect files, run
 
 ## Goal
 
-Add an agent mode where `alem` can execute tool-based workflows with explicit user control and transparent behavior.
+Add an agent mode where `qurt` can execute tool-based workflows with explicit user control and transparent behavior.
 
 ## Non-Goals (Initial)
 

@@ -4,7 +4,7 @@
 
 New users need to understand three things quickly:
 
-1. what `alem` is for
+1. what `qurt` is for
 2. how to connect a provider securely
 3. how to get value from the first chat with attachments
 

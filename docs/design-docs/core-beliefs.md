@@ -1,6 +1,6 @@
 # Core Beliefs
 
-Foundational beliefs for building `alem`.
+Foundational beliefs for building `qurt`.
 
 ## Product Beliefs
 

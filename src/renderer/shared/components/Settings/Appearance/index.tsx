@@ -3,6 +3,10 @@ import { useColorMode } from "@chakra-ui/react";
 import { twMerge } from "tailwind-merge";
 import Image from "@/components/Image";
 import Select from "@/components/Select";
+import {
+  PLACEHOLDER_THEME_LIGHT,
+  PLACEHOLDER_THEME_DARK,
+} from "@/constants/placeholders";
 
 const languages = [
     {
@@ -28,13 +32,13 @@ const Appearance = ({}: AppearanceProps) => {
     const items = [
         {
             title: "Light mode",
-            image: "/images/theme-light.svg",
+            image: PLACEHOLDER_THEME_LIGHT,
             active: colorMode === "light",
             onClick: () => setColorMode("light"),
         },
         {
             title: "Dark mode",
-            image: "/images/theme-dark.svg",
+            image: PLACEHOLDER_THEME_DARK,
             active: colorMode === "dark",
             onClick: () => setColorMode("dark"),
         },

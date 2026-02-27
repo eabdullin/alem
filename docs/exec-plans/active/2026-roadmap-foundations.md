@@ -6,7 +6,7 @@ Last Updated: 2026-02-21
 
 ## Objective
 
-Build the foundation for `alem`'s next phase:
+Build the foundation for `qurt`'s next phase:
 
 1. hybrid UI
 2. agent mode

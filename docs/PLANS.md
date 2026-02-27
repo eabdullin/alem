@@ -1,10 +1,10 @@
 # PLANS
 
-Planning hub for `alem`.
+Planning hub for `qurt`.
 
 ## Strategic Direction
 
-`alem` prioritizes user freedom across AI vendors while keeping a high-trust local-first experience.
+`qurt` prioritizes user freedom across AI vendors while keeping a high-trust local-first experience.
 
 ## Now / Next / Later
 

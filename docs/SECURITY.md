@@ -1,6 +1,6 @@
 # SECURITY
 
-Security notes for `alem`.
+Security notes for `qurt`.
 
 ## Threat Model (Current)
 

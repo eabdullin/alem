@@ -1,4 +1,4 @@
-import { useAlemChat } from "@/hooks/useAlemChat";
+import { useQurtChat } from "@/hooks/useQurtChat";
 import type { UIMessage } from "ai";
 
 type UseChatRuntimeOptions = {
@@ -14,7 +14,7 @@ export function useChatRuntime({
   workspaceRoot,
   onMessagesChange,
 }: UseChatRuntimeOptions) {
-  return useAlemChat({
+  return useQurtChat({
     chatId,
     initialMessages,
     onMessagesChange,

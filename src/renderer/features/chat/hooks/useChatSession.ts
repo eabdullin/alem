@@ -57,12 +57,12 @@ export function useChatSession({ chatId, activeListId }: UseChatSessionOptions) 
   const hasOpenFolderDialog =
     !!chatId &&
     typeof window !== "undefined" &&
-    window.alem &&
-    typeof window.alem.openFolderDialog === "function";
+    window.qurt &&
+    typeof window.qurt.openFolderDialog === "function";
 
   const handleSelectWorkspaceFolder = hasOpenFolderDialog
     ? useCallback(async () => {
-        const path = await window.alem!.openFolderDialog();
+        const path = await window.qurt!.openFolderDialog();
         if (path && chatId) {
           const updated = await chatService.updateChat(chatId, {
             terminalWorkspacePath: path,

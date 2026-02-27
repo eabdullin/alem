@@ -4,12 +4,12 @@ import LoaderScreen from "@/components/LoaderScreen";
 import { OnboardingPage } from "@/features/onboarding";
 import { AppRoutes } from "./app/routes";
 
-interface AlemContextType {
+interface QurtContextType {
   settings: any;
   updateSettings: (settings: any) => Promise<void>;
 }
 
-export const AlemContext = createContext<AlemContextType>({
+export const QurtContext = createContext<QurtContextType>({
   settings: {},
   updateSettings: async () => {},
 });
@@ -27,8 +27,8 @@ function App() {
     async function init() {
       const { bootstrapDb } = await import("./db/bootstrap");
       await bootstrapDb();
-      if (window.alem) {
-        const s = await window.alem.getSettings();
+      if (window.qurt) {
+        const s = await window.qurt.getSettings();
         setSettings(s);
         setShowOnboarding(!s?.hasSeenOnboarding);
       }
@@ -41,8 +41,8 @@ function App() {
 
   const updateSettings = async (newSettings: any) => {
     setSettings(newSettings);
-    if (window.alem) {
-      await window.alem.saveSettings(newSettings);
+    if (window.qurt) {
+      await window.qurt.saveSettings(newSettings);
     }
   };
 
@@ -61,13 +61,13 @@ function App() {
   }
 
   return (
-    <AlemContext.Provider value={{ settings, updateSettings }}>
+    <QurtContext.Provider value={{ settings, updateSettings }}>
       {showOnboarding ? (
         <OnboardingPage onComplete={completeOnboarding} />
       ) : (
         <AppRoutes />
       )}
-    </AlemContext.Provider>
+    </QurtContext.Provider>
   );
 }
 

@@ -7,13 +7,13 @@ import { appDb } from "./appDb";
 import * as chatsRepo from "./repos/chats.repo";
 import * as chatGroupsRepo from "./repos/chat-groups.repo";
 
-const MIGRATION_KEY = "alem:dexie-migrated-v1";
+const MIGRATION_KEY = "qurt:dexie-migrated-v1";
 
 async function migrateFromLocalStorage(): Promise<void> {
   if (typeof window === "undefined") return;
   if (window.localStorage.getItem(MIGRATION_KEY)) return;
 
-  const chatHistoryRaw = window.localStorage.getItem("alem.chat-history.v2");
+  const chatHistoryRaw = window.localStorage.getItem("qurt.chat-history.v2");
   if (chatHistoryRaw) {
     try {
       const parsed = JSON.parse(chatHistoryRaw);
@@ -34,7 +34,7 @@ async function migrateFromLocalStorage(): Promise<void> {
     }
   }
 
-  const chatListsRaw = window.localStorage.getItem("alem.chat-lists.v1");
+  const chatListsRaw = window.localStorage.getItem("qurt.chat-lists.v1");
   if (chatListsRaw) {
     try {
       const parsed = JSON.parse(chatListsRaw);

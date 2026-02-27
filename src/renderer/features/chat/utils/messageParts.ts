@@ -1,4 +1,4 @@
-import { ALEM_ATTACHMENT_PREFIX } from "@/services/alem-chat-transport";
+import { QURT_ATTACHMENT_PREFIX } from "@/services/qurt-chat-transport";
 import {
   getTextFromParts as getTextFromPartsBase,
   getToolPartName,
@@ -17,7 +17,7 @@ export {
 export type { ChainStepStatus };
 
 export function getAttachmentIdFromUrl(url: string): string | undefined {
-  return getAttachmentIdFromUrlBase(url, ALEM_ATTACHMENT_PREFIX);
+  return getAttachmentIdFromUrlBase(url, QURT_ATTACHMENT_PREFIX);
 }
 
 /**

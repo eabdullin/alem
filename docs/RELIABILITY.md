@@ -1,6 +1,6 @@
 # RELIABILITY
 
-Reliability posture and hardening plan for `alem`.
+Reliability posture and hardening plan for `qurt`.
 
 ## Reliability Goals
 

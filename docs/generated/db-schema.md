@@ -1,11 +1,11 @@
 # Local Persistence Schema Snapshot
 
-`alem` currently uses local persistence (not a remote SQL/NoSQL database).
+`qurt` currently uses local persistence (not a remote SQL/NoSQL database).
 
 ## Sources Of Truth
 
-1. Electron store (`alem-config`)
-2. Browser local storage (`alem.chat-history.v1`)
+1. Electron store (`qurt-config`)
+2. Browser local storage (`qurt.chat-history.v1`)
 3. Attachment file directory (`<userData>/chat-attachments`)
 
 ## Electron Store Shape (Current)

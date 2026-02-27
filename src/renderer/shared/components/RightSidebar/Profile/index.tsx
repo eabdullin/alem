@@ -6,6 +6,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Image from "@/components/Image";
+import { PLACEHOLDER_AVATAR } from "@/constants/placeholders";
 import { Icon } from "@/utils/icons";
 import Modal from "@/components/Modal";
 import Settings from "@/components/Settings";
@@ -42,11 +43,11 @@ const Profile = ({}: ProfileProps) => {
                     <DropdownMenuTrigger asChild>
                         <button
                             type="button"
-                            className="relative w-10 h-10 rounded-full transition-shadow data-[state=open]:shadow-[0_0_0_0.25rem_#0084FF]"
+                            className="relative w-10 h-10 rounded-full transition-shadow data-[state=open]:shadow-[0_0_0_0.25rem_#E9A341]"
                         >
                             <Image
                                 className="rounded-full object-cover"
-                                src="/images/avatar.jpg"
+                                src={PLACEHOLDER_AVATAR}
                                 fill
                                 alt="Avatar"
                             />
@@ -62,7 +63,7 @@ const Profile = ({}: ProfileProps) => {
                             <div className="relative w-15 h-15">
                                 <Image
                                     className="rounded-full object-cover"
-                                    src="/images/avatar.jpg"
+                                    src={PLACEHOLDER_AVATAR}
                                     fill
                                     alt="Avatar"
                                 />

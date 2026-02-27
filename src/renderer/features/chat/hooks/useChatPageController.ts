@@ -106,10 +106,10 @@ export function useChatPageController() {
   );
 
   const openAttachment = useCallback((attachmentId: string) => {
-    if (!window.alem) {
+    if (!window.qurt) {
       return;
     }
-    void window.alem.openAttachment(attachmentId);
+    void window.qurt.openAttachment(attachmentId);
   }, []);
 
   useEffect(() => {

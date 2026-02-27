@@ -3,9 +3,12 @@ import {
   type ClipboardEvent,
   type FormEventHandler,
   type KeyboardEvent,
+  useContext,
   useMemo,
 } from "react";
+import { useNavigate } from "react-router-dom";
 import TextareaAutosize from "react-textarea-autosize";
+import { toast } from "react-hot-toast";
 import { Icon } from "@/utils/icons";
 import { Button } from "@/components/ui/button";
 import ModelSelector from "@/components/ModelSelector";
@@ -19,6 +22,9 @@ import {
   Attachments,
   type AttachmentData,
 } from "@/components/ai-elements/attachments";
+import { QurtContext } from "@/App";
+import { PROVIDERS } from "@/constants/providers";
+import Notify from "@/components/Notify";
 
 type PromptInputProps = {
   value: any;
@@ -37,6 +43,8 @@ type PromptInputProps = {
   onStop?: () => void;
 };
 
+const TOAST_DURATION_MS = 10000;
+
 const PromptInput = ({
   value,
   onChange,
@@ -51,6 +59,23 @@ const PromptInput = ({
   isLoading,
   onStop,
 }: PromptInputProps) => {
+  const { settings } = useContext(QurtContext);
+  const navigate = useNavigate();
+
+  const enabledModels: Record<string, string[]> = useMemo(
+    () => settings?.enabledModels ?? {},
+    [settings?.enabledModels],
+  );
+  const enabledCount = useMemo(
+    () =>
+      PROVIDERS.reduce(
+        (sum, p) => sum + (enabledModels[p.id]?.length ?? 0),
+        0,
+      ),
+    [enabledModels],
+  );
+  const hasSelectedModel = Boolean(settings?.activeModel);
+
   const hasAttachments = (attachments?.length ?? 0) > 0;
   const attachmentItems = useMemo<AttachmentData[]>(
     () =>
@@ -81,6 +106,54 @@ const PromptInput = ({
     }
   };
 
+  const handleSubmit: FormEventHandler<HTMLFormElement> = (event) => {
+    if (enabledCount === 0) {
+      event.preventDefault();
+      toast(
+        (t) => (
+          <Notify>
+            <div className="ml-3 mr-6 base2 md:mx-0 md:my-2">
+              Add API keys and enable models in Settings to start chatting.
+            </div>
+            <Button
+              size="sm"
+              className="ml-2 shrink-0"
+              onClick={() => {
+                navigate("/settings");
+                toast.dismiss(t.id);
+              }}
+            >
+              Setup
+            </Button>
+          </Notify>
+        ),
+        { duration: TOAST_DURATION_MS },
+      );
+      return;
+    }
+    if (!hasSelectedModel) {
+      event.preventDefault();
+      toast(
+        (t) => (
+          <Notify>
+            <div className="ml-3 base2">Choose a model to continue.</div>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="ml-2 shrink-0 text-n-1 hover:text-n-1/90"
+              onClick={() => toast.dismiss(t.id)}
+            >
+              Dismiss
+            </Button>
+          </Notify>
+        ),
+        { duration: TOAST_DURATION_MS },
+      );
+      return;
+    }
+    onSubmit?.(event);
+  };
+
   return (
     <div
       className={`relative z-5 w-full ${
@@ -89,7 +162,7 @@ const PromptInput = ({
           : "px-10 pb-6 before:absolute before:-top-6 before:left-0 before:right-6 before:bottom-1/2 before:bg-gradient-to-b before:to-n-1 before:from-n-1/0 before:pointer-events-none 2xl:px-6 2xl:pb-5 md:px-4 md:pb-4 dark:before:to-n-6 dark:before:from-n-6/0"
       }`}
     >
-      <form onSubmit={onSubmit}>
+      <form onSubmit={handleSubmit}>
         <div className="relative z-2 border-2 border-n-3 rounded-2xl dark:border-n-5">
           {hasAttachments && (
             <div className="overflow-hidden rounded-t-2xl border-b-2 border-n-3 px-4 py-3 dark:border-n-5">
@@ -121,7 +194,7 @@ const PromptInput = ({
               onChange={onChange}
               onKeyDown={handleKeyDown}
               onPaste={handlePaste}
-              placeholder={placeholder || "Ask Alem anything"}
+              placeholder={placeholder || "Ask Qurt anything"}
             />
             {(value !== "" || hasAttachments || isLoading) && (
               isLoading && onStop ? (

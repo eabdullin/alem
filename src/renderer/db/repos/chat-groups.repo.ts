@@ -1,6 +1,6 @@
 import { appDb, type ChatGroupRecord } from "../appDb";
 
-export const CHAT_GROUPS_UPDATED_EVENT = "alem:chat-groups-updated";
+export const CHAT_GROUPS_UPDATED_EVENT = "qurt:chat-groups-updated";
 export const FAVORITES_CHAT_GROUP_ID = "favorites";
 export const ARCHIVED_CHAT_GROUP_ID = "archived";
 

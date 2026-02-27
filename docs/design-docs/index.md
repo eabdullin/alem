@@ -1,6 +1,6 @@
 # Design Docs Index
 
-Decision-oriented design docs for `alem`.
+Decision-oriented design docs for `qurt`.
 
 ## Current Docs
 

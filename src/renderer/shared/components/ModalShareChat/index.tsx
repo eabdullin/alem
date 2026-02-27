@@ -15,7 +15,7 @@ type ModalShareChatProps = {
 
 const ModalShareChat = ({ visible, onClose }: ModalShareChatProps) => {
     const [link, setLink] = useState<string>(
-        "https://ui8.net/ui8/products/alem-ai-ui-design-kit"
+        "https://ui8.net/ui8/products/qurt-ai-ui-design-kit"
     );
     const [selectedOptions, setSelectedOptions] = useState([]);
     const [copied, setCopied] = useState<boolean>(false);

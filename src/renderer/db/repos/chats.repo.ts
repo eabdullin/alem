@@ -3,7 +3,7 @@ import type { ChatToolApprovalRule } from "@/types/tool-approval";
 import { appDb, type ChatSessionRecord } from "../appDb";
 import { ARCHIVED_CHAT_GROUP_ID } from "./chat-groups.repo";
 
-export const CHAT_HISTORY_UPDATED_EVENT = "alem:chat-history-updated";
+export const CHAT_HISTORY_UPDATED_EVENT = "qurt:chat-history-updated";
 export const DEFAULT_CHAT_TITLE = "New chat";
 
 function createChatId(): string {

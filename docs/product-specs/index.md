@@ -1,6 +1,6 @@
 # Product Specs Index
 
-Master index for customer-facing specs in `alem`.
+Master index for customer-facing specs in `qurt`.
 
 ## Current Specs
 

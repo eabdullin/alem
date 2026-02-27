@@ -2,11 +2,11 @@
 
 ## Problem
 
-Users want `alem` workflows beyond desktop, especially for quick follow-ups, review, and lightweight task handling.
+Users want `qurt` workflows beyond desktop, especially for quick follow-ups, review, and lightweight task handling.
 
 ## Goal
 
-Ship a mobile experience that extends core `alem` value while preserving user freedom in provider/model choice.
+Ship a mobile experience that extends core `qurt` value while preserving user freedom in provider/model choice.
 
 ## Scope (Early)
 

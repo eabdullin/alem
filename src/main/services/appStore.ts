@@ -5,7 +5,7 @@ let store: Store<any> | null = null;
 export function getStore(): Store<any> {
   if (!store) {
     store = new Store({
-      name: "alem-config",
+      name: "qurt-config",
       defaults: {
         settings: {
           providers: {},

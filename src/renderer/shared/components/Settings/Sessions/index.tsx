@@ -1,24 +1,25 @@
 import Device from "./Device";
+import { PLACEHOLDER_ICON } from "@/constants/placeholders";
 
 const devices = [
     {
         id: "0",
         title: "Chrome on iPhone",
-        image: "/images/chrome.svg",
+        image: PLACEHOLDER_ICON,
         address: "222.225.225.222",
         date: "Signed in Nov 17, 2023",
     },
     {
         id: "1",
         title: "Chrome on Macbook Pro",
-        image: "/images/chrome.svg",
+        image: PLACEHOLDER_ICON,
         address: "222.225.225.222",
         date: "Signed in Nov 17, 2023",
     },
     {
         id: "2",
         title: "Safari on Macbook Pro",
-        image: "/images/safari.svg",
+        image: PLACEHOLDER_ICON,
         address: "222.225.225.222",
         date: "Signed in Nov 17, 2023",
     },

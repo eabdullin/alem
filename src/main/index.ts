@@ -4,7 +4,7 @@ import { createMainWindow } from "./windows/mainWindow";
 import { registerAllIpc } from "./ipc";
 import { ensureMemoryFilesystem } from "./services/memoryStore";
 
-const GITHUB_REPOSITORY = "eabdullin/alem";
+const GITHUB_REPOSITORY = "eabdullin/qurt";
 
 function setupAutoUpdates(): void {
   if (!app.isPackaged) {

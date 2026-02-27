@@ -1,10 +1,12 @@
+import { PLACEHOLDER_AVATAR } from "@/constants/placeholders";
+
 export const chatHistory = [
     {
         id: "0",
-        title: "Alem AI UI Kit",
+        title: "Qurt AI UI Kit",
         content:
             "Write code (HTML, CSS and JS) for a simple form with 3 input fields and a dropdown with 2 buttons, cancel and send",
-        users: ["/images/avatar-1.jpg"],
+        users: [PLACEHOLDER_AVATAR],
         time: "Just now",
         url: "/education-feedback",
     },
@@ -13,8 +15,8 @@ export const chatHistory = [
         title: "Welcome page with input",
         content:
             "Write code (HTML, CSS and JS) for a simple form with 3 input fields and a dropdown with 2 buttons, cancel and send",
-        image: "/images/history-image.jpg",
-        users: ["/images/avatar-2.jpg"],
+        image: PLACEHOLDER_AVATAR,
+        users: [PLACEHOLDER_AVATAR],
         time: "Just now",
         url: "/code-generation",
     },
@@ -24,9 +26,9 @@ export const chatHistory = [
         content:
             "Write code (HTML, CSS and JS) for a simple form with 3 input fields and a dropdown with 2 buttons, cancel and send",
         users: [
-            "/images/avatar.jpg",
-            "/images/avatar-1.jpg",
-            "/images/avatar-2.jpg",
+            PLACEHOLDER_AVATAR,
+            PLACEHOLDER_AVATAR,
+            PLACEHOLDER_AVATAR,
         ],
         time: "Just now",
         url: "/photo-editing",
@@ -36,7 +38,7 @@ export const chatHistory = [
         title: "Auto generate title",
         content:
             "Write code (HTML, CSS and JS) for a simple form with 3 input fields and a dropdown with 2 buttons, cancel and send",
-        users: ["/images/avatar.jpg"],
+        users: [PLACEHOLDER_AVATAR],
         time: "Just now",
         url: "/audio-generation",
     },

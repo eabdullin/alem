@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-const testRoot = mkdtempSync(join(tmpdir(), "alem-memory-test-"));
+const testRoot = mkdtempSync(join(tmpdir(), "qurt-memory-test-"));
 vi.mock("electron", () => ({
   app: { getPath: () => testRoot },
 }));

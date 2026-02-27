@@ -16,7 +16,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         position="bottom-center"
         gutter={10}
         toastOptions={{
-          duration: 2000,
+          duration: 4000,
         }}
       >
         {(t) => (

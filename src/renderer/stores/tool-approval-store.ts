@@ -19,17 +19,17 @@ export interface ToolApprovalStore {
 }
 
 async function getSettings(): Promise<Record<string, unknown>> {
-  if (typeof window === "undefined" || !window.alem?.getSettings) {
+  if (typeof window === "undefined" || !window.qurt?.getSettings) {
     return {};
   }
-  return (await window.alem.getSettings()) ?? {};
+  return (await window.qurt.getSettings()) ?? {};
 }
 
 async function saveSettings(settings: Record<string, unknown>): Promise<void> {
-  if (typeof window === "undefined" || !window.alem?.saveSettings) {
+  if (typeof window === "undefined" || !window.qurt?.saveSettings) {
     return;
   }
-  await window.alem.saveSettings(settings);
+  await window.qurt.saveSettings(settings);
 }
 
 class ToolApprovalStoreImpl implements ToolApprovalStore {

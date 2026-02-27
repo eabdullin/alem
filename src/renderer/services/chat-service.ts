@@ -5,12 +5,13 @@ import {
   type ChatSession,
   type ChatStore,
 } from "../stores/chat-store";
-import { ALEM_ATTACHMENT_PREFIX } from "./alem-chat-transport";
+import { QURT_ATTACHMENT_PREFIX } from "./qurt-chat-transport";
 import { filterMessagesByKnownTools } from "@/features/chat/utils/messageParts";
 import type { UIMessage } from "ai";
 import { ARCHIVED_CHAT_GROUP_ID } from "./chat-group-service";
+import { PLACEHOLDER_AVATAR } from "@/constants/placeholders";
 
-const DEFAULT_USER_AVATAR = "/images/avatar.jpg";
+const DEFAULT_USER_AVATAR = PLACEHOLDER_AVATAR;
 
 export { CHAT_HISTORY_UPDATED_EVENT };
 export type { ChatSession };
@@ -101,8 +102,8 @@ function getLatestImageFilePart(messages: UIMessage[]): {
     for (const part of messages[i].parts) {
       if (part.type === "file" && part.mediaType.startsWith("image/")) {
         const url = part.url;
-        const attachmentId = url.startsWith(ALEM_ATTACHMENT_PREFIX)
-          ? url.slice(ALEM_ATTACHMENT_PREFIX.length)
+        const attachmentId = url.startsWith(QURT_ATTACHMENT_PREFIX)
+          ? url.slice(QURT_ATTACHMENT_PREFIX.length)
           : undefined;
         return { url, mediaType: part.mediaType, attachmentId };
       }
@@ -114,7 +115,7 @@ function getLatestImageFilePart(messages: UIMessage[]): {
 async function resolveImagePreview(
   filePart: { url: string; mediaType: string; attachmentId?: string } | undefined,
 ): Promise<string | undefined> {
-  if (!filePart || typeof window === "undefined" || !window.alem) {
+  if (!filePart || typeof window === "undefined" || !window.qurt) {
     return undefined;
   }
 
@@ -124,7 +125,7 @@ async function resolveImagePreview(
 
   if (filePart.attachmentId) {
     try {
-      const data = await window.alem.readAttachment(filePart.attachmentId);
+      const data = await window.qurt.readAttachment(filePart.attachmentId);
       return `data:${filePart.mediaType};base64,${data}`;
     } catch {
       return undefined;

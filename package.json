@@ -1,9 +1,10 @@
 {
-  "name": "alem",
+  "name": "qurt",
   "version": "0.1.0",
   "private": true,
   "main": "dist-electron/main.js",
   "build": {
+    "appId": "com.qurt.desktop",
     "files": [
       "dist",
       "!dist/win-unpacked${/*}",
@@ -26,6 +27,7 @@
     "build": "tsc && vite build",
     "dist": "tsc && vite build && electron-builder",
     "preview": "vite preview",
+    "landing:preview": "npx serve landing",
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest"

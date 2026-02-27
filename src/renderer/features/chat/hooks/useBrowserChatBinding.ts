@@ -7,14 +7,14 @@ export function useBrowserChatBinding(chatId: string) {
   useEffect(() => {
     if (
       typeof window === "undefined" ||
-      !window.alem?.browserSetActiveChat
+      !window.qurt?.browserSetActiveChat
     ) {
       return;
     }
     const activeId = chatId?.trim() || null;
-    void window.alem.browserSetActiveChat(activeId);
+    void window.qurt.browserSetActiveChat(activeId);
     return () => {
-      void window.alem?.browserSetActiveChat?.(null);
+      void window.qurt?.browserSetActiveChat?.(null);
     };
   }, [chatId]);
 }

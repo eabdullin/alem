@@ -1,4 +1,4 @@
-export interface AlemApi {
+export interface QurtApi {
   getSettings: () => Promise<unknown>;
   saveSettings: (settings: unknown) => Promise<boolean>;
   getApiKey: (provider: string) => Promise<string>;
@@ -55,6 +55,6 @@ export interface AlemApi {
 
 declare global {
   interface Window {
-    alem?: AlemApi;
+    qurt?: QurtApi;
   }
 }

@@ -38,7 +38,7 @@ export function getFilePatchToolSet(
       inputSchema: zodSchema(filePatchInputSchema),
       needsApproval: true,
       execute: async (input) => {
-        if (typeof window === "undefined" || !window.alem?.applyFilePatch) {
+        if (typeof window === "undefined" || !window.qurt?.applyFilePatch) {
           return {
             status: "error" as const,
             files_changed: [],
@@ -64,7 +64,7 @@ export function getFilePatchToolSet(
           base_hashes: input.base_hashes,
           workspaceRoot,
         };
-        return window.alem.applyFilePatch(
+        return window.qurt.applyFilePatch(
           request
         ) as Promise<FilePatchResult>;
       },

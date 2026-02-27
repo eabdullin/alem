@@ -52,11 +52,11 @@ export function getMemoryToolSet(
       description,
       inputSchema: zodSchema(memoryInputSchema),
       execute: async (input) => {
-        if (typeof window === "undefined" || !window.alem?.runMemoryCommand) {
+        if (typeof window === "undefined" || !window.qurt?.runMemoryCommand) {
           return { output: "Memory is not available in this environment." };
         }
         try {
-          const output = await window.alem.runMemoryCommand({
+          const output = await window.qurt.runMemoryCommand({
             command: input.command,
             path: input.path,
             content: input.content,

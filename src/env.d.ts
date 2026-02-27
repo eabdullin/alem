@@ -2,7 +2,7 @@
 
 import type { ChatAttachment } from "./renderer/shared/types/chat-attachment";
 
-interface AlemApi {
+interface QurtApi {
   getSettings: () => Promise<any>;
   saveSettings: (settings: any) => Promise<boolean>;
   getApiKey: (provider: string) => Promise<string>;
@@ -44,7 +44,7 @@ interface AlemApi {
 
 declare global {
   interface Window {
-    alem: AlemApi;
+    qurt: QurtApi;
   }
 }
 

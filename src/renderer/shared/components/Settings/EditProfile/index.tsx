@@ -2,11 +2,12 @@ import { useState } from "react";
 import Image from "@/components/Image";
 import { Icon } from "@/utils/icons";
 import Field from "@/components/Field";
+import { PLACEHOLDER_AVATAR } from "@/constants/placeholders";
 
 type EditProfileProps = {};
 
 const EditProfile = ({}: EditProfileProps) => {
-    const [objectURL, setObjectURL] = useState<any>("/images/avatar.jpg");
+    const [objectURL, setObjectURL] = useState<string | null>(PLACEHOLDER_AVATAR);
     const [name, setName] = useState<string>("");
     const [location, setLocation] = useState<string>("Sai Gon, Vietnam");
     const [bio, setBio] = useState<string>("");

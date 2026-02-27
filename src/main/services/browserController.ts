@@ -46,9 +46,9 @@ function getPublicPath(): string {
 const DEFAULT_INDEX_HTML =
   "data:text/html;charset=utf-8," +
   encodeURIComponent(
-    "<!DOCTYPE html><html><head><meta charset='utf-8'><title>Alem Browser</title></head>" +
+    "<!DOCTYPE html><html><head><meta charset='utf-8'><title>Qurt Browser</title></head>" +
       "<body style='font-family:system-ui;padding:2rem;background:#1a1a1a;color:#eee;'>" +
-      "<h1>Alem Browser</h1><p>Ready. Use navigate to go to a URL.</p></body></html>"
+      "<h1>Qurt Browser</h1><p>Ready. Use navigate to go to a URL.</p></body></html>"
   );
 
 function createBrowserWindow(): BrowserWindow {
@@ -58,7 +58,7 @@ function createBrowserWindow(): BrowserWindow {
     minWidth: 600,
     minHeight: 400,
     icon: path.join(getPublicPath(), "icon.png"),
-    title: "Alem Agent Browser",
+    title: "Qurt Agent Browser",
     show: true,
     webPreferences: {
       contextIsolation: true,

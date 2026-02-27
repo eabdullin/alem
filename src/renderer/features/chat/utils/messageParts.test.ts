@@ -30,8 +30,8 @@ describe("getTextFromParts", () => {
 });
 
 describe("getAttachmentIdFromUrl", () => {
-  it("extracts id from alem-attachment URL", () => {
-    expect(getAttachmentIdFromUrl("alem-attachment://abc123")).toBe("abc123");
+  it("extracts id from qurt-attachment URL", () => {
+    expect(getAttachmentIdFromUrl("qurt-attachment://abc123")).toBe("abc123");
   });
 
   it("returns undefined for non-prefix URL", () => {
@@ -40,7 +40,7 @@ describe("getAttachmentIdFromUrl", () => {
   });
 
   it("returns empty string when URL is only prefix", () => {
-    expect(getAttachmentIdFromUrl("alem-attachment://")).toBe("");
+    expect(getAttachmentIdFromUrl("qurt-attachment://")).toBe("");
   });
 });
 

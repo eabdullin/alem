@@ -1,10 +1,10 @@
 # PRODUCT SENSE
 
-Product thinking guide for `alem`.
+Product thinking guide for `qurt`.
 
 ## Naming And Meaning
 
-`alem` means "world" in Kazakh. The product ambition matches the name: give users access to the broadest practical world of AI models and agents without provider lock-in.
+The product ambition: give users access to the broadest practical world of AI models and agents without provider lock-in.
 
 ## Core Problem
 

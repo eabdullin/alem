@@ -21,11 +21,11 @@ jobs:
           - name: Windows
             os: windows-latest
             dist_args: --win
-            artifact_name: alem-windows-dist
+            artifact_name: qurt-windows-dist
           - name: macOS
             os: macos-latest
             dist_args: --mac
-            artifact_name: alem-macos-dist
+            artifact_name: qurt-macos-dist
 
     steps:
       - name: Checkout

@@ -1,5 +1,5 @@
 /**
- * Dexie schema for Alem.
+ * Dexie schema for Qurt.
  * IndexedDB is stored in Electron's userData by default.
  */
 
@@ -34,7 +34,7 @@ export class AppDb extends Dexie {
   chatGroups!: EntityTable<ChatGroupRecord, "id">;
 
   constructor() {
-    super("alem-db");
+    super("qurt-db");
     this.version(1).stores({
       chats: "id, updatedAt, createdAt",
       chatGroups: "id, createdAt",

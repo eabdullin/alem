@@ -1,10 +1,10 @@
 # ARCHITECTURE
 
-System architecture for `alem`.
+System architecture for `qurt`.
 
 ## Product Shape
 
-`alem` is a desktop-first AI app that gives users vendor choice:
+`qurt` is a desktop-first AI app that gives users vendor choice:
 
 - bring your own API keys
 - pick provider/model per preference
@@ -18,7 +18,7 @@ System architecture for `alem`.
    - files: `src/main/index.ts`, `src/main/windows/mainWindow.ts`, `src/main/ipc/*.ipc.ts`, `src/main/services/*.ts`
    - IPC domains: shell (open-folder-dialog), app (settings, API keys, attachments, memory), terminal, browser, filePatch
 2. **Electron preload bridge** (`src/preload/`)
-   - safe renderer API exposed via `window.alem`
+   - safe renderer API exposed via `window.qurt`
    - split by domain: `src/preload/api/*.api.ts`, composed in `src/preload/index.ts`
 3. **Renderer (React + Vite)** (`src/renderer/`)
    - routes, UI, chat workflows, settings
@@ -44,19 +44,20 @@ System architecture for `alem`.
   - `features/`: routed pages (chat, home, updatesFaq, settings)
   - `shared/`: components, hooks, constants, lib, utils, types
 - `templates/`: prebuilt template pages; do not edit unless explicitly requested
+- `landing/`: static marketing landing page (HTML/CSS); deployable to GitHub Pages or any static host
 - `docs/faq/`, `docs/updates/`: markdown-driven content for Updates & FAQ UI
 
 ## Data And Persistence
 
 - **Settings and API keys**
-  - stored in `electron-store` (`alem-config`) via `appStore` in main process
+  - stored in `electron-store` (`qurt-config`) via `appStore` in main process
   - includes active provider/model, enabled models, theme, API key map, `browserAllowedHosts`
   - includes a `hasSeenOnboarding` flag to ensure onboarding is shown only on first run
 - **Attachment binaries**
   - saved under app userData (`chat-attachments`)
   - metadata tracked in electron-store `attachments` map
 - **Chat history and chat groups**
-  - stored in Dexie (IndexedDB) under `alem-db`; IndexedDB lives in Electron userData by default
+  - stored in Dexie (IndexedDB) under `qurt-db`; IndexedDB lives in Electron userData by default
   - `src/renderer/db/repos/chats.repo.ts`, `chat-groups.repo.ts`
   - migration from localStorage on first run (`bootstrap.ts`)
   - sessions include `chatGroupIds`, `isArchived`, `toolApprovalRules`
@@ -83,9 +84,9 @@ System architecture for `alem`.
   - exports `providerService` singleton instance for use across the app
 - **`src/renderer/services/ai-service.ts`** now delegates to `providerService` and exposes
   `createAgent()` returning `ToolLoopAgent` with `AgentConfig` (provider, model, apiKey, mode, optional `toolConfig`)
-- chat uses `@ai-sdk/react` `useChat` with `AlemChatTransport` (`src/renderer/services/alem-chat-transport.ts`)
-- `AlemChatTransport` wraps `DirectChatTransport`, resolves `alem-attachment://` file parts via `resolveAttachment`, and uses `getAgent()` so the agent is created with the current apiKey on each send
-- attachments are stored as `alem-attachment://<id>` URLs and resolved to data URLs before sending to the agent
+- chat uses `@ai-sdk/react` `useChat` with `QurtChatTransport` (`src/renderer/services/qurt-chat-transport.ts`)
+- `QurtChatTransport` wraps `DirectChatTransport`, resolves `qurt-attachment://` file parts via `resolveAttachment`, and uses `getAgent()` so the agent is created with the current apiKey on each send
+- attachments are stored as `qurt-attachment://<id>` URLs and resolved to data URLs before sending to the agent
 - chat composer supports per-message mode switching:
   - `Ask`: single-pass text generation (no tools)
   - `Agent`: `ToolLoopAgent` with tools from `src/renderer/agent/tools/` registry (e.g. web-search: provider proxy in `action`, display with search icon and domain-only result badges; terminal: `run_terminal` in `src/renderer/agent/tools/terminal/`, execution in main via `src/main/services/terminalRunner.ts` with workspace restriction and command denylist; file-patch: `apply_file_patch` in `src/renderer/agent/tools/file-patch/`, execution in main via `src/main/services/filePatchRunner.ts` with workspace restriction, binary blocking, and checkpoint-based revert; browser: `browser_control` in `src/renderer/agent/tools/browser/`, execution in main via `src/main/services/browserController.ts` with one window per chat, http/https only; accepts a list of actions (open, navigate, click, type, press, scroll, wait, close) run atomically; always returns one screenshot per request resized to viewport dimensions for coordinate consistency; input actions force-focus the browser window before dispatch; memory: `memory` tool in `src/renderer/agent/tools/memory/`, execution in main via `src/main/services/memoryStore.ts` with structured actions (view, create, update, search) over `.memory/` files; core memory injected via `prepareCall` before each model call)
@@ -117,7 +118,7 @@ Planned expansions and expected architecture impact:
 
 ### Centralized Provider Service
 
-- **Context**: Provider and model logic was scattered across multiple files (`providers.ts`, `ai-service.ts`, `useAlemChat.ts`, `useChatPageController.tsx`, `web-search/action.ts`) with repetitive if/else statements for provider-specific logic. This made it difficult to:
+- **Context**: Provider and model logic was scattered across multiple files (`providers.ts`, `ai-service.ts`, `useQurtChat.ts`, `useChatPageController.tsx`, `web-search/action.ts`) with repetitive if/else statements for provider-specific logic. This made it difficult to:
   - Add new providers or models
   - Maintain consistent behavior across the app
   - Test provider-specific functionality

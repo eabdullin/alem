@@ -1,10 +1,10 @@
 import { useState, useEffect, useContext, useMemo } from "react";
-import { AlemContext } from "@/App";
+import { QurtContext } from "@/App";
 import ProviderLogo from "@/components/ProviderLogos";
 import { PROVIDERS, type ProviderInfo } from "@/constants/providers";
 
 const AiProviders = () => {
-  const { settings, updateSettings } = useContext(AlemContext);
+  const { settings, updateSettings } = useContext(QurtContext);
   const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
   const [editingProvider, setEditingProvider] = useState<string | null>(null);
   const [tempKey, setTempKey] = useState("");
@@ -26,14 +26,14 @@ const AiProviders = () => {
   }, [apiKeys]);
 
   useEffect(() => {
-    if (window.alem) {
-      window.alem.getAllApiKeys().then(setApiKeys);
+    if (window.qurt) {
+      window.qurt.getAllApiKeys().then(setApiKeys);
     }
   }, []);
 
   const handleSaveKey = async (providerId: string) => {
-    if (window.alem) {
-      await window.alem.saveApiKey(providerId, tempKey);
+    if (window.qurt) {
+      await window.qurt.saveApiKey(providerId, tempKey);
       setApiKeys((prev) => ({ ...prev, [providerId]: tempKey }));
     }
     setEditingProvider(null);
@@ -164,7 +164,7 @@ const AiProviders = () => {
                   rel="noopener noreferrer"
                   onClick={(e) => {
                     e.preventDefault();
-                    window.alem?.openExternal(provider.apiKeyUrl!);
+                    window.qurt?.openExternal(provider.apiKeyUrl!);
                   }}
                   className="caption1 text-primary-1 hover:underline mb-3 inline-block"
                 >

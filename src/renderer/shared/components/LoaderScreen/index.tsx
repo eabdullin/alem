@@ -24,8 +24,8 @@ export default function LoaderScreen() {
   return (
     <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-8 bg-n-7">
       <img
-        src="./logo-loader.png"
-        alt="Alem"
+        src="./logo.vert.png"
+        alt="Qurt"
         className="h-32 w-auto object-contain md:h-36"
         width={256}
         height={256}

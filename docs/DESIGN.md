@@ -1,6 +1,6 @@
 # DESIGN
 
-Design direction for `alem` UX and interaction systems.
+Design direction for `qurt` UX and interaction systems.
 
 ## Product Design Intent
 

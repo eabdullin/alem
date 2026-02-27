@@ -1,6 +1,6 @@
 # FRONTEND
 
-Frontend implementation guide for `alem`.
+Frontend implementation guide for `qurt`.
 
 ## Stack
 
@@ -23,9 +23,9 @@ Frontend implementation guide for `alem`.
 
 ## State And Data Flow
 
-- `AlemContext` (`src/renderer/App.tsx`) stores user settings in memory
-- settings persist through `window.alem` IPC bridge
-- chat orchestration lives in `src/renderer/shared/hooks/useAlemChat.ts`
+- `QurtContext` (`src/renderer/App.tsx`) stores user settings in memory
+- settings persist through `window.qurt` IPC bridge
+- chat orchestration lives in `src/renderer/shared/hooks/useQurtChat.ts`
 - chat group/history persistence is in `src/renderer/stores/chat-store.ts` + `src/renderer/services/chat-service.ts`
 - right sidebar history supports multi-select actions (`archive`, `delete`) backed by chat-store APIs
 - archive is a soft state (`isArchived`) so archived chats are hidden from active history without hard deletion
@@ -66,7 +66,7 @@ Prefer these semantic classes over raw `text-sm`/`text-base` for consistency. Us
 Dark mode is driven by Chakra UI’s `useColorMode` and applied via `data-theme="dark"` or `.dark` on an ancestor. Tailwind’s `dark:` variant is configured with `darkMode: ["class", '[data-theme="dark"]']` in `tailwind.config.ts`.
 
 - **CSS variables**: `globals.css` defines dark-mode tokens under both `.dark` and `[data-theme="dark"]` so semantic colors (`--foreground`, `--muted-foreground`, etc.) work regardless of how dark mode is triggered.
-- **Alem palette**: Use `n-1`–`n-7` for backgrounds and text; in dark mode, `n-1` is lightest, `n-7` darkest. Prefer `dark:text-n-1`, `dark:bg-n-6`, `dark:border-n-5` for consistent contrast.
+- **Qurt palette**: Use `n-1`–`n-7` for backgrounds and text; in dark mode, `n-1` is lightest, `n-7` darkest. Prefer `dark:text-n-1`, `dark:bg-n-6`, `dark:border-n-5` for consistent contrast.
 - **User message bubbles**: `dark:bg-n-5/50`, `dark:border-transparent`.
 - **Chat history**: Checkboxes use `dark:border-n-3` for visibility; secondary text uses `dark:text-n-3`.
 

@@ -4,7 +4,7 @@ Track debt items with impact and remediation plans.
 
 | ID | Area | Debt | Impact | Priority | Owner | Status | Target Date |
 |----|------|------|--------|----------|-------|--------|-------------|
-| TD-001 | Chat Flow | Attachment handling logic is duplicated in `HomePage/Main` and `useAlemChat` | Inconsistent behavior and harder maintenance | High | TBD | Open | 2026-03 |
+| TD-001 | Chat Flow | Attachment handling logic is duplicated in `HomePage/Main` and `useQurtChat` | Inconsistent behavior and harder maintenance | High | TBD | Open | 2026-03 |
 | TD-002 | Testing | No automated end-to-end test path for chat + attachments | Regressions can ship unnoticed | High | TBD | Open | 2026-03 |
 | TD-003 | Persistence | No formal schema migration/versioning for local stored settings/history | Potential breakage across app updates | Medium | TBD | Open | 2026-04 |
 | TD-004 | Observability | Error instrumentation is limited for provider/IPC failures | Slower debugging and incident response | Medium | TBD | Open | 2026-04 |

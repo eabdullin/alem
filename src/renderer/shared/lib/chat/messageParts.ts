@@ -36,7 +36,7 @@ export function getToolStepStatus(
 }
 
 /**
- * Extract attachment ID from a URL that uses the given prefix (e.g. "alem-attachment://").
+ * Extract attachment ID from a URL that uses the given prefix (e.g. "qurt-attachment://").
  */
 export function getAttachmentIdFromUrl(
   url: string,

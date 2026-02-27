@@ -14,17 +14,17 @@ import {
   lastAssistantMessageIsCompleteWithToolCalls,
   type UIMessage,
 } from "ai";
-import { AlemContext } from "@/App";
+import { QurtContext } from "@/App";
 import { getTextFromParts } from "@/lib/chat/messageParts";
 import { createAgent } from "@/services/ai-service";
 import { type AiProvider, providerService } from "@/services/provider-service";
 import {
-  AlemChatTransport,
-  ALEM_ATTACHMENT_PREFIX,
-} from "@/services/alem-chat-transport";
+  QurtChatTransport,
+  QURT_ATTACHMENT_PREFIX,
+} from "@/services/qurt-chat-transport";
 import type { ChatAttachment } from "@/types/chat-attachment";
 
-interface UseAlemChatOptions {
+interface UseQurtChatOptions {
   chatId?: string;
   initialMessages?: UIMessage[];
   onMessagesChange?: (messages: UIMessage[], sourceChatId?: string) => void;
@@ -72,7 +72,7 @@ function attachmentsToFileParts(attachments: ChatAttachment[]) {
     type: "file" as const,
     mediaType: a.mediaType,
     filename: a.name,
-    url: `${ALEM_ATTACHMENT_PREFIX}${a.id}`,
+    url: `${QURT_ATTACHMENT_PREFIX}${a.id}`,
   }));
 }
 
@@ -80,7 +80,7 @@ async function appendNewTurnsToMemory(
   messages: UIMessage[],
   lastLoggedRef: { current: number },
 ): Promise<void> {
-  if (typeof window === "undefined" || !window.alem?.appendConversation) {
+  if (typeof window === "undefined" || !window.qurt?.appendConversation) {
     return;
   }
   const from = lastLoggedRef.current;
@@ -94,7 +94,7 @@ async function appendNewTurnsToMemory(
     const content = getTextFromParts(msg.parts).trim();
     if (!content) continue;
     try {
-      await window.alem.appendConversation({
+      await window.qurt.appendConversation({
         role: msg.role,
         content,
         timestamp,
@@ -106,13 +106,13 @@ async function appendNewTurnsToMemory(
   lastLoggedRef.current = to;
 }
 
-export function useAlemChat({
+export function useQurtChat({
   chatId,
   initialMessages = [],
   onMessagesChange,
   workspaceRoot,
-}: UseAlemChatOptions = {}) {
-  const { settings } = useContext(AlemContext);
+}: UseQurtChatOptions = {}) {
+  const { settings } = useContext(QurtContext);
   const [input, setInput] = useState("");
   const [pendingAttachments, setPendingAttachments] = useState<ChatAttachment[]>(
     [],
@@ -131,14 +131,14 @@ export function useAlemChat({
   const activeProvider = settings?.activeProvider;
   const provider: AiProvider = providerService.validateProvider(activeProvider, "openai");
 
-  const ready = typeof window !== "undefined" && !!window.alem;
+  const ready = typeof window !== "undefined" && !!window.qurt;
   const model = settings?.activeModel ?? "";
 
   const transport = useMemo(
     () =>
-      new AlemChatTransport({
+      new QurtChatTransport({
         getAgent: async () => {
-          const apiKey = await window.alem!.getApiKey(provider);
+          const apiKey = await window.qurt!.getApiKey(provider);
           return createAgent({
             provider,
             model,
@@ -150,7 +150,7 @@ export function useAlemChat({
           });
         },
         sendReasoning: true,
-        resolveAttachment: (id) => window.alem!.readAttachment(id),
+        resolveAttachment: (id) => window.qurt!.readAttachment(id),
       }),
     [model, provider],
   );
@@ -210,7 +210,7 @@ export function useAlemChat({
       try {
         for (const file of files) {
           const dataBase64 = await fileToBase64(file);
-          const attachment = await window.alem.saveAttachment({
+          const attachment = await window.qurt.saveAttachment({
             name: file.name || "attachment",
             mediaType: file.type || "application/octet-stream",
             dataBase64,
@@ -220,7 +220,7 @@ export function useAlemChat({
       } catch (err) {
         for (const attachment of nextAttachments) {
           try {
-            await window.alem.deleteAttachment(attachment.id);
+            await window.qurt.deleteAttachment(attachment.id);
           } catch {
             // Ignore cleanup failures after a partial upload error.
           }
@@ -246,7 +246,7 @@ export function useAlemChat({
     );
 
     try {
-      await window.alem.deleteAttachment(attachmentId);
+      await window.qurt.deleteAttachment(attachmentId);
     } catch {
       // Ignore delete failures in the draft state.
     }

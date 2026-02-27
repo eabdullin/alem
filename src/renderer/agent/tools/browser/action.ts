@@ -106,7 +106,7 @@ export function getBrowserToolSet(
       inputSchema: zodSchema(browserToolInputSchema),
       needsApproval: true,
       execute: async (input): Promise<BrowserActionResult> => {
-        if (typeof window === "undefined" || !window.alem?.browserExecute) {
+        if (typeof window === "undefined" || !window.qurt?.browserExecute) {
           return {
             ok: false,
             error: "Browser control is not available in this environment.",
@@ -122,7 +122,7 @@ export function getBrowserToolSet(
           chatId,
           actions: input.actions as BrowserAction[],
         };
-        return window.alem.browserExecute(request) as Promise<BrowserActionResult>;
+        return window.qurt.browserExecute(request) as Promise<BrowserActionResult>;
       },
       toModelOutput({ output }){
 

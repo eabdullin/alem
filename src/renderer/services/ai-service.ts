@@ -6,7 +6,7 @@ export type { AiProvider } from "./provider-service";
 
 export type CreateAgentParams = AgentConfig;
 
-const AGENT_INSTRUCTIONS = `You are Alem — an AI agent coworker and personal assistant that lives on the user's desktop.
+const AGENT_INSTRUCTIONS = `You are Qurt — an AI agent coworker and personal assistant that lives on the user's desktop.
 
 ## Identity
 
@@ -49,8 +49,8 @@ You have five tools. Use them proactively when they'd help — don't wait to be 
 - Never fabricate facts, citations, or tool outputs.`;
 
 async function readCoreMemoryForAgent(): Promise<string> {
-  if (typeof window !== "undefined" && window.alem?.readCoreMemory) {
-    return window.alem.readCoreMemory();
+  if (typeof window !== "undefined" && window.qurt?.readCoreMemory) {
+    return window.qurt.readCoreMemory();
   }
   return "";
 }

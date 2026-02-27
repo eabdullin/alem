@@ -1,10 +1,10 @@
 # AGENTS.md
 
-Agent guide for `alem`.
+Agent guide for `qurt`.
 
 ## Project Overview
 
-`alem` (Kazakh: "world") is a desktop AI workspace designed for provider freedom:
+`qurt` is a desktop AI workspace designed for provider freedom:
 
 - users bring their own API keys
 - users choose their preferred provider/model
@@ -34,7 +34,7 @@ Notes:
 - Electron main process: `src/main/index.ts`
 - Electron preload bridge: `src/preload/index.ts`
 - Renderer app entry: `src/renderer/main.tsx` -> `src/renderer/App.tsx`
-- Chat flows: `src/renderer/pages/HomePage/`, `src/renderer/pages/ChatPage/`, `src/renderer/shared/hooks/useAlemChat.ts`
+- Chat flows: `src/renderer/pages/HomePage/`, `src/renderer/pages/ChatPage/`, `src/renderer/shared/hooks/useQurtChat.ts`
 - AI provider routing: `src/renderer/services/ai-service.ts`
 - Chat persistence: Dexie in `src/renderer/db/` (chats.repo, chat-groups.repo); `src/renderer/services/chat-service.ts`
 - Attachment storage: `src/main/services/fileStore.ts`

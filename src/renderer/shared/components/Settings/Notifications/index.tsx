@@ -36,7 +36,7 @@ const Notifications = ({}: NotificationsProps) => {
         },
         {
             id: "2",
-            title: "From Alem app",
+            title: "From Qurt app",
             checkboxs: [{ id: "0", title: "Mentioned", isChecked: true }],
         },
     ]);

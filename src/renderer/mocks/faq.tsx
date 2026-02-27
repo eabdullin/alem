@@ -1,7 +1,7 @@
 export const faqPricing = [
     {
         id: "0",
-        title: "Can I try Alem before committing to a paid plan?",
+        title: "Can I try Qurt before committing to a paid plan?",
         content:
             "Yes, we offer a free plan with limited access to AI capabilities. This plan is a great way to test the platform and see if it meets your needs before upgrading to a paid plan.",
         defaultOpen: true,
@@ -46,7 +46,7 @@ export const faqs = [
     },
     {
         id: "1",
-        title: "Can I try Alem before committing to a paid plan?",
+        title: "Can I try Qurt before committing to a paid plan?",
         content:
             "Yes, we offer a free plan with limited access to AI capabilities. This plan is a great way to test the platform and see if it meets your needs before upgrading to a paid plan.",
         defaultOpen: false,

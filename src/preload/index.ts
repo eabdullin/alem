@@ -20,4 +20,4 @@ const api = {
   platform: process.platform,
 };
 
-contextBridge.exposeInMainWorld("alem", api);
+contextBridge.exposeInMainWorld("qurt", api);

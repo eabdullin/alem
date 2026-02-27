@@ -12,7 +12,7 @@ Implemented AI SDK custom memory (Option A structured actions) as a global memor
 - Main process: `memoryStore.ts` with filesystem bootstrap, `readCoreMemory`, `appendConversation`, `runMemoryCommand` (view, create, update, search)
 - IPC: `memory-read-core`, `memory-append-conversation`, `memory-run-command`
 - Renderer: memory tool in `agent/tools/memory/` with action, display, registry
-- Agent: `prepareCall` injects core memory before each model call; `useAlemChat` appends user/assistant turns to conversations.jsonl
+- Agent: `prepareCall` injects core memory before each model call; `useQurtChat` appends user/assistant turns to conversations.jsonl
 
 ## Outcomes
 

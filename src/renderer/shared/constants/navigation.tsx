@@ -14,7 +14,7 @@ export const navigation = [
     {
         title: "Education feedback",
         icon: "trophy",
-        color: "#0084FF",
+        color: "#E9A341",
         url: "/education-feedback",
     },
     {

@@ -1,7 +1,7 @@
 Design System Reference (for LLMs)
 ==================================
 
-Project: alem
+Project: qurt
 Stack: React + Tailwind utility classes + shared component patterns
 
 Design language:

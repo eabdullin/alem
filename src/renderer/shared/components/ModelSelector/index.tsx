@@ -1,5 +1,5 @@
 import { useContext, useMemo } from "react";
-import { AlemContext } from "@/App";
+import { QurtContext } from "@/App";
 import { PROVIDERS } from "@/constants/providers";
 import {
   Select,
@@ -25,7 +25,7 @@ const ModelSelector = ({
   direction = "down",
   compact = false,
 }: ModelSelectorProps) => {
-  const { settings, updateSettings } = useContext(AlemContext);
+  const { settings, updateSettings } = useContext(QurtContext);
 
   const activeProvider = settings?.activeProvider || "openai";
   const activeModel = settings?.activeModel ?? "";

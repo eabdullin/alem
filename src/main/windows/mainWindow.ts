@@ -29,7 +29,7 @@ export async function createMainWindow(): Promise<BrowserWindow> {
     minWidth: 900,
     minHeight: 600,
     icon: path.join(getPublicPath(), "icon.png"),
-    title: "alem",
+    title: "qurt",
     titleBarStyle: process.platform === "darwin" ? "hiddenInset" : "default",
     ...(process.platform === "darwin"
       ? { trafficLightPosition: { x: 16, y: 16 } }

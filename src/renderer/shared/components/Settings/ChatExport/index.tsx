@@ -99,7 +99,7 @@ const ChatExport = ({}: ChatExportProps) => {
                 </button>
                 <div className=" self-center w-0.25 h-8 bg-n-1/20"></div>
                 <Select
-                    classButton="h-12 rounded-l-none rounded-r-xl shadow-[inset_0_0_0_0.0625rem_#0084FF] bg-transparent text-n-1 font-semibold dark:bg-transparent"
+                    classButton="h-12 rounded-l-none rounded-r-xl shadow-[inset_0_0_0_0.0625rem_#E9A341] bg-transparent text-n-1 font-semibold dark:bg-transparent"
                     classArrow="stroke-n-1"
                     classOptions="min-w-full"
                     items={typesFile}

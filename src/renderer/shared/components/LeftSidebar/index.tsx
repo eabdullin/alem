@@ -137,12 +137,12 @@ const LeftSidebar = ({
             color: "fill-primary-2",
             onClick: () => setVisibleSearch(true),
         },
-        {
-            title: "Notifications",
-            icon: "notification",
-            color: "fill-accent-1",
-            onClick: () => setVisibleNotifications(true),
-        },
+        // {
+        //     title: "Notifications",
+        //     icon: "notification",
+        //     color: "fill-accent-1",
+        //     onClick: () => setVisibleNotifications(true),
+        // },
         {
             title: "Updates & FAQ",
             icon: "barcode",

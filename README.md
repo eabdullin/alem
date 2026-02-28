@@ -66,10 +66,30 @@ npm run test
 
 ## Release And Auto-Update Strategy
 
-Maintainer checklist:
+### Release pipeline
 
-1. Build and publish desktop artifacts on release tags.
-2. Publish installers/artifacts to GitHub Releases.
+Pushing a version tag (e.g. `v0.1.0`) triggers the release workflow:
+
+1. Runs tests
+2. Builds Windows (Squirrel) and macOS (DMG, ZIP) installers
+3. Creates a GitHub Release with auto-generated notes and uploads all artifacts
+
+**To release:**
+
+```bash
+# 1. Bump version in package.json (e.g. 0.1.0 → 0.1.1)
+npm version patch   # or minor / major
+
+# 2. Push the version commit and tag
+git push && git push --tags
+```
+
+Tags like `v0.1.0-beta.1` are marked as prereleases. The workflow runs on every push to tags matching `v*`.
+
+### Maintainer checklist
+
+1. Build and publish desktop artifacts on release tags (automated via `.github/workflows/build-desktop.yml`).
+2. Publish installers/artifacts to GitHub Releases (automated).
 3. Keep `update-electron-app` configured in the main process so packaged clients can pull updates from the GitHub release feed.
 
 ## Documentation

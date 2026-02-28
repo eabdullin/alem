@@ -11,7 +11,7 @@ const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
     appBundleId: "com.qurt.desktop",
-    // icon: use .icns (macOS) / .ico (Windows) at public/icon when available
+    icon: path.join(__dirname, "public/icon"),
     ...(process.platform === "darwin"
       ? {
           osxSign: {
@@ -43,13 +43,13 @@ const config: ForgeConfig = {
       name: "qurt",
       authors: "Yelaman Abdullin",
       description: "AI Coworker and assistant with provider freedom: bring your own API keys, choose your model, and chat with files/images in one place.",
-      // setupIcon requires .ico format; add public/icon.ico when available
+      setupIcon: path.join(__dirname, "public/icon.ico"),
       // certificateFile/certificatePassword for code signing when you have a cert
     }),
     new MakerZIP({}, ["darwin"]),
     new MakerDMG({
       name: "qurt",
-      // icon requires .icns format for macOS; add when available
+      icon: path.join(__dirname, "public/icon.icns"),
     }),
   ],
   plugins: [

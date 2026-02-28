@@ -134,12 +134,11 @@ jobs:
           merge-multiple: true
           path: release-artifacts
 
-      # Only upload installer packages to avoid duplicate filenames (locale.pak, etc.)
-      # which cause "Not Found" errors when action-gh-release deletes/replaces assets
+      # Only include distributable installers (.exe, .dmg) to avoid DLL, .pak, .nupkg, RELEASES, etc.
       - name: Prepare release files
         run: |
           mkdir -p release-files
-          find release-artifacts -type f \( -name "*.exe" -o -name "*.dmg" -o -name "*.zip" -o -name "*.nupkg" -o -name "RELEASES" \) -exec cp {} release-files/ \;
+          find release-artifacts -type f \( -name "*.setup.exe" -o -name "*.dmg" \) -exec cp {} release-files/ \;
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2

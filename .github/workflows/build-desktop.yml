@@ -143,6 +143,9 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          body_path: release-notes/${{ github.ref_name }}.md
+          body: |
+            See the [README](https://github.com/${{ github.repository }}#readme) for installation and usage.
           generate_release_notes: true
           prerelease: ${{ contains(github.ref_name, '-') }}
           files: release-files/*

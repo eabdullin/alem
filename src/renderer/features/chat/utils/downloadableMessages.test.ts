@@ -181,6 +181,7 @@ describe("toDownloadableMessages", () => {
             toolName: "custom_tool",
             toolCallId: "tc1",
             input: { foo: "bar" },
+            output: {},
             state: "output-available" as const,
           },
         ],

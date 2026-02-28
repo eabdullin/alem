@@ -1,3 +1,4 @@
+/// <reference types="@electron-forge/plugin-vite/forge-vite-env" />
 import { app, BrowserWindow } from "electron";
 import path from "node:path";
 

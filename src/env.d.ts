@@ -39,6 +39,10 @@ interface QurtApi {
   browserCloseWindow: () => Promise<void>;
   browserExecute: (request: import("@/shared/tools/browser/types").BrowserActionRequest) => Promise<import("@/shared/tools/browser/types").BrowserActionResult>;
   browserGetStatus: () => Promise<{ activeChatId: string | null; hasWindow: boolean }>;
+  checkForUpdates?: () => Promise<{ ok: true } | { ok: false; reason: string }>;
+  applyUpdate?: () => Promise<void>;
+  onUpdateReady?: (callback: () => void) => () => void;
+  onUpToDate?: (callback: () => void) => () => void;
   platform: string;
 }
 

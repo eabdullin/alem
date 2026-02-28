@@ -50,6 +50,10 @@ export interface QurtApi {
     activeChatId: string | null;
     hasWindow: boolean;
   }>;
+  checkForUpdates: () => Promise<{ ok: true } | { ok: false; reason: string }>;
+  applyUpdate: () => Promise<void>;
+  onUpdateReady: (callback: () => void) => () => void;
+  onUpToDate: (callback: () => void) => () => void;
   platform: string;
 }
 

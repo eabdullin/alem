@@ -23,7 +23,7 @@ export function UpdateToastListener() {
               className="btn-blue btn-medium ml-3 md:min-w-[6rem]"
               onClick={() => {
                 toast.dismiss(t.id);
-                void window.qurt?.applyUpdate();
+                void window.qurt?.applyUpdate?.();
               }}
             >
               Restart
@@ -33,9 +33,9 @@ export function UpdateToastListener() {
       ));
     });
 
-    const unsubUpToDate = window.qurt.onUpToDate(() => {
+    const unsubUpToDate = window.qurt.onUpToDate?.(() => {
       toast.success("You're up to date.");
-    });
+    }) ?? (() => {});
 
     return () => {
       unsubReady();

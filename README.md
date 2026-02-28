@@ -1,5 +1,3 @@
-# qurt
-
 <p align="left">
   <img src="public/logo.horiz.png" alt="Qurt logo" width="260" />
 </p>

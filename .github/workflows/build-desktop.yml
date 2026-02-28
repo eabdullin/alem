@@ -138,7 +138,7 @@ jobs:
       - name: Prepare release files
         run: |
           mkdir -p release-files
-          find release-artifacts -type f \( -name "*.setup.exe" -o -name "*.dmg" \) -exec cp {} release-files/ \;
+          find release-artifacts -type f \( -name "*.Setup.exe" -o -name "*.dmg" \) -exec cp {} release-files/ \;
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2

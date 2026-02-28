@@ -4,15 +4,12 @@ import { MakerZIP } from "@electron-forge/maker-zip";
 import { MakerDMG } from "@electron-forge/maker-dmg";
 import { VitePlugin } from "@electron-forge/plugin-vite";
 import { FusesPlugin } from "@electron-forge/plugin-fuses";
-import { AutoUnpackNativesPlugin } from "@electron-forge/plugin-auto-unpack-natives";
 import { FuseV1Options, FuseVersion } from "@electron/fuses";
 import path from "path";
 
 const config: ForgeConfig = {
   packagerConfig: {
-    asar: {
-      unpack: "**/node_modules/canvas/**",
-    },
+    asar: true,
     appBundleId: "com.qurt.desktop",
     icon: path.join(__dirname, "public/icon"),
     ...(process.platform === "darwin"
@@ -76,7 +73,6 @@ const config: ForgeConfig = {
         },
       ],
     }),
-    new AutoUnpackNativesPlugin({}),
     new FusesPlugin({
       version: FuseVersion.V1,
       [FuseV1Options.RunAsNode]: false,

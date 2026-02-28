@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useColorMode } from "@chakra-ui/react";
+import { useTheme } from "@/hooks/useTheme";
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
 
@@ -10,7 +10,7 @@ type RangeSliderProps = {
 
 const RangeSlider = ({ className, title }: RangeSliderProps) => {
     const [value, setValue] = useState<number>(0);
-    const { colorMode } = useColorMode();
+    const { colorMode } = useTheme();
     const isDarkMode = colorMode === "dark";
 
     const handleChange = (newValue: any) => {

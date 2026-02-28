@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Icon } from "@/utils/icons";
 import Modal from "@/components/Modal";
-import ModalShareChat from "@/components/ModalShareChat";
 import Notify from "@/components/Notify";
 import {
     ARCHIVED_CHAT_GROUP_ID,
@@ -26,7 +25,6 @@ const Actions = ({ chatId, chatGroupIds }: ActionsProps) => {
     const navigate = useNavigate();
     const location = useLocation();
     const [favorite, setFavorite] = useState<boolean>(false);
-    const [visibleShareModal, setVisibleShareModal] = useState<boolean>(false);
     const [visibleAddToGroupModal, setVisibleAddToGroupModal] =
         useState<boolean>(false);
     const [isProcessingAction, setIsProcessingAction] = useState<boolean>(false);
@@ -195,12 +193,6 @@ const Actions = ({ chatId, chatGroupIds }: ActionsProps) => {
         },
         {
             id: "2",
-            title: "Share",
-            icon: "share",
-            onClick: () => setVisibleShareModal(true),
-        },
-        {
-            id: "3",
             title: "Duplicate chat",
             icon: "duplicate",
             onClick: () => void handleDuplicateChat(),
@@ -321,10 +313,6 @@ const Actions = ({ chatId, chatGroupIds }: ActionsProps) => {
                     )}
                 </div>
             </Modal>
-            <ModalShareChat
-                visible={visibleShareModal}
-                onClose={() => setVisibleShareModal(false)}
-            />
         </>
     );
 };

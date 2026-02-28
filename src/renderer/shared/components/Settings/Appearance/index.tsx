@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useColorMode } from "@chakra-ui/react";
+import { useTheme } from "@/hooks/useTheme";
 import { twMerge } from "tailwind-merge";
 import Image from "@/components/Image";
 import Select from "@/components/Select";
@@ -26,7 +26,7 @@ const languages = [
 type AppearanceProps = {};
 
 const Appearance = ({}: AppearanceProps) => {
-    const { colorMode, setColorMode } = useColorMode();
+    const { colorMode, setColorMode } = useTheme();
     const [language, setLanguage] = useState<any>(languages[0]);
 
     const items = [

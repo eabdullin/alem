@@ -19,7 +19,6 @@ const ChatPage = () => {
     removePendingAttachment,
     isLoading,
     error,
-    isReasoningModel,
     filePatchCheckpointIds,
     downloadableMessages,
     addToolApprovalResponse,
@@ -65,7 +64,6 @@ const ChatPage = () => {
         <ChatMessages
           messages={messages}
           isLoading={isLoading}
-          isReasoningModel={isReasoningModel}
           error={error}
           addToolApprovalResponse={addToolApprovalResponse}
           onOpenAttachment={openAttachment}

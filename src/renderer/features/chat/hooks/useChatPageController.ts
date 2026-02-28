@@ -85,7 +85,7 @@ export function useChatPageController() {
     setChat,
   });
 
-  const { isReasoningModel, tokenUsage, maxTokens, resolvedModelId } =
+  const { tokenUsage, maxTokens, resolvedModelId } =
     useChatMetrics({ provider, model, messages });
 
   const {
@@ -160,7 +160,6 @@ export function useChatPageController() {
     removePendingAttachment,
     isLoading,
     error,
-    isReasoningModel,
     filePatchCheckpointIds,
     downloadableMessages,
     addToolApprovalResponse: handleToolApprovalResponse,

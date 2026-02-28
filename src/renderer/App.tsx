@@ -1,4 +1,4 @@
-import { useEffect, useState, createContext } from "react";
+import { useEffect, useState, createContext, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import LoaderScreen from "@/components/LoaderScreen";
 import { OnboardingPage } from "@/features/onboarding";
@@ -13,6 +13,25 @@ export const QurtContext = createContext<QurtContextType>({
   settings: {},
   updateSettings: async () => {},
 });
+
+/** Syncs theme from settings to document for shadcn/Tailwind dark mode */
+function ThemeSync() {
+  const { settings } = useContext(QurtContext);
+  const theme = (settings?.theme as "light" | "dark") ?? "dark";
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.remove("light", "dark");
+    if (theme === "dark") {
+      root.classList.add("dark");
+      root.setAttribute("data-theme", "dark");
+    } else {
+      root.setAttribute("data-theme", "light");
+    }
+  }, [theme]);
+
+  return null;
+}
 
 const LOADER_MIN_MS = 1500;
 
@@ -62,6 +81,7 @@ function App() {
 
   return (
     <QurtContext.Provider value={{ settings, updateSettings }}>
+      <ThemeSync />
       {showOnboarding ? (
         <OnboardingPage onComplete={completeOnboarding} />
       ) : (

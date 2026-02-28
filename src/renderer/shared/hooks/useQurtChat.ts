@@ -13,6 +13,7 @@ import {
   lastAssistantMessageIsCompleteWithApprovalResponses,
   lastAssistantMessageIsCompleteWithToolCalls,
   type UIMessage,
+  ToolUIPart,
 } from "ai";
 import { QurtContext } from "@/App";
 import { getTextFromParts } from "@/lib/chat/messageParts";
@@ -39,14 +40,14 @@ function isToolApprovalRequested(part: UIMessage["parts"][number]): boolean {
   return "state" in part && part.state === "approval-requested";
 }
 
-function hasPendingToolApprovals(messages: UIMessage[]): boolean {
+function getPendingToolApproval(messages: UIMessage[]): ToolUIPart | null {
   const lastAssistantMessage = [...messages]
     .reverse()
     .find((message) => message.role === "assistant");
   if (!lastAssistantMessage) {
-    return false;
+    return null;
   }
-  return lastAssistantMessage.parts.some(isToolApprovalRequested);
+  return lastAssistantMessage.parts.find(isToolApprovalRequested) as ToolUIPart;
 }
 
 function fileToBase64(file: File): Promise<string> {
@@ -163,12 +164,13 @@ export function useQurtChat({
     error,
     setMessages,
     addToolApprovalResponse,
+    addToolOutput,
     clearError,
   } = useChat({
     id: chatId,
     messages: initialMessages,
     transport,
-    sendAutomaticallyWhen: (options) => lastAssistantMessageIsCompleteWithApprovalResponses(options) || lastAssistantMessageIsCompleteWithToolCalls(options),
+    sendAutomaticallyWhen: (options) => lastAssistantMessageIsCompleteWithApprovalResponses(options), //  || lastAssistantMessageIsCompleteWithToolCalls(options)
     onFinish: ({ messages: finishedMessages }) => {
       onMessagesChange?.(finishedMessages, inFlightChatIdRef.current);
       void appendNewTurnsToMemory(
@@ -272,6 +274,15 @@ export function useQurtChat({
 
       setWasStoppedByUser(false);
       try {
+        const pendingToolApproval = getPendingToolApproval(messages);
+        if (pendingToolApproval) {
+          console.log("Pending tool approval found, rejecting it");
+          await addToolApprovalResponse({
+            id: pendingToolApproval.toolCallId,
+            approved: false,
+            reason: "Ignored by user: user submitted a new prompt while tool approvals were pending.",
+          });
+        }
         await sendMessage({
           text: prompt,
           files: fileParts,

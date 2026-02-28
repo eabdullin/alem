@@ -1,7 +1,6 @@
 import { useCallback, useState } from "react";
 import { useCheckpointStore } from "@/hooks/useCheckpointStore";
 import { Icon } from "@/utils/icons";
-import ModalShareChat from "@/components/ModalShareChat";
 import {
   Conversation,
   ConversationContent,
@@ -59,7 +58,6 @@ const Chat = ({
   modelId,
 }: ChatProps) => {
   const [favorite, setFavorite] = useState<boolean>(false);
-  const [visibleModal, setVisibleModal] = useState<boolean>(false);
   const [restoreState, setRestoreState] = useState<"idle" | "success" | "error">("idle");
   const { isRestoring } = useCheckpointStore();
   const hasDownloadableMessages = downloadMessages.length > 0;
@@ -212,10 +210,6 @@ const Chat = ({
         </ConversationContent>
         <ConversationScrollButton />
       </Conversation>
-      <ModalShareChat
-        visible={visibleModal}
-        onClose={() => setVisibleModal(false)}
-      />
     </>
   );
 };

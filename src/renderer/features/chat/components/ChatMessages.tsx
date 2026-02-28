@@ -1,5 +1,6 @@
 import { Message, MessageContent } from "@/components/ai-elements/message";
 import { getRestoreContextForUserMessage } from "@/services/checkpoint-service";
+import { ThinkingShimmer } from "./ThinkingShimmer";
 import { UserMessageItem } from "./UserMessageItem";
 import { AssistantMessageItem } from "./AssistantMessageItem";
 import type { ToolApprovalResponseParams } from "../hooks/useChatPageController";
@@ -8,7 +9,6 @@ import type { UIMessage } from "ai";
 type ChatMessagesProps = {
   messages: UIMessage[];
   isLoading: boolean;
-  isReasoningModel: boolean;
   error: Error | undefined;
   addToolApprovalResponse: (params: ToolApprovalResponseParams) => void;
   onOpenAttachment: (attachmentId: string) => void;
@@ -19,7 +19,6 @@ type ChatMessagesProps = {
 export function ChatMessages({
   messages,
   isLoading,
-  isReasoningModel,
   error,
   addToolApprovalResponse,
   onOpenAttachment,
@@ -31,6 +30,15 @@ export function ChatMessages({
     .filter((i) => i >= 0)
     .pop();
 
+  const messageHasContent = (message: UIMessage) => message.parts.some((part) => 
+    part.type === "reasoning" && part.text.trim() !== ""
+    || part.type === "text" && part.text.trim() !== ""
+    || part.type === "dynamic-tool"
+    || part.type === "file"
+    || part.type.startsWith("tool-")
+    || part.type.startsWith("source-")
+    || part.type.startsWith("data-")
+);
   return (
     <>
       {messages.map((message, index) => {
@@ -52,6 +60,7 @@ export function ChatMessages({
             />
           );
         }
+        if (!messageHasContent(message)) return null;
         return (
           <AssistantMessageItem
             key={message.id}
@@ -66,21 +75,10 @@ export function ChatMessages({
           />
         );
       })}
-      {isLoading && messages[messages.length - 1]?.role === "user" && (
+      {isLoading && (messages[messages.length - 1]?.role === "user" || !messageHasContent(messages[messages.length - 1])) && ( 
         <Message from="assistant">
           <MessageContent className="max-w-[50rem] rounded-[1.25rem] bg-n-2 px-5 py-4 dark:bg-n-7">
-            <div className="space-y-2">
-              <div className="flex space-x-1.5">
-                <div className="h-2 w-2 animate-[loaderDots_0.6s_0s_infinite_alternate] rounded-full bg-n-7 dark:bg-n-1"></div>
-                <div className="h-2 w-2 animate-[loaderDots_0.6s_0.3s_infinite_alternate] rounded-full bg-n-7 dark:bg-n-1"></div>
-                <div className="h-2 w-2 animate-[loaderDots_0.6s_0.6s_infinite_alternate] rounded-full bg-n-7 dark:bg-n-1"></div>
-              </div>
-              {isReasoningModel && (
-                <div className="caption1 text-n-4 dark:text-n-3/80">
-                  Thinking...
-                </div>
-              )}
-            </div>
+            <ThinkingShimmer text="Thinking..." />
           </MessageContent>
         </Message>
       )}

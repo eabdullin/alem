@@ -1,0 +1,147 @@
+name: Release Desktop
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm run test
+
+  build:
+    needs: test
+    name: Build and package (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows
+            os: windows-latest
+            artifact_name: qurt-windows-dist
+          - name: macOS
+            os: macos-latest
+            artifact_name: qurt-macos-dist
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # macOS: Prepare App Store Connect API key for notarization (recommended)
+      # Requires secrets: api_key (.p8 content), api_key_id, api_key_issuer_id
+      - name: Prepare macOS notarization API key
+        if: startsWith(matrix.os, 'macos')
+        env:
+          API_KEY_CONTENT: ${{ secrets.API_KEY }}
+          API_KEY_ID: ${{ secrets.API_KEY_ID }}
+        run: |
+          if [ -n "$API_KEY_CONTENT" ]; then
+            mkdir -p ~/private_keys/
+            echo "$API_KEY_CONTENT" > ~/private_keys/AuthKey_$API_KEY_ID.p8
+            chmod 600 ~/private_keys/AuthKey_$API_KEY_ID.p8
+          fi
+
+      # macOS: Import code signing certificate
+      # Requires secrets: MACOS_CERTIFICATE_BASE64, MACOS_CERTIFICATE_PASSWORD
+      - name: Import macOS signing certificate
+        if: startsWith(matrix.os, 'macos')
+        env:
+          MACOS_CERT_B64: ${{ secrets.MACOS_CERTIFICATE_BASE64 }}
+          MACOS_CERT_PWD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+        run: |
+          if [ -n "$MACOS_CERT_B64" ]; then
+            echo "$MACOS_CERT_B64" | base64 --decode > certificate.p12
+            security create-keychain -p actions build.keychain
+            security default-keychain -s build.keychain
+            security unlock-keychain -p actions build.keychain
+            security import certificate.p12 -k build.keychain -P "$MACOS_CERT_PWD" -T /usr/bin/codesign -T /usr/bin/security
+            security set-key-partition-list -S apple-tool:,apple: -s -k actions build.keychain
+          fi
+
+      - name: Build with Electron Forge
+        run: npm run make
+        env:
+          # macOS notarization – API key method (secrets: api_key, api_key_id, api_key_issuer_id)
+          API_KEY_ID: ${{ secrets.API_KEY_ID }}
+          API_KEY_ISSUER_ID: ${{ secrets.API_KEY_ISSUER_ID }}
+          # macOS notarization – App-specific password fallback (secrets: APPLE_ID, APPLE_APP_SPECIFIC_PASSWORD, APPLE_TEAM_ID)
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          # Use keychain identity when cert is imported (macOS)
+          CSC_IDENTITY_AUTO_DISCOVERY: "true"
+
+      - name: Upload dist artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: out/**
+          if-no-files-found: error
+          retention-days: 14
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    name: Create Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: qurt-*-dist
+          merge-multiple: true
+          path: release-artifacts
+
+      # Only include distributable installers (.exe, .dmg) to avoid DLL, .pak, .nupkg, RELEASES, etc.
+      - name: Prepare release files
+        run: |
+          mkdir -p release-files
+          find release-artifacts -type f \( -name "*.Setup.exe" -o -name "*.dmg" \) -exec cp {} release-files/ \;
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: release-notes/${{ github.ref_name }}.md
+          body: |
+            See the [README](https://github.com/${{ github.repository }}#readme) for installation and usage.
+          generate_release_notes: true
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          files: release-files/*
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -19,7 +19,6 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "canvas": "^3.2.1",
     "diff": "^5.2.0",
     "electron-squirrel-startup": "^1.0.1",
     "electron-store": "^8.2.0",

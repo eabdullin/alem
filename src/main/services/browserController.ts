@@ -9,7 +9,7 @@
 import type { WebContents } from "electron";
 import { app, BrowserWindow } from "electron";
 import path from "node:path";
-import { drawImageWithGrid } from "../utils/draw-grid";
+import { injectGridOverlay, removeGridOverlay } from "../utils/draw-grid";
 import type {
   BrowserAction,
   BrowserActionRequest,
@@ -168,19 +168,21 @@ export class BrowserController {
         if (result) return result;
       }
 
+      await injectGridOverlay(wc);
       const image = await wc.capturePage();
+      await removeGridOverlay(wc);
+
       const viewport = this.getViewportSize(wc);
       const normalizedImage = image.resize({
         width: viewport.width,
         height: viewport.height,
         quality: "best",
       });
-      const dataUrl = normalizedImage.toDataURL();
-      const screenshotWithGrid = await drawImageWithGrid(dataUrl);
+
       return {
         ok: true,
         url: wc.getURL(),
-        screenshot: screenshotWithGrid,
+        screenshot: normalizedImage.toDataURL(),
         ...(capturedText !== undefined && { text: capturedText }),
       };
     } catch (e) {

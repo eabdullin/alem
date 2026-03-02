@@ -31,6 +31,10 @@ export const IPC_CHANNELS = {
   MEMORY_READ_CORE: "memory-read-core",
   MEMORY_APPEND_CONVERSATION: "memory-append-conversation",
   MEMORY_RUN_COMMAND: "memory-run-command",
+  // Search
+  SEARCH_WEB: "search-web",
+  // Fetch
+  FETCH_URL: "fetch-url",
   // Updates
   CHECK_FOR_UPDATES: "check-for-updates",
   APPLY_UPDATE: "apply-update",

@@ -35,7 +35,7 @@ Frontend implementation guide for `qurt`.
 
 ## Provider And Model Handling
 
-- provider catalog: `src/renderer/shared/constants/providers.ts` (includes `logoPath` for each provider; logos in `public/provider-logos/`)
+- provider catalog: `src/renderer/shared/constants/ai-providers.ts` (includes `logoPath` for each provider; logos in `public/provider-logos/`)
 - provider key management UI: `src/renderer/shared/components/Settings/AiProviders`
 - active model switcher UI: `src/renderer/shared/components/ModelSelector`
 - model execution adapter: `src/renderer/services/ai-service.ts`

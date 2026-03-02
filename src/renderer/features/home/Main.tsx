@@ -5,6 +5,7 @@ import {
   buildChatTitle,
   chatService,
 } from "@/services/chat-service";
+import { chatGroupService } from "@/services/chat-group-service";
 import type { ChatAttachment } from "@/types/chat-attachment";
 
 const Main = () => {
@@ -99,16 +100,23 @@ const Main = () => {
 
     try {
       const titleSource = prompt || `Attachment: ${pendingAttachments[0]?.name || ""}`;
+      const wsPath = workspacePath.trim() || undefined;
       const chat = await chatService.createChat(buildChatTitle(titleSource), {
         chatGroupId: activeListId,
-        terminalWorkspacePath: workspacePath.trim() || undefined,
+        terminalWorkspacePath: wsPath,
       });
       setInput("");
       setPendingAttachments([]);
       setWorkspacePath("");
+      let listId = activeListId;
+      if (!listId && wsPath) {
+        const workspaceGroup =
+          await chatGroupService.getOrCreateWorkspaceGroup(wsPath);
+        listId = workspaceGroup.id;
+      }
       navigate(
-        activeListId
-          ? `/chat/${chat.id}?list=${encodeURIComponent(activeListId)}`
+        listId
+          ? `/chat/${chat.id}?list=${encodeURIComponent(listId)}`
           : `/chat/${chat.id}`,
         {
           state: {

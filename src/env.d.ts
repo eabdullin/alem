@@ -39,6 +39,8 @@ interface QurtApi {
   browserCloseWindow: () => Promise<void>;
   browserExecute: (request: import("@/shared/tools/browser/types").BrowserActionRequest) => Promise<import("@/shared/tools/browser/types").BrowserActionResult>;
   browserGetStatus: () => Promise<{ activeChatId: string | null; hasWindow: boolean }>;
+  searchWeb: (input: { query: string; providerId: string }) => Promise<{ results: Array<{ url: string; title?: string; snippet?: string }> }>;
+  fetchUrl: (input: { url: string }) => Promise<{ content: string; url: string; truncated?: boolean }>;
   checkForUpdates?: () => Promise<{ ok: true } | { ok: false; reason: string }>;
   applyUpdate?: () => Promise<void>;
   onUpdateReady?: (callback: () => void) => () => void;

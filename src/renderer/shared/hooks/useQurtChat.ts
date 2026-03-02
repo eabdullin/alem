@@ -18,7 +18,7 @@ import {
 import { QurtContext } from "@/App";
 import { getTextFromParts } from "@/lib/chat/messageParts";
 import { createAgent } from "@/services/ai-service";
-import { type AiProvider, providerService } from "@/services/provider-service";
+import { providerFactory } from "@/ai-providers/provider-factory";
 import {
   QurtChatTransport,
   QURT_ATTACHMENT_PREFIX,
@@ -129,31 +129,39 @@ export function useQurtChat({
   workspaceRootRef.current = workspaceRoot;
   chatIdRef.current = chatId;
 
-  const activeProvider = settings?.activeProvider;
-  const provider: AiProvider = providerService.validateProvider(activeProvider, "openai");
-
   const ready = typeof window !== "undefined" && !!window.qurt;
   const model = settings?.activeModel ?? "";
+  const provider = useMemo(
+    () => providerFactory.getProviderIdForModel(model) ?? "openai",
+    [model],
+  );
 
   const transport = useMemo(
     () =>
       new QurtChatTransport({
         getAgent: async () => {
-          const apiKey = await window.qurt!.getApiKey(provider);
+          const modelProvider = providerFactory.getProviderIdForModel(model);
+          if (!modelProvider) {
+            throw new Error(
+              `Model "${model}" is unavailable. Please choose a model in Settings.`,
+            );
+          }
+
+          const apiKey = await window.qurt!.getApiKey(modelProvider);
           return createAgent({
-            provider,
             model,
             apiKey,
             toolConfig: {
               workspaceRoot: workspaceRootRef.current,
               browserChatId: chatIdRef.current ?? undefined,
+              searchProviderId: settings?.activeSearchProvider ?? "duckduckgo-browser",
             },
           });
         },
         sendReasoning: true,
         resolveAttachment: (id) => window.qurt!.readAttachment(id),
       }),
-    [model, provider],
+    [model, settings?.activeSearchProvider],
   );
 
   const {

@@ -1,7 +1,6 @@
 import type { ToolSet } from "ai";
 import { tool, zodSchema } from "ai";
 import { z } from "zod";
-import type { AiProvider } from "../types";
 
 const memoryInputSchema = z.object({
   command: z
@@ -43,8 +42,6 @@ Rules:
 - Keep memory operations invisible in user-facing replies.`;
 
 export function getMemoryToolSet(
-  _provider: AiProvider,
-  _apiKey: string,
   _options?: import("../types").ToolSetOptions
 ): ToolSet {
   return {

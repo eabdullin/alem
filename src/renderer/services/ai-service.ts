@@ -1,10 +1,13 @@
 import { ToolLoopAgent, stepCountIs } from "ai";
-import { getToolSetForProvider } from "@/tools";
-import { providerService, type AgentConfig } from "./provider-service";
+import { providerFactory} from "@/ai-providers/provider-factory";
+import { ToolConfig } from "@/ai-providers/types";
+export type { AiProvider } from "@/ai-providers/types";
 
-export type { AiProvider } from "./provider-service";
-
-export type CreateAgentParams = AgentConfig;
+export interface CreateAgentParams {
+  model: string;
+  apiKey: string;
+  toolConfig?: ToolConfig;
+}
 
 const AGENT_INSTRUCTIONS = `You are Qurt — an AI agent coworker and personal assistant that lives on the user's desktop.
 
@@ -29,17 +32,11 @@ You are sharp, proactive, and genuinely useful. You think before you act, explai
 
 ## Tools
 
-You have five tools. Use them proactively when they'd help — don't wait to be asked.
+You have six tools. Use them proactively when they'd help — don't wait to be asked.
 
-**web_search** — Search the web for live or recent information. Use whenever the user asks about current events, recent data, or anything that may have changed since your training cutoff.
+**web_search and web_fetch** — One-time, mostly isolated actions. Use them as sources of information: look up facts, fetch page content, or gather data. Each call is self-contained.
 
-**run_terminal** — Run a single shell command in the user's workspace. Commands execute in the chat's workspace folder. Pass the command as tokens (e.g. ["git", "status"]). Network is disabled by default; destructive commands are blocked. Always provide a short description for the step label.
-
-**apply_file_patch** — Edit workspace files via unified diff or strict patch DSL. Paths are relative to the workspace root. Binary files are blocked. Use base_hashes when you know file contents to prevent stale edits.
-
-**browser_control** — Control a built-in browser to navigate and interact with web pages. One window per chat; http/https only. Actions run atomically and return a screenshot. Use coordinate-based clicks (origin top-left; screenshots include a grid overlay). Common pattern: open → navigate → wait → interact.
-
-**memory** — Persist and recall important information across conversations. Store durable user facts (preferences, constraints, goals) in /memories/core.md, detailed notes in /memories/notes.md. Search past conversations when context might help. When the user says "remember this" or you learn a clear durable fact, save it. Keep memory operations invisible in your replies.
+**browser_control** — Use for navigating complex UIs and/or performing actions on behalf of the user. Open pages, click, type, fill forms, scroll, and interact with multi-step flows. Prefer this when the user needs you to *do* something in a web app, not just read or search.
 
 ## Principles
 
@@ -56,32 +53,40 @@ async function readCoreMemoryForAgent(): Promise<string> {
 }
 
 export function createAgent({
-  provider,
   model,
   apiKey,
   toolConfig,
 }: CreateAgentParams): ToolLoopAgent {
-  if (!apiKey.trim()) {
-    throw new Error(providerService.getApiKeyErrorMessage(provider));
-  }
   if (!model?.trim()) {
     throw new Error("Please select a model in Settings.");
   }
 
-  const resolvedModel = providerService.resolveModel(provider, model);
-  const providerOptions = providerService.createProviderOptions(resolvedModel);
-  const tools = getToolSetForProvider(provider, apiKey, toolConfig);
+  const providerId = providerFactory.getProviderIdForModel(model);
+  if (!providerId) {
+    throw new Error(`Model "${model}" is not available. Please reselect a model.`);
+  }
+
+  const providerName = providerFactory.getProviderName(providerId);
+  if (!apiKey.trim()) {
+    throw new Error(`${providerName} API key is not configured.`);
+  }
+
+  const provider = providerFactory.create(apiKey, model, toolConfig);
+  if (!provider.isApiKeyValid(apiKey)) {
+    throw new Error(`Invalid ${providerName} API key format.`);
+  }
   const today = new Date().toISOString().slice(0, 10);
 
   return new ToolLoopAgent({
-    model: providerService.createChatModel(provider, resolvedModel.modelId, apiKey),
-    tools,
+    model: provider.chatModel(model),
+    tools: provider.tools,
+    providerOptions: provider.options,
     stopWhen: stepCountIs(5),
     instructions: AGENT_INSTRUCTIONS,
-    providerOptions,
+   
     prepareCall: async (settings) => {
       let extra = `\n\nToday's date is ${today}.`;
-      if (provider !== "xai") {
+      if (provider.id !== "xai") {
         const coreMemory = await readCoreMemoryForAgent();
         extra += coreMemory.trim()
           ? `\n\nCore memory:\n${coreMemory}\n\nYou can save and recall important information using the memory tool.`

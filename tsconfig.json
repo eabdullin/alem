@@ -73,6 +73,12 @@
       ],
       "@/features/*": [
         "src/renderer/features/*"
+      ],
+      "@/ai-providers/*": [
+        "src/renderer/ai-providers/*"
+      ],
+      "@/search-providers/*": [
+        "src/renderer/search-providers/*"
       ]
     }
   },

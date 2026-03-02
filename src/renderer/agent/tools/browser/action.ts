@@ -1,7 +1,6 @@
 import type { ContentPart, ToolSet } from "ai";
 import { tool, zodSchema } from "ai";
 import { z } from "zod";
-import type { AiProvider } from "../types";
 import type {
   BrowserAction,
   BrowserActionRequest,
@@ -95,8 +94,6 @@ Each request runs a list of actions atomically and returns one screenshot plus o
 `;
 
 export function getBrowserToolSet(
-  _provider: AiProvider,
-  _apiKey: string,
   options?: import("../types").ToolSetOptions
 ): ToolSet {
   const chatId = options?.browserChatId ?? "";

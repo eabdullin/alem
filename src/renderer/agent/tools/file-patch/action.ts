@@ -1,7 +1,6 @@
 import type { ToolSet } from "ai";
 import { tool, zodSchema } from "ai";
 import { z } from "zod";
-import type { AiProvider } from "../types";
 import type { FilePatchRequest, FilePatchResult } from "@/shared/tools/file-patch/types";
 
 const filePatchInputSchema = z.object({
@@ -27,8 +26,6 @@ const WORKSPACE_NOT_SET_MESSAGE =
   "Workspace is not set for this chat. Please select a workspace folder using the button above the input before running terminal or file-patch commands.";
 
 export function getFilePatchToolSet(
-  _provider: AiProvider,
-  _apiKey: string,
   options?: import("../types").ToolSetOptions
 ): ToolSet {
   const workspaceRoot = options?.workspaceRoot?.trim();

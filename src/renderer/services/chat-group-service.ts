@@ -3,6 +3,7 @@ import {
   type ChatGroup,
   type ChatGroupStore,
 } from "../stores/chat-group-store";
+import { getOrCreateWorkspaceGroup as getOrCreateWorkspaceGroupRepo } from "../db/repos/chat-groups.repo";
 
 export {
   CHAT_GROUPS_UPDATED_EVENT,
@@ -24,6 +25,10 @@ export class ChatGroupService {
     color?: string;
   }): Promise<ChatGroup> {
     return this.store.createGroup(input);
+  }
+
+  async getOrCreateWorkspaceGroup(workspacePath: string): Promise<ChatGroup> {
+    return getOrCreateWorkspaceGroupRepo(workspacePath);
   }
 }
 

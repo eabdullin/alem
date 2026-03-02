@@ -10,6 +10,8 @@ import type { ToolDefinition, ToolDisplayProps } from "@/tools";
 import type { UIMessage } from "ai";
 import { BrainIcon } from "lucide-react";
 import type { ComponentType } from "react";
+import { useContext } from "react";
+import { QurtContext } from "@/App";
 
 type ToolStepItemProps = {
   part: UIMessage["parts"][number];
@@ -62,6 +64,13 @@ export function ToolStepItem({
   const input = "input" in part ? part.input : {};
   const output = "output" in part ? part.output : undefined;
   const errorText = "errorText" in part ? part.errorText : undefined;
+  const { settings, updateSettings } = useContext(QurtContext);
+  const toolContext = {
+    searchProviderId: settings?.activeSearchProvider as string | undefined,
+    hideDuckDuckGoBrowserSearchHint: settings?.hideDuckDuckGoBrowserSearchHint as boolean | undefined,
+    updateSettings,
+    settings,
+  };
   const needsApproval =
     "state" in part &&
     part.state === "approval-requested" &&
@@ -70,7 +79,7 @@ export function ToolStepItem({
   return (
     <ChainOfThoughtStep
       icon={def?.stepIcon}
-      label={def?.getStepLabel?.(input) ?? toolName.replace(/_/g, " ")}
+      label={def?.getStepLabel?.(input, toolContext) ?? toolName.replace(/_/g, " ")}
       status={getToolStepStatus(part)}
     >
       {needsApproval && part.approval ? (

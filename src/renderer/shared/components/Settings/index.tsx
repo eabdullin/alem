@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMediaQuery } from "react-responsive";
 import Select from "@/components/Select";
 import Menu from "./Menu";
 import AiProviders from "./AiProviders";
+import SearchProviders from "./SearchProviders";
 import ChatExport from "./ChatExport";
 import Appearance from "./Appearance";
 import Terminal from "./Terminal";
@@ -20,7 +21,13 @@ type SettingsProps = {
 };
 
 const Settings = ({ items, activeItem }: SettingsProps) => {
-  const [active, setActive] = useState<any>(items[activeItem || 0]);
+  const [active, setActive] = useState<any>(items[activeItem ?? 0]);
+
+  useEffect(() => {
+    if (activeItem != null && items[activeItem]) {
+      setActive(items[activeItem]);
+    }
+  }, [activeItem, items]);
 
   const isMobile = useMediaQuery({
     query: "(max-width: 767px)",
@@ -45,6 +52,7 @@ const Settings = ({ items, activeItem }: SettingsProps) => {
         )}
         <div className="grow pl-12 md:pl-0">
           {active.id === "ai-providers" && <AiProviders />}
+          {active.id === "search-providers" && <SearchProviders />}
           {active.id === "appearance" && <Appearance />}
           {active.id === "help" && <Help />}
           {active.id === "terminal" && <Terminal />}

@@ -62,7 +62,6 @@ export function useChatPageController() {
     removePendingAttachment,
     isLoading,
     error,
-    provider,
     model,
     addToolApprovalResponse,
     setMessages,
@@ -86,7 +85,7 @@ export function useChatPageController() {
   });
 
   const { tokenUsage, maxTokens, resolvedModelId } =
-    useChatMetrics({ provider, model, messages });
+    useChatMetrics({ model, messages });
 
   const {
     filePatchCheckpointIds,

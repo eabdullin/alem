@@ -5,6 +5,11 @@ export const settings = [
     icon: "settings",
   },
   {
+    id: "search-providers",
+    title: "Search Providers",
+    icon: "search",
+  },
+  {
     id: "appearance",
     title: "Appearance",
     icon: "sun",

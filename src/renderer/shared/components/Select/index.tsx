@@ -55,6 +55,7 @@ const Select = <T extends SelectItemBase>({
     const triggerClass = twMerge(
         small && "h-9 pr-3 rounded-md",
         noShadow && "border border-n-3 dark:border-n-5 shadow-none",
+        "[&_[data-select-swatch]]:hidden",
         classButton
     );
 
@@ -126,6 +127,7 @@ const Select = <T extends SelectItemBase>({
                         >
                             {item.color && (
                                 <div
+                                    data-select-swatch
                                     className="shrink-0 w-3.5 h-3.5 mt-[0.3125rem] ml-1 mr-4 rounded"
                                     style={{
                                         backgroundColor: item.color,

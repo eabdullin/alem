@@ -1,37 +1,41 @@
 import { useMemo } from "react";
-import { providerService } from "@/services/provider-service";
+import { providerFactory } from "@/ai-providers/provider-factory";
+import { calculateTokenUsage } from "@/ai-providers/usage";
 import type { UIMessage } from "ai";
 
 type UseChatMetricsOptions = {
-  provider: string;
   model: string;
   messages: UIMessage[];
 };
 
-export function useChatMetrics({
-  provider,
-  model,
-  messages,
-}: UseChatMetricsOptions) {
+export function useChatMetrics({ model, messages }: UseChatMetricsOptions) {
+  const providerInstance = useMemo(() => {
+    if (!model) return null;
+    const providerId = providerFactory.getProviderIdForModel(model);
+    if (!providerId) return null;
+    try {
+      return providerFactory.createForProvider(providerId, "", model);
+    } catch {
+      return null;
+    }
+  }, [model]);
+
   const tokenUsage = useMemo(() => {
-    return providerService.calculateTokenUsage(messages);
+    return calculateTokenUsage(messages);
   }, [messages]);
 
   const isReasoningModel = useMemo(() => {
-    if (!model) return false;
-    return providerService.isReasoningModel(provider, model);
-  }, [model, provider]);
+    return providerInstance?.resolvedModel.isReasoning ?? false;
+  }, [providerInstance]);
 
   const maxTokens = useMemo(() => {
-    if (!model) return 0;
-    return providerService.getMaxTokens(provider, model);
-  }, [provider, model]);
+    if (!providerInstance) return 0;
+    return providerInstance.getMaxTokens(model);
+  }, [model, providerInstance]);
 
   const resolvedModelId = useMemo(() => {
-    if (!model) return "";
-    const resolved = providerService.resolveModel(provider, model);
-    return resolved.modelId;
-  }, [provider, model]);
+    return providerInstance?.resolvedModel.modelId ?? "";
+  }, [providerInstance]);
 
   return {
     isReasoningModel,

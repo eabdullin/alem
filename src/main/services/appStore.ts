@@ -9,7 +9,6 @@ export function getStore(): Store<any> {
       defaults: {
         settings: {
           providers: {},
-          activeProvider: "openai",
           activeModel: "",
           hasSeenOnboarding: false,
           enabledModels: {
@@ -22,6 +21,8 @@ export function getStore(): Store<any> {
           theme: "dark",
           /** Custom shell for terminal tool. Empty = platform default (PowerShell on Windows, /bin/sh on Unix). */
           terminalShell: "",
+          /** Active search provider for web_search tool. */
+          activeSearchProvider: "duckduckgo-browser",
         },
         apiKeys: {},
         chats: [],

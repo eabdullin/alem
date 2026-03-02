@@ -1,6 +1,7 @@
 import { useContext, useMemo } from "react";
 import { QurtContext } from "@/App";
-import { PROVIDERS } from "@/constants/providers";
+import { providerFactory } from "@/ai-providers/provider-factory";
+import type { AiProvider } from "@/ai-providers/types";
 import {
   Select,
   SelectContent,
@@ -12,7 +13,7 @@ import {
 type ModelOption = {
   id: string;
   title: string;
-  providerId: string;
+  providerId: AiProvider;
   modelId: string;
 };
 
@@ -27,15 +28,15 @@ const ModelSelector = ({
 }: ModelSelectorProps) => {
   const { settings, updateSettings } = useContext(QurtContext);
 
-  const activeProvider = settings?.activeProvider || "openai";
   const activeModel = settings?.activeModel ?? "";
+  const providers = useMemo(() => providerFactory.listProviders(), []);
   const enabledModels: Record<string, string[]> = useMemo(
     () => settings?.enabledModels ?? {},
     [settings?.enabledModels],
   );
 
   const items = useMemo<ModelOption[]>(() => {
-    return PROVIDERS.flatMap((provider) =>
+    return providers.flatMap((provider) =>
       (enabledModels[provider.id] || [])
         .map((modelId) => {
           const model = provider.models.find((m) => m.id === modelId);
@@ -49,32 +50,26 @@ const ModelSelector = ({
         })
         .filter((item): item is ModelOption => item !== null),
     );
-  }, [enabledModels]);
+  }, [enabledModels, providers]);
 
   const value = useMemo(
     () =>
       activeModel
-        ? items.find(
-            (item) =>
-              item.providerId === activeProvider && item.modelId === activeModel,
-          ) ?? items[0]
+        ? (items.find((item) => item.modelId === activeModel) ?? items[0])
         : undefined,
-    [items, activeProvider, activeModel],
+    [items, activeModel],
   );
 
   const handleChange = (item: ModelOption) => {
     void updateSettings({
       ...settings,
-      activeProvider: item.providerId,
       activeModel: item.modelId,
     });
   };
 
   if (items.length === 0) {
     return (
-      <span className="caption2 font-semibold text-n-4">
-        No models enabled
-      </span>
+      <span className="caption2 font-semibold text-n-4">No models enabled</span>
     );
   }
 

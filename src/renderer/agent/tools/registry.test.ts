@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
 import {
+  getGeneralToolSet,
   getToolDefinitions,
   getToolDefinition,
   getToolDisplay,
-  getToolSetForProvider,
 } from "./registry";
 
 describe("tools registry", () => {
@@ -14,15 +14,28 @@ describe("tools registry", () => {
       expect(defs.length).toBeGreaterThan(0);
     });
 
-    it("each definition has id, displayToolIds, getToolSet, Display", () => {
+    it("each definition has id, displayToolIds, Display", () => {
       const defs = getToolDefinitions();
       for (const def of defs) {
         expect(def).toHaveProperty("id");
         expect(def).toHaveProperty("displayToolIds");
         expect(Array.isArray(def.displayToolIds)).toBe(true);
-        expect(typeof def.getToolSet).toBe("function");
         expect(def.Display).toBeDefined();
       }
+    });
+
+    it("web-search has getToolSet", () => {
+      const defs = getToolDefinitions();
+      const webSearch = defs.find((d) => d.id === "web-search");
+      expect(webSearch).toBeDefined();
+      expect(webSearch?.getToolSet).toBeDefined();
+    });
+
+    it("fetch has getToolSet", () => {
+      const defs = getToolDefinitions();
+      const fetch = defs.find((d) => d.id === "fetch");
+      expect(fetch).toBeDefined();
+      expect(fetch?.getToolSet).toBeDefined();
     });
   });
 
@@ -45,6 +58,12 @@ describe("tools registry", () => {
       expect(def?.id).toBe("terminal");
     });
 
+    it("returns definition for web_fetch", () => {
+      const def = getToolDefinition("web_fetch");
+      expect(def).toBeDefined();
+      expect(def?.id).toBe("fetch");
+    });
+
     it("returns undefined for unknown tool", () => {
       expect(getToolDefinition("unknown_tool_xyz")).toBeUndefined();
     });
@@ -62,26 +81,22 @@ describe("tools registry", () => {
     });
   });
 
-  describe("getToolSetForProvider", () => {
-    it("returns ToolSet object for openai", () => {
-      const toolSet = getToolSetForProvider("openai", "test-key");
+  describe("getGeneralToolSet", () => {
+    it("returns local tool set", () => {
+      const toolSet = getGeneralToolSet();
       expect(toolSet).toBeDefined();
       expect(typeof toolSet).toBe("object");
-      expect(toolSet.run_terminal).toBeDefined();
       expect(toolSet.web_search).toBeDefined();
+      expect(toolSet.web_fetch).toBeDefined();
+      expect(toolSet.run_terminal).toBeDefined();
+      expect(toolSet.apply_file_patch).toBeDefined();
+      expect(toolSet.browser_control).toBeDefined();
+      expect(toolSet.memory).toBeDefined();
     });
 
-    it("returns only web_search for xai (XAI_WEB_SEARCH_ONLY)", () => {
-      const toolSet = getToolSetForProvider("xai", "test-key");
-      expect(toolSet.web_search).toBeDefined();
-      expect(toolSet.run_terminal).toBeUndefined();
-      expect(toolSet.browser_control).toBeUndefined();
-    });
-
-    it("returns full tool set for anthropic", () => {
-      const toolSet = getToolSetForProvider("anthropic", "test-key");
-      expect(toolSet.run_terminal).toBeDefined();
-      expect(toolSet.web_search).toBeDefined();
+    it("does not include provider-native google_search", () => {
+      const toolSet = getGeneralToolSet();
+      expect(toolSet.google_search).toBeUndefined();
     });
   });
 });

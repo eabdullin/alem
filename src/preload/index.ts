@@ -4,6 +4,8 @@ import { shellApi } from "./api/shell.api";
 import { terminalApi } from "./api/terminal.api";
 import { browserApi } from "./api/browser.api";
 import { filePatchApi } from "./api/filePatch.api";
+import { searchApi } from "./api/search.api";
+import { fetchApi } from "./api/fetch.api";
 
 const api = {
   ...appApi,
@@ -17,6 +19,8 @@ const api = {
   browserCloseWindow: browserApi.closeWindow,
   browserExecute: browserApi.execute,
   browserGetStatus: browserApi.getStatus,
+  searchWeb: searchApi.searchWeb,
+  fetchUrl: fetchApi.fetchUrl,
   platform: process.platform,
 };
 

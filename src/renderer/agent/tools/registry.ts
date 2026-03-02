@@ -1,6 +1,7 @@
 import type { ToolSet } from "ai";
-import type { AiProvider, ToolSetOptions } from "./types";
+import type { ToolSetOptions } from "./types";
 import { browserTool } from "./browser";
+import { fetchTool } from "./fetch";
 import { filePatchTool } from "./file-patch";
 import { memoryTool } from "./memory";
 import { terminalTool } from "./terminal";
@@ -8,6 +9,7 @@ import { webSearchTool } from "./web-search";
 
 const definitions = [
   webSearchTool,
+  fetchTool,
   terminalTool,
   filePatchTool,
   browserTool,
@@ -21,6 +23,15 @@ for (const def of definitions) {
   }
 }
 
+const GENERAL_TOOL_DEFINITION_IDS = new Set([
+  "web-search",
+  "fetch",
+  "terminal",
+  "file-patch",
+  "browser",
+  "memory",
+]);
+
 /**
  * All registered tool definitions (type, action, display).
  */
@@ -28,30 +39,27 @@ export function getToolDefinitions() {
   return definitions;
 }
 
-/**
- * xAI Responses API supports only server-side tools (e.g. web_search).
- * Client-side tools (terminal, browser, file-patch, memory) cannot be mixed.
- */
-const XAI_WEB_SEARCH_ONLY = true;
-
-/**
- * Get the ToolSet for agent mode: merge all tools' getToolSet(provider, apiKey, options).
- */
-export function getToolSetForProvider(
-  provider: AiProvider,
-  apiKey: string,
-  options?: ToolSetOptions
+function mergeToolSets(
+  defs: (typeof definitions)[number][],
+  options?: ToolSetOptions,
 ): ToolSet {
   const merged: Record<string, unknown> = {};
-  const defs =
-    provider === "xai" && XAI_WEB_SEARCH_ONLY
-      ? definitions.filter((d) => d.id === "web-search")
-      : definitions;
   for (const def of defs) {
-    const set = def.getToolSet(provider, apiKey, options);
+    if (!def.getToolSet) continue;
+    const set = def.getToolSet(options);
     Object.assign(merged, set);
   }
   return merged as ToolSet;
+}
+
+/**
+ * ToolSet for provider-agnostic local tools (terminal/file-patch/browser/memory).
+ */
+export function getGeneralToolSet(
+  options?: ToolSetOptions,
+): ToolSet {
+  const defs = definitions.filter((d) => GENERAL_TOOL_DEFINITION_IDS.has(d.id));
+  return mergeToolSets(defs, options);
 }
 
 /**

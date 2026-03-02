@@ -23,7 +23,7 @@ import {
   type AttachmentData,
 } from "@/components/ai-elements/attachments";
 import { QurtContext } from "@/App";
-import { PROVIDERS } from "@/constants/providers";
+import { providerFactory } from "@/ai-providers/provider-factory";
 import Notify from "@/components/Notify";
 
 type PromptInputProps = {
@@ -66,13 +66,14 @@ const PromptInput = ({
     () => settings?.enabledModels ?? {},
     [settings?.enabledModels],
   );
+  const providers = useMemo(() => providerFactory.listProviders(), []);
   const enabledCount = useMemo(
     () =>
-      PROVIDERS.reduce(
+      providers.reduce(
         (sum, p) => sum + (enabledModels[p.id]?.length ?? 0),
         0,
       ),
-    [enabledModels],
+    [enabledModels, providers],
   );
   const hasSelectedModel = Boolean(settings?.activeModel);
 

@@ -16,7 +16,7 @@ Implemented AI SDK custom memory (Option A structured actions) as a global memor
 
 ## Outcomes
 
-- Global memory bank across all chats/providers
+- Global memory bank across all chats/ai-providers
 - Hybrid write policy: explicit remember requests + automatic durable facts
 - Path allowlist: core.md, notes.md, conversations.jsonl only
 - Tests: 9 focused tests for memory store

@@ -1,5 +1,6 @@
 "use client";
 
+import { Link2 } from "lucide-react";
 import {
   ChainOfThoughtSearchResult,
   ChainOfThoughtSearchResults,
@@ -8,6 +9,11 @@ import { ToolOutput } from "@/components/ai-elements/tool";
 import { parseWebSearchOutput } from "@/lib/parse-web-search-output";
 import { urlToDomain } from "@/lib/url-to-domain";
 import type { ToolDisplayProps } from "../types";
+
+function domainForDisplay(url: string): string {
+  const domain = urlToDomain(url);
+  return domain.replace(/^www\./i, "");
+}
 
 /**
  * Web search tool display: domain-only result badges (step icon + label live on ChainOfThoughtStep).
@@ -24,7 +30,7 @@ export function WebSearchToolDisplay({
       {parsed.length > 0 && (
         <ChainOfThoughtSearchResults className="flex flex-wrap gap-2">
           {parsed.map((item, i) => {
-            const domain = item.url ? urlToDomain(item.url) : null;
+            const domain = item.url ? domainForDisplay(item.url) : null;
             const label = domain || item.title || "Source";
             return (
               <ChainOfThoughtSearchResult
@@ -35,8 +41,9 @@ export function WebSearchToolDisplay({
                     href={item.url}
                     rel="noopener noreferrer"
                     target="_blank"
-                    className="cursor-pointer hover:underline"
+                    className="inline-flex items-center gap-1 cursor-pointer hover:underline"
                   >
+                    <Link2 className="size-3 shrink-0 text-muted-foreground" />
                     {label}
                   </a>
                 ) : (

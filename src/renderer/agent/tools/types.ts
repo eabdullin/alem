@@ -1,8 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import type { ComponentType, ReactNode } from "react";
 import type { ToolSet } from "ai";
-
-export type AiProvider = "openai" | "anthropic" | "google" | "moonshotai" | "xai";
+export type { AiProvider } from "@/ai-providers/types";
 
 /** Options passed when building the tool set (e.g. per-chat overrides). */
 export interface ToolSetOptions {
@@ -10,6 +9,8 @@ export interface ToolSetOptions {
   workspaceRoot?: string;
   /** Active chat id for browser tool; one browser window per chat. */
   browserChatId?: string;
+  /** Active search provider for web_search tool. */
+  searchProviderId?: string;
 }
 
 /**
@@ -33,16 +34,20 @@ export interface ToolDefinition {
   description: string;
   /** SDK tool names this definition handles (e.g. ["web_search", "google_search"]). */
   displayToolIds: string[];
-  /** Returns the ToolSet to pass to the model for the given provider (proxy per provider). */
-  getToolSet: (
-    provider: AiProvider,
-    apiKey: string,
-    options?: ToolSetOptions
-  ) => ToolSet;
+  /** Returns the ToolSet to pass to the model (optional for display-only tools). */
+  getToolSet?: (options?: ToolSetOptions) => ToolSet;
   /** Optional icon for the ChainOfThoughtStep (e.g. SearchIcon for web search). */
   stepIcon?: LucideIcon;
   /** Optional label for the ChainOfThoughtStep derived from tool input (e.g. "Searching for ..."). */
-  getStepLabel?: (input: unknown) => ReactNode;
+  getStepLabel?: (
+    input: unknown,
+    context?: {
+      searchProviderId?: string;
+      hideDuckDuckGoBrowserSearchHint?: boolean;
+      updateSettings?: (settings: Record<string, unknown>) => Promise<void>;
+      settings?: Record<string, unknown>;
+    }
+  ) => ReactNode;
   /** Optional full preview for the approval confirmation UI (includes "Allow X?" and tool-specific details). */
   getConfirmationPreview?: (input: unknown) => ReactNode;
   /** React component that renders this tool's step body (results only; step icon/label are on the step). */

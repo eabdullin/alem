@@ -1,7 +1,8 @@
 import { useState, useEffect, useContext, useMemo } from "react";
 import { QurtContext } from "@/App";
 import ProviderLogo from "@/components/ProviderLogos";
-import { PROVIDERS, type ProviderInfo } from "@/constants/providers";
+import { providerFactory } from "@/ai-providers/provider-factory";
+import type { ProviderInfo } from "@/ai-providers/types";
 
 const AiProviders = () => {
   const { settings, updateSettings } = useContext(QurtContext);
@@ -14,16 +15,17 @@ const AiProviders = () => {
 
   const enabledModels: Record<string, string[]> =
     settings?.enabledModels ?? {};
+  const providers = useMemo(() => providerFactory.listProviders(), []);
 
   const sortedProviders = useMemo(() => {
     const configured: ProviderInfo[] = [];
     const notConfigured: ProviderInfo[] = [];
-    for (const p of PROVIDERS) {
+    for (const p of providers) {
       if (apiKeys[p.id]) configured.push(p);
       else notConfigured.push(p);
     }
     return [...configured, ...notConfigured];
-  }, [apiKeys]);
+  }, [apiKeys, providers]);
 
   useEffect(() => {
     if (window.qurt) {
@@ -53,7 +55,6 @@ const AiProviders = () => {
     const newEnabled = { ...enabledModels, [providerId]: next };
 
     const isActiveModelRemoved =
-      settings?.activeProvider === providerId &&
       settings?.activeModel === model &&
       !next.includes(model);
 
@@ -62,7 +63,6 @@ const AiProviders = () => {
     if (isActiveModelRemoved) {
       const fallback = findFirstEnabled(newEnabled);
       if (fallback) {
-        newSettings.activeProvider = fallback.provider;
         newSettings.activeModel = fallback.model;
       } else {
         newSettings.activeModel = "";
@@ -75,7 +75,7 @@ const AiProviders = () => {
   const findFirstEnabled = (
     enabled: Record<string, string[]>
   ): { provider: string; model: string } | null => {
-    for (const provider of PROVIDERS) {
+    for (const provider of providers) {
       const models = enabled[provider.id];
       if (models && models.length > 0) {
         return { provider: provider.id, model: models[0] };
@@ -164,7 +164,9 @@ const AiProviders = () => {
                   rel="noopener noreferrer"
                   onClick={(e) => {
                     e.preventDefault();
-                    window.qurt?.openExternal(provider.apiKeyUrl!);
+                    if (provider.apiKeyUrl) {
+                      window.qurt?.openExternal(provider.apiKeyUrl);
+                    }
                   }}
                   className="caption1 text-primary-1 hover:underline mb-3 inline-block"
                 >

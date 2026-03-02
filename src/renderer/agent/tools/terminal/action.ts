@@ -1,7 +1,6 @@
 import type { ToolSet } from "ai";
 import { tool, zodSchema } from "ai";
 import { z } from "zod";
-import type { AiProvider } from "../types";
 import type { TerminalRunResult } from "@/shared/tools/terminal/types";
 import { DENYLIST_COMMANDS } from "@/shared/tools/terminal/denylist";
 
@@ -29,9 +28,9 @@ const terminalInputSchema = z.object({
     .describe("Cap on combined stdout+stderr size"),
   network: z
     .union([
-      z.object({ enabled: z.literal(false) }),
+      z.object({ enabled: z.literal("off") }),
       z.object({
-        enabled: z.literal(true),
+        enabled: z.literal("on"),
         allowed_domains: z.array(z.string()),
       }),
     ])
@@ -75,8 +74,6 @@ const WORKSPACE_NOT_SET_MESSAGE =
   "Workspace is not set for this chat. Please select a workspace folder using the button above the input before running terminal or file-patch commands.";
 
 export function getTerminalToolSet(
-  _provider: AiProvider,
-  _apiKey: string,
   options?: import("../types").ToolSetOptions
 ): ToolSet {
   const workspaceRoot = options?.workspaceRoot?.trim();
@@ -104,8 +101,15 @@ export function getTerminalToolSet(
             truncated: false,
           };
         }
+        const network =
+          input.network?.enabled === "on"
+            ? { enabled: true as const, allowed_domains: input.network.allowed_domains }
+            : input.network?.enabled === "off"
+              ? { enabled: false as const }
+              : undefined;
         return window.qurt.runTerminal({
           ...input,
+          network,
           workspaceRoot,
         }) as Promise<TerminalRunResult>;
       },

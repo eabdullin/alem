@@ -7,7 +7,7 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel";
 import ProviderLogo from "@/components/ProviderLogos";
-import { PROVIDERS } from "@/constants/providers";
+import { providerFactory } from "@/ai-providers/provider-factory";
 import {
   KeyRound,
   MessageSquareText,
@@ -68,6 +68,7 @@ const slides: Slide[] = [
     imageAlt: "API key setup — replace with a settings panel illustration with a key and checkmark",
   },
 ];
+const PROVIDERS = providerFactory.listProviders();
 
 const OnboardingPage = ({ onComplete }: OnboardingPageProps) => {
   const [api, setApi] = useState<CarouselApi>();

@@ -17,12 +17,12 @@ export function registerAppIpc(): void {
   ipcMain.handle("get-settings", () => {
     return store.get("settings", {
       providers: {},
-      activeProvider: "openai",
       activeModel: "",
       hasSeenOnboarding: false,
       theme: "dark",
       browserAllowedHosts: [],
       terminalShell: "",
+      activeSearchProvider: "duckduckgo-browser",
     });
   });
 

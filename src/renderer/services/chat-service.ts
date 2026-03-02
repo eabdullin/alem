@@ -8,7 +8,10 @@ import {
 import { QURT_ATTACHMENT_PREFIX } from "./qurt-chat-transport";
 import { filterMessagesByKnownTools } from "@/features/chat/utils/messageParts";
 import type { UIMessage } from "ai";
-import { ARCHIVED_CHAT_GROUP_ID } from "./chat-group-service";
+import {
+  ARCHIVED_CHAT_GROUP_ID,
+  chatGroupService,
+} from "./chat-group-service";
 import { PLACEHOLDER_AVATAR } from "@/constants/placeholders";
 
 const DEFAULT_USER_AVATAR = PLACEHOLDER_AVATAR;
@@ -263,10 +266,22 @@ export class ChatService {
     },
   ): Promise<ChatSession> {
     const groupId = options?.chatGroupId?.trim();
+    const workspacePath = options?.terminalWorkspacePath?.trim();
+    const chatGroupIds: string[] = groupId ? [groupId] : [];
+
+    if (workspacePath) {
+      const workspaceGroup = await chatGroupService.getOrCreateWorkspaceGroup(
+        workspacePath,
+      );
+      if (!chatGroupIds.includes(workspaceGroup.id)) {
+        chatGroupIds.push(workspaceGroup.id);
+      }
+    }
+
     return this.store.createChat(title?.trim() || DEFAULT_CHAT_TITLE, {
-      chatGroupIds: groupId ? [groupId] : [],
+      chatGroupIds,
       isArchived: groupId === ARCHIVED_CHAT_GROUP_ID,
-      terminalWorkspacePath: options?.terminalWorkspacePath?.trim() || undefined,
+      terminalWorkspacePath: workspacePath || undefined,
     });
   }
 
@@ -323,7 +338,24 @@ export class ChatService {
       toolApprovalRules?: import("@/types/tool-approval").ChatToolApprovalRule;
     },
   ): Promise<ChatSession | null> {
-    return this.store.updateChat(chatId, update);
+    const workspacePath = update.terminalWorkspacePath?.trim();
+    let chatGroupIds = update.chatGroupIds;
+
+    if (workspacePath) {
+      const workspaceGroup = await chatGroupService.getOrCreateWorkspaceGroup(
+        workspacePath,
+      );
+      const current = await this.store.getChat(chatId);
+      const baseIds = chatGroupIds ?? current?.chatGroupIds ?? [];
+      if (!baseIds.includes(workspaceGroup.id)) {
+        chatGroupIds = [...baseIds, workspaceGroup.id];
+      }
+    }
+
+    return this.store.updateChat(chatId, {
+      ...update,
+      ...(chatGroupIds !== undefined && { chatGroupIds }),
+    });
   }
 
   async saveMessages(chatId: string, messages: UIMessage[]): Promise<ChatSession | null> {

@@ -3,6 +3,47 @@ import { appDb, type ChatGroupRecord } from "../appDb";
 export const CHAT_GROUPS_UPDATED_EVENT = "qurt:chat-groups-updated";
 export const FAVORITES_CHAT_GROUP_ID = "favorites";
 export const ARCHIVED_CHAT_GROUP_ID = "archived";
+export const WORKSPACE_GROUP_PREFIX = "workspace:";
+
+const WORKSPACE_COLOR_PALETTE = [
+  "#3E90F0",
+  "#8E55EA",
+  "#D84C10",
+  "#10B981",
+  "#F59E0B",
+  "#EC4899",
+  "#06B6D4",
+  "#84CC16",
+  "#F97316",
+  "#6366F1",
+  "#14B8A6",
+  "#A855F7",
+  "#E11D48",
+  "#0EA5E9",
+  "#22C55E",
+  "#EAB308",
+];
+
+function normalizeWorkspacePath(path: string): string {
+  return path.replace(/\\/g, "/").replace(/\/+/g, "/").trim();
+}
+
+function workspaceGroupId(path: string): string {
+  const normalized = normalizeWorkspacePath(path);
+  return `${WORKSPACE_GROUP_PREFIX}${normalized}`;
+}
+
+function folderNameFromPath(path: string): string {
+  const normalized = normalizeWorkspacePath(path);
+  const parts = normalized.split("/").filter(Boolean);
+  return parts.at(-1) || path;
+}
+
+function pickRandomColor(existingColors: Set<string>): string {
+  const available = WORKSPACE_COLOR_PALETTE.filter((c) => !existingColors.has(c));
+  const pool = available.length > 0 ? available : WORKSPACE_COLOR_PALETTE;
+  return pool[Math.floor(Math.random() * pool.length)]!;
+}
 
 const DEFAULT_CHAT_GROUPS: ChatGroupRecord[] = [
   {
@@ -52,9 +93,47 @@ export async function readGroups(): Promise<ChatGroupRecord[]> {
     if (a.id === ARCHIVED_CHAT_GROUP_ID || b.id === ARCHIVED_CHAT_GROUP_ID) {
       return a.id === ARCHIVED_CHAT_GROUP_ID ? 1 : -1;
     }
+    const aIsWorkspace = a.id.startsWith(WORKSPACE_GROUP_PREFIX);
+    const bIsWorkspace = b.id.startsWith(WORKSPACE_GROUP_PREFIX);
+    if (aIsWorkspace && bIsWorkspace) {
+      return a.title.localeCompare(b.title);
+    }
+    if (aIsWorkspace) return -1;
+    if (bIsWorkspace) return 1;
     return a.title.localeCompare(b.title);
   });
   return result;
+}
+
+export async function getOrCreateWorkspaceGroup(
+  workspacePath: string,
+): Promise<ChatGroupRecord> {
+  const path = workspacePath?.trim();
+  if (!path) throw new Error("Workspace path is required.");
+
+  const id = workspaceGroupId(path);
+  const existing = await appDb.chatGroups.get(id);
+  if (existing) return existing;
+
+  const allGroups = await appDb.chatGroups.toArray();
+  const existingColors = new Set(allGroups.map((g) => g.color));
+  const color = pickRandomColor(existingColors);
+  const title = folderNameFromPath(path);
+  const now = new Date().toISOString();
+
+  const group: ChatGroupRecord = {
+    id,
+    title,
+    description: path,
+    color,
+    isDefault: false,
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  await appDb.chatGroups.add(group);
+  emitChatGroupsUpdated();
+  return group;
 }
 
 export async function createGroup(input: {

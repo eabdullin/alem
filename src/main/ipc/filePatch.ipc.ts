@@ -6,10 +6,7 @@ import {
   type FilePatchRequest,
   type FilePatchResult,
 } from "../services/filePatchRunner";
-import {
-  restoreCheckpoint,
-  restoreCheckpoints,
-} from "../services/filePatchCheckpoints";
+import { createCheckpoint } from "../services/rdiffBackupCheckpoints";
 
 const WORKSPACE_NOT_SET_MESSAGE =
   "Workspace is not set for this chat. Please select a workspace folder using the button above the input before running terminal or file-patch commands.";
@@ -42,7 +39,9 @@ export function registerFilePatchIpc(): void {
             post_hashes: {},
           };
         }
-        return runFilePatch({ request, workspaceRoot: resolved });
+        const checkpointId = await createCheckpoint(resolved, "apply_file_patch");
+        const result = await runFilePatch({ request, workspaceRoot: resolved });
+        return checkpointId ? { ...result, checkpoint_id: checkpointId } : result;
       } catch {
         return {
           status: "error",
@@ -51,23 +50,6 @@ export function registerFilePatchIpc(): void {
           post_hashes: {},
         };
       }
-    }
-  );
-
-  ipcMain.handle(
-    "restore-file-patch-checkpoint",
-    async (_event, checkpointId: string) => {
-      return restoreCheckpoint(checkpointId);
-    }
-  );
-
-  ipcMain.handle(
-    "restore-file-patch-checkpoints",
-    async (_event, checkpointIds: unknown) => {
-      const ids = Array.isArray(checkpointIds)
-        ? checkpointIds.filter((id): id is string => typeof id === "string")
-        : [];
-      return restoreCheckpoints(ids);
     }
   );
 }

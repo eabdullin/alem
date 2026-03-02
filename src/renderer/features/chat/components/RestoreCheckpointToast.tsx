@@ -15,8 +15,12 @@ function RestoreCheckpointToastContent({
       className="md:flex-col md:items-center md:px-10"
       iconDelete
     >
-      <div className="ml-3 mr-6 h6 md:mx-0 md:my-2">
-        Restore checkpoint?
+      <div className="ml-3 mr-6 md:mx-0 md:my-2">
+        <div className="h6">Restore checkpoint?</div>
+        <p className="mt-1.5 base2 text-n-3">
+          This will overwrite your current workspace. Current files will be moved to{" "}
+          <code className="rounded bg-n-5 px-1 dark:bg-n-5">.qurt/checkpoint-trash</code>.
+        </p>
       </div>
       <div className="flex justify-center">
         <button

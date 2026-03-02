@@ -3,6 +3,7 @@ import { registerAppIpc } from "./app.ipc";
 import { registerTerminalIpc } from "./terminal.ipc";
 import { registerBrowserIpc } from "./browser.ipc";
 import { registerFilePatchIpc } from "./filePatch.ipc";
+import { registerCheckpointIpc } from "./checkpoint.ipc";
 import { registerSearchIpc } from "./search.ipc";
 import { registerFetchIpc } from "./fetch.ipc";
 import { registerUpdateIpc } from "./update.ipc";
@@ -13,6 +14,7 @@ export function registerAllIpc(): void {
   registerTerminalIpc();
   registerBrowserIpc();
   registerFilePatchIpc();
+  registerCheckpointIpc();
   registerSearchIpc();
   registerFetchIpc();
   registerUpdateIpc();

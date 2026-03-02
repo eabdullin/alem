@@ -94,6 +94,7 @@ export function useChatPageController() {
   } = useCheckpointRestoreFlow({
     messages,
     chatId,
+    workspaceRoot: activeChat?.terminalWorkspacePath,
     setMessages,
     setInputValue,
     setChat,

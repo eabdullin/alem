@@ -20,8 +20,7 @@ export const IPC_CHANNELS = {
   RUN_TERMINAL: "run-terminal",
   // File patch
   APPLY_FILE_PATCH: "apply-file-patch",
-  RESTORE_FILE_PATCH_CHECKPOINT: "restore-file-patch-checkpoint",
-  RESTORE_FILE_PATCH_CHECKPOINTS: "restore-file-patch-checkpoints",
+  RESTORE_CHECKPOINTS: "restore-checkpoints",
   // Browser
   BROWSER_SET_ACTIVE_CHAT: "browser-set-active-chat",
   BROWSER_CLOSE_WINDOW: "browser-close-window",

@@ -12,6 +12,13 @@ const config: ForgeConfig = {
     asar: true,
     appBundleId: "com.qurt.desktop",
     icon: path.join(__dirname, "public/icon"),
+    extraResources: [
+      {
+        from: path.join(__dirname, "resources/rdiff-backup"),
+        to: "rdiff-backup",
+        filter: ["**/*"],
+      },
+    ],
     ...(process.platform === "darwin"
       ? {
           osxSign: {

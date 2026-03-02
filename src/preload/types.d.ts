@@ -35,14 +35,10 @@ export interface QurtApi {
   openFolderDialog: () => Promise<string | null>;
   openExternal: (url: string) => Promise<void>;
   applyFilePatch: (request: unknown) => Promise<unknown>;
-  restoreFilePatchCheckpoint: (checkpointId: string) => Promise<{
-    restored: boolean;
-    error?: string;
-  }>;
-  restoreFilePatchCheckpoints: (checkpointIds: string[]) => Promise<{
-    restored: boolean;
-    error?: string;
-  }>;
+  restoreCheckpoints: (payload: {
+    workspaceRoot: string;
+    checkpointIds: string[];
+  }) => Promise<{ restored: boolean; error?: string }>;
   browserSetActiveChat: (chatId: string | null) => Promise<void>;
   browserCloseWindow: () => Promise<void>;
   browserExecute: (request: unknown) => Promise<unknown>;

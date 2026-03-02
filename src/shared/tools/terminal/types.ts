@@ -30,4 +30,6 @@ export interface TerminalRunResult {
   duration_ms: number;
   truncated: boolean;
   artifacts?: Array<{ path: string; hash?: string }>;
+  /** Checkpoint timestamp when a backup was created before this run. */
+  checkpoint_id?: string;
 }

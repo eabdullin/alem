@@ -35,7 +35,7 @@ System architecture for `qurt`.
   - `index.ts`: app lifecycle, `registerAllIpc()`, auto-update bootstrap (`update-electron-app` -> GitHub Releases; checks every 24h; applies via Settings "Check for Updates" or update-ready toast)
   - `windows/mainWindow.ts`: window creation
   - `ipc/`: IPC handlers by domain (shell, app, terminal, browser, filePatch, update)
-  - `services/`: terminalRunner, browserController, filePatchRunner, filePatchCheckpoints, appStore, fileStore, memoryStore
+  - `services/`: terminalRunner, browserController, filePatchRunner, rdiffBackupCheckpoints, appStore, fileStore, memoryStore
 - `src/preload/`: context bridge; `api/` split by domain
 - `src/shared/`: safe shared code (types, constants); `tools/` for tool protocol types
 - `src/renderer/`: React app

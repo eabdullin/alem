@@ -12,6 +12,7 @@ import { showRestoreCheckpointToast } from "../components/RestoreCheckpointToast
 type UseCheckpointRestoreFlowOptions = {
   messages: UIMessage[];
   chatId: string;
+  workspaceRoot?: string;
   setMessages: (messages: UIMessage[]) => void;
   setInputValue: (value: string) => void;
   setChat: (chat: ChatSession | null) => void;
@@ -20,6 +21,7 @@ type UseCheckpointRestoreFlowOptions = {
 export function useCheckpointRestoreFlow({
   messages,
   chatId,
+  workspaceRoot,
   setMessages,
   setInputValue,
   setChat,
@@ -50,9 +52,15 @@ export function useCheckpointRestoreFlow({
         return;
       }
 
+      if (!workspaceRoot?.trim()) {
+        toast.error("Workspace not set. Cannot restore checkpoint.");
+        return;
+      }
+
       const result = await restoreFromCheckpoint(ctx, {
         messages,
         chatId,
+        workspaceRoot: workspaceRoot.trim(),
         setMessages,
         setInputValue,
         onChatUpdate: setChat,
@@ -62,7 +70,7 @@ export function useCheckpointRestoreFlow({
         toast.error(result.error ?? "Failed to restore checkpoint.");
       }
     },
-    [chatId, messages, setMessages, setInputValue, setChat],
+    [chatId, messages, workspaceRoot, setMessages, setInputValue, setChat],
   );
 
   const showRestoreConfirmation = useCallback(

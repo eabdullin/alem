@@ -6,12 +6,13 @@ import {
   type AttachmentData,
 } from "@/components/ai-elements/attachments";
 import {
-  Checkpoint,
-  CheckpointIcon,
-  CheckpointTrigger,
-} from "@/components/ai-elements/checkpoint";
-import { Message, MessageContent } from "@/components/ai-elements/message";
-import { TooltipProvider } from "@/components/ui/tooltip";
+  Message,
+  MessageAction,
+  MessageActions,
+  MessageContent,
+  MessageToolbar,
+} from "@/components/ai-elements/message";
+import { HistoryIcon } from "lucide-react";
 import { getAttachmentIdFromUrl } from "../utils/messageParts";
 import type { UIMessage } from "ai";
 
@@ -32,8 +33,14 @@ export function UserMessageItem({
     (p): p is { type: "text"; text: string } => p.type === "text",
   );
   const fileParts = message.parts.filter(
-    (p): p is { type: "file"; url: string; mediaType: string; filename?: string } =>
-      p.type === "file",
+    (
+      p,
+    ): p is {
+      type: "file";
+      url: string;
+      mediaType: string;
+      filename?: string;
+    } => p.type === "file",
   );
   const text = textParts.map((p) => p.text).join("");
   const attachmentItems: AttachmentData[] = fileParts.map((fp) => ({
@@ -63,20 +70,18 @@ export function UserMessageItem({
           </Attachments>
         )}
         {!!text && <div className="whitespace-pre-wrap">{text}</div>}
-        {showRestoreCheckpoint && onRestoreCheckpoint && (
-          <TooltipProvider>
-            <Checkpoint className="mt-3">
-              <CheckpointIcon />
-              <CheckpointTrigger
-                onClick={onRestoreCheckpoint}
-                tooltip="Restore files to state before this message"
-              >
-                Restore checkpoint
-              </CheckpointTrigger>
-            </Checkpoint>
-          </TooltipProvider>
-        )}
       </MessageContent>
+      {showRestoreCheckpoint && onRestoreCheckpoint && (
+        <MessageActions className="ml-auto -mt-6">
+          <MessageAction
+            onClick={onRestoreCheckpoint}
+            label="Restore checkpoint"
+            tooltip="Restore chat to state before this message"
+          >
+            <HistoryIcon className="size-2" />
+          </MessageAction>
+        </MessageActions>
+      )}
     </Message>
   );
 }

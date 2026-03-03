@@ -154,14 +154,13 @@ describe("useCheckpointStore", () => {
       expect(mockSetInputValue).toHaveBeenCalledWith("Second");
     });
 
-    it("restores the latest checkpoint at or before the message's createdAt", async () => {
+    it("restores using the message's createdAt as the checkpoint timestamp", async () => {
       (window.qurt!.listCheckpoints as any).mockResolvedValue([
         "2025-01-01T00:00:00Z",
         "2025-01-01T00:01:00Z",
         "2025-01-01T00:02:00Z",
       ]);
 
-      // createdAt is between the 2nd and 3rd checkpoint → should pick the 2nd.
       const messages = [
         makeUserMessage("Task", "u1", "2025-01-01T00:01:30Z"),
         makeAssistantTextMessage("Done", "a1"),
@@ -172,7 +171,7 @@ describe("useCheckpointStore", () => {
       expect(result.ok).toBe(true);
       expect(window.qurt!.restoreCheckpoints).toHaveBeenCalledWith({
         workspaceRoot: "/test/workspace",
-        timestamp: "2025-01-01T00:01:00Z",
+        timestamp: "2025-01-01T00:01:30Z",
       });
       expect(mockSetMessages).toHaveBeenCalledWith([]);
       expect(mockSetInputValue).toHaveBeenCalledWith("Task");
@@ -219,8 +218,9 @@ describe("useCheckpointStore", () => {
         error: "No mirror found",
       });
 
+      // Must have createdAt so the store attempts file restore
       const messages = [
-        makeUserMessage("Task", "u1"),
+        makeUserMessage("Task", "u1", "2025-01-01T00:00:30Z"),
         makeAssistantTextMessage("Done", "a1"),
       ];
 
@@ -241,7 +241,7 @@ describe("useCheckpointStore", () => {
       });
 
       const messages = [
-        makeUserMessage("Task", "u1"),
+        makeUserMessage("Task", "u1", "2025-01-01T00:00:30Z"),
         makeAssistantTextMessage("Done", "a1"),
       ];
 

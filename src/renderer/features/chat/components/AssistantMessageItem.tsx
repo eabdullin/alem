@@ -57,7 +57,7 @@ export function AssistantMessageItem({
 
   return (
     <Message from="assistant" key={message.id}>
-      <MessageContent className="max-w-[50rem] rounded-[1.25rem] bg-n-2 px-5 py-4 dark:bg-n-7">
+      <MessageContent className="w-full rounded-[1.25rem] bg-n-2 px-5 py-4 dark:bg-n-7">
         {hasChain && (
           <ChainOfThought className="mb-2" defaultOpen={true}>
             <ChainOfThoughtContent>{chainSteps}</ChainOfThoughtContent>

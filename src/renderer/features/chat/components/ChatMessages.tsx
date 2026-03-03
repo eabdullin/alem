@@ -72,7 +72,7 @@ export function ChatMessages({
       })}
       {isLoading && (messages[messages.length - 1]?.role === "user" || !messageHasContent(messages[messages.length - 1])) && (
         <Message from="assistant">
-          <MessageContent className="max-w-[50rem] rounded-[1.25rem] bg-n-2 px-5 py-4 dark:bg-n-7">
+          <MessageContent className="w-full rounded-[1.25rem] bg-n-2 px-5 py-4 dark:bg-n-7">
             <ThinkingShimmer text="Thinking..." />
           </MessageContent>
         </Message>

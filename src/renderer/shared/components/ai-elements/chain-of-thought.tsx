@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { BrainIcon, ChevronDownIcon, DotIcon } from "lucide-react";
-import { createContext, memo, useContext, useMemo } from "react";
+import { createContext, memo, useContext, useMemo, useState } from "react";
 
 interface ChainOfThoughtContextValue {
   isOpen: boolean;
@@ -107,6 +107,7 @@ export type ChainOfThoughtStepProps = ComponentProps<"div"> & {
   label: ReactNode;
   description?: ReactNode;
   status?: "complete" | "active" | "pending";
+  defaultOpen?: boolean;
 };
 
 const stepStatusStyles = {
@@ -122,31 +123,48 @@ export const ChainOfThoughtStep = memo(
     label,
     description,
     status = "complete",
+    defaultOpen,
     children,
     ...props
-  }: ChainOfThoughtStepProps) => (
-    <div
-      className={cn(
-        "flex gap-2 text-sm",
-        stepStatusStyles[status],
-        "fade-in-0 slide-in-from-top-2 animate-in",
-        className
-      )}
-      {...props}
-    >
-      <div className="relative mt-0.5">
-        <Icon className="size-4" />
-        <div className="absolute top-7 bottom-0 left-1/2 -mx-px w-px bg-border" />
-      </div>
-      <div className="flex-1 space-y-2 overflow-hidden">
-        <div>{label}</div>
-        {description && (
-          <div className="text-muted-foreground text-xs">{description}</div>
-        )}
-        {children}
-      </div>
-    </div>
-  )
+  }: ChainOfThoughtStepProps) => {
+    const [isOpen, setIsOpen] = useState(defaultOpen ?? status === "active");
+
+    return (
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        <div
+          className={cn(
+            "flex gap-2 text-sm",
+            stepStatusStyles[status],
+            "fade-in-0 slide-in-from-top-2 animate-in",
+            className
+          )}
+          {...props}
+        >
+          <div className="relative mt-0.5">
+            <Icon className="size-4" />
+            <div className="absolute top-7 bottom-0 left-1/2 -mx-px w-px bg-border" />
+          </div>
+          <div className="flex-1 space-y-2 overflow-hidden">
+            <CollapsibleTrigger className="inline-flex items-center gap-1 cursor-pointer">
+              {label}
+              <ChevronDownIcon
+                className={cn(
+                  "size-3.5 shrink-0 text-muted-foreground transition-transform",
+                  isOpen ? "rotate-180" : "rotate-0"
+                )}
+              />
+            </CollapsibleTrigger>
+            {description && (
+              <div className="text-muted-foreground text-xs">{description}</div>
+            )}
+            <CollapsibleContent>
+              {children}
+            </CollapsibleContent>
+          </div>
+        </div>
+      </Collapsible>
+    );
+  }
 );
 
 export type ChainOfThoughtSearchResultsProps = ComponentProps<"div">;

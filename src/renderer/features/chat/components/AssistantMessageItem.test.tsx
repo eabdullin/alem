@@ -36,6 +36,8 @@ describe("AssistantMessageItem", () => {
     render(<AssistantMessageItem message={message} />);
     expect(screen.getByText("The answer is 42.")).toBeInTheDocument();
     expect(screen.getByText("Reasoning")).toBeInTheDocument();
+    // Expand the collapsed reasoning step first
+    fireEvent.click(screen.getByText("Reasoning"));
     // Reasoning content is truncated by default; expand to see full text
     const showBtn = screen.getByRole("button", { name: /show/i });
     fireEvent.click(showBtn);
@@ -58,6 +60,8 @@ describe("AssistantMessageItem", () => {
       ],
     };
     render(<AssistantMessageItem message={message} />);
+    // Expand the collapsed tool step to reveal output
+    fireEvent.click(screen.getByText("unknown tool"));
     expect(screen.getByText("Tool result")).toBeInTheDocument();
   });
 

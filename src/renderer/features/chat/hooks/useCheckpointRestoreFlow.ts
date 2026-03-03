@@ -20,6 +20,8 @@ export function useCheckpointRestoreFlow({ messages }: UseCheckpointRestoreFlowO
   const setMessages = useChatActionsStore((s) => s.setMessages);
   const setInputValue = useChatActionsStore((s) => s.setInputValue);
 
+  const workspaceRoot = activeChat?.terminalWorkspacePath;
+
   const filePatchCheckpointIds = useMemo(() => {
     const lastAssistant = [...messages]
       .reverse()
@@ -49,9 +51,15 @@ export function useCheckpointRestoreFlow({ messages }: UseCheckpointRestoreFlowO
         return;
       }
 
+      if (!workspaceRoot?.trim()) {
+        toast.error("Workspace not set. Cannot restore checkpoint.");
+        return;
+      }
+
       const result = await restoreFromCheckpoint(ctx, {
         messages,
         chatId,
+        workspaceRoot: workspaceRoot.trim(),
         setMessages,
         setInputValue,
         onChatUpdate: (chat) => setActiveChat(chat),
@@ -61,7 +69,7 @@ export function useCheckpointRestoreFlow({ messages }: UseCheckpointRestoreFlowO
         toast.error(result.error ?? "Failed to restore checkpoint.");
       }
     },
-    [activeChat?.id, messages, restoreFromCheckpoint, setActiveChat, setInputValue, setMessages],
+    [activeChat?.id, messages, restoreFromCheckpoint, setActiveChat, setInputValue, setMessages, workspaceRoot],
   );
 
   const showRestoreConfirmation = useCallback(

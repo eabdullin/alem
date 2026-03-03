@@ -4,6 +4,7 @@ import { shellApi } from "./api/shell.api";
 import { terminalApi } from "./api/terminal.api";
 import { browserApi } from "./api/browser.api";
 import { filePatchApi } from "./api/filePatch.api";
+import { checkpointApi } from "./api/checkpoint.api";
 import { searchApi } from "./api/search.api";
 import { fetchApi } from "./api/fetch.api";
 
@@ -13,8 +14,7 @@ const api = {
   openExternal: shellApi.openExternal,
   runTerminal: terminalApi.runTerminal,
   applyFilePatch: filePatchApi.applyFilePatch,
-  restoreFilePatchCheckpoint: filePatchApi.restoreCheckpoint,
-  restoreFilePatchCheckpoints: filePatchApi.restoreCheckpoints,
+  restoreCheckpoints: checkpointApi.restoreCheckpoints,
   browserSetActiveChat: browserApi.setActiveChat,
   browserCloseWindow: browserApi.closeWindow,
   browserExecute: browserApi.execute,

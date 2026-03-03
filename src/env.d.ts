@@ -33,8 +33,7 @@ interface QurtApi {
   openFolderDialog: () => Promise<string | null>;
   openExternal: (url: string) => Promise<void>;
   applyFilePatch: (request: import("@/shared/tools/file-patch/types").FilePatchRequest) => Promise<import("@/shared/tools/file-patch/types").FilePatchResult>;
-  restoreFilePatchCheckpoint: (checkpointId: string) => Promise<{ restored: boolean; error?: string }>;
-  restoreFilePatchCheckpoints: (checkpointIds: string[]) => Promise<{ restored: boolean; error?: string }>;
+  restoreCheckpoints: (payload: { workspaceRoot: string; checkpointIds: string[] }) => Promise<{ restored: boolean; error?: string }>;
   browserSetActiveChat: (chatId: string | null) => Promise<void>;
   browserCloseWindow: () => Promise<void>;
   browserExecute: (request: import("@/shared/tools/browser/types").BrowserActionRequest) => Promise<import("@/shared/tools/browser/types").BrowserActionResult>;

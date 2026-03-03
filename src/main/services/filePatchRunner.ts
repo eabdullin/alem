@@ -4,7 +4,7 @@
  * - Binary files blocked by default
  * - Optional base_hashes validation
  * - Per-file atomic apply
- * - Checkpoint before write for revert
+ * - Checkpointing is handled by rdiffBackupCheckpoints before this runs (in IPC layer)
  */
 
 import { createHash } from "node:crypto";
@@ -12,11 +12,6 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { applyPatch, parsePatch } from "diff";
 import type { ParsedDiff } from "diff";
-import {
-  restoreCheckpoint,
-  saveCheckpoint,
-  type FileSnapshot,
-} from "./filePatchCheckpoints";
 import type {
   FilePatchRequest,
   FilePatchResult,
@@ -221,7 +216,6 @@ export async function runFilePatch({
   const rejectedOps: RejectedOp[] = [];
   const postHashes: Record<string, string> = {};
   const diffPreview: FileChangeStats[] = [];
-  const snapshots: FileSnapshot[] = [];
 
   const ops = parsePatchText(request.patch);
   if (ops.length === 0) {
@@ -297,12 +291,6 @@ export async function runFilePatch({
       continue;
     }
 
-    snapshots.push({
-      path: relPath,
-      existed,
-      contentBase64: existed ? Buffer.from(oldContent, "utf8").toString("base64") : undefined,
-    });
-
     await fs.mkdir(path.dirname(absPath), { recursive: true });
     await fs.writeFile(absPath, applied, "utf8");
 
@@ -310,11 +298,6 @@ export async function runFilePatch({
     postHashes[relPath] = sha256Hex(applied);
     const { additions, deletions } = countChanges(op.patch);
     diffPreview.push({ path: relPath, additions, deletions });
-  }
-
-  let checkpointId: string | undefined;
-  if (snapshots.length > 0) {
-    checkpointId = await saveCheckpoint(workspaceRoot, snapshots);
   }
 
   const status =
@@ -329,7 +312,6 @@ export async function runFilePatch({
     files_changed: filesChanged,
     rejected_ops: rejectedOps,
     post_hashes: postHashes,
-    checkpoint_id: checkpointId,
     diff_preview: diffPreview.length > 0 ? diffPreview : undefined,
   };
 }

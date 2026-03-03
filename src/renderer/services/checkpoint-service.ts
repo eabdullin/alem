@@ -15,6 +15,7 @@ export interface RestoreContext {
 export interface PerformRestoreOptions {
   messages: UIMessage[];
   chatId: string;
+  workspaceRoot: string;
   setMessages: (messages: UIMessage[]) => void;
   setInputValue: (value: string) => void;
   onChatUpdate?: (chat: ChatSession) => void;
@@ -27,8 +28,11 @@ function getTextFromParts(parts: UIMessage["parts"]): string {
     .join("");
 }
 
+const CHECKPOINT_TOOL_NAMES = ["apply_file_patch", "run_terminal"] as const;
+
 /**
- * Extract checkpoint IDs from apply_file_patch tool parts in a message.
+ * Extract checkpoint IDs (timestamps) from tool parts in a message.
+ * Supports apply_file_patch and run_terminal (both create rdiff-backup checkpoints).
  */
 export function getCheckpointIdsFromMessage(message: UIMessage): string[] {
   const ids: string[] = [];
@@ -37,7 +41,7 @@ export function getCheckpointIdsFromMessage(message: UIMessage): string[] {
       continue;
     const name =
       part.type === "dynamic-tool" ? part.toolName : part.type.slice(5);
-    if (name !== "apply_file_patch") continue;
+    if (!CHECKPOINT_TOOL_NAMES.includes(name as (typeof CHECKPOINT_TOOL_NAMES)[number])) continue;
     let output: unknown =
       "output" in part ? part.output : "result" in part ? part.result : undefined;
     if (typeof output === "string") {
@@ -80,15 +84,17 @@ export function getRestoreContextForUserMessage(
 }
 
 /**
- * Restore checkpoints via IPC. Returns result from main process.
+ * Restore workspace to checkpoint(s) via IPC. Uses earliest timestamp.
+ * Requires workspaceRoot for rdiff-backup restore.
  */
 export async function restoreCheckpoints(
+  workspaceRoot: string,
   checkpointIds: string[]
 ): Promise<{ restored: boolean; error?: string }> {
-  if (!window.qurt?.restoreFilePatchCheckpoints) {
+  if (!window.qurt?.restoreCheckpoints) {
     return { restored: false, error: "Restore is not available." };
   }
-  return window.qurt.restoreFilePatchCheckpoints(checkpointIds);
+  return window.qurt.restoreCheckpoints({ workspaceRoot, checkpointIds });
 }
 
 /**
@@ -98,10 +104,10 @@ export async function performRestore(
   ctx: RestoreContext,
   options: PerformRestoreOptions
 ): Promise<{ ok: boolean; error?: string }> {
-  const { messages, chatId, setMessages, setInputValue, onChatUpdate } =
+  const { messages, chatId, workspaceRoot, setMessages, setInputValue, onChatUpdate } =
     options;
 
-  const result = await restoreCheckpoints(ctx.checkpointIds);
+  const result = await restoreCheckpoints(workspaceRoot, ctx.checkpointIds);
   if (!result.restored) {
     return { ok: false, error: result.error ?? "Failed to restore files." };
   }

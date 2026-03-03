@@ -1,5 +1,4 @@
 import { useCallback, useState } from "react";
-import { useCheckpointStore } from "@/stores/useCheckpointStore";
 import { Icon } from "@/utils/icons";
 import {
   Conversation,
@@ -26,10 +25,6 @@ type ChatProps = {
   workspacePath?: string;
   children: React.ReactNode;
   downloadMessages?: ConversationMessage[];
-  /** Checkpoint IDs from apply_file_patch in the last assistant message; when set, show Restore button. */
-  filePatchCheckpointIds?: string[];
-  /** Called when user clicks Restore to revert file changes to state before last user message. */
-  onRestoreFilePatch?: () => void | Promise<void>;
   /** Token usage data for the chat session */
   tokenUsage?: {
     totalTokens: number;
@@ -51,29 +46,12 @@ const Chat = ({
   workspacePath,
   children,
   downloadMessages = [],
-  filePatchCheckpointIds = [],
-  onRestoreFilePatch,
   tokenUsage,
   maxTokens,
   modelId,
 }: ChatProps) => {
   const [favorite, setFavorite] = useState<boolean>(false);
-  const [restoreState, setRestoreState] = useState<"idle" | "success" | "error">("idle");
-  const { isRestoring } = useCheckpointStore();
   const hasDownloadableMessages = downloadMessages.length > 0;
-  const hasFilePatchCheckpoints =
-    filePatchCheckpointIds.length > 0 && typeof onRestoreFilePatch === "function";
-
-  const handleRestoreFilePatch = useCallback(async () => {
-    if (!hasFilePatchCheckpoints) return;
-    try {
-      await onRestoreFilePatch?.();
-      setRestoreState("success");
-    } catch {
-      setRestoreState("error");
-    }
-  }, [hasFilePatchCheckpoints, onRestoreFilePatch]);
-
   const handleDownloadConversation = useCallback(() => {
     if (downloadMessages.length === 0) {
       return;
@@ -174,20 +152,6 @@ const Chat = ({
               name={favorite ? "star-fill" : "star"}
             />
           </button>
-          {hasFilePatchCheckpoints && (
-            <button
-              className="group w-8 h-8"
-              onClick={handleRestoreFilePatch}
-              title="Restore files to state before last message"
-              type="button"
-              disabled={isRestoring}
-            >
-              <Icon
-                className="stroke-n-4 transition-colors group-hover:stroke-primary-1"
-                name={restoreState === "success" ? "check" : "refresh"}
-              />
-            </button>
-          )}
           {hasDownloadableMessages && (
             <button
               className="group w-8 h-8"

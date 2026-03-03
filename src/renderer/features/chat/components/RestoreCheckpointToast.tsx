@@ -1,6 +1,8 @@
 import { toast } from "react-hot-toast";
 import Notify from "@/components/Notify";
 
+
+
 type RestoreCheckpointToastContentProps = {
   onCancel: () => void;
   onRestore: () => void;
@@ -18,7 +20,8 @@ function RestoreCheckpointToastContent({
       <div className="ml-3 mr-6 md:mx-0 md:my-2">
         <div className="h6">Restore checkpoint?</div>
         <p className="mt-1.5 base2 text-n-3">
-          This will overwrite your current workspace. Current files will be moved to{" "}
+          This will revert filesystem changes and remove messages after this point. Current
+          files will be moved to{" "}
           <code className="rounded bg-n-5 px-1 dark:bg-n-5">.qurt/checkpoint-trash</code>.
         </p>
       </div>
@@ -42,7 +45,7 @@ function RestoreCheckpointToastContent({
 
 export function showRestoreCheckpointToast(
   userMessageIndex: number,
-  onRestore: (userMessageIndex: number) => void | Promise<void>
+  onRestore: (userMessageIndex: number) => void | Promise<void>,
 ) {
   toast((t) => (
     <RestoreCheckpointToastContent

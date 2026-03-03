@@ -7,7 +7,6 @@ import {
   type TerminalRunRequest,
   type TerminalRunResult,
 } from "../services/terminalRunner";
-import { createCheckpoint } from "../services/rdiffBackupCheckpoints";
 
 const WORKSPACE_NOT_SET_MESSAGE =
   "Workspace is not set for this chat. Please select a workspace folder using the button above the input before running terminal or file-patch commands.";
@@ -37,11 +36,9 @@ export function registerTerminalIpc(): void {
             truncated: false,
           };
         }
-        const checkpointId = await createCheckpoint(resolved, "run_terminal");
         const settings = getStore().get("settings", {}) as { terminalShell?: string };
         const shell = settings.terminalShell?.trim() || undefined;
-        const result = await runTerminal({ request, workspaceRoot: resolved, shell });
-        return checkpointId ? { ...result, checkpoint_id: checkpointId } : result;
+        return await runTerminal({ request, workspaceRoot: resolved, shell });
       } catch {
         return {
           stdout: "",

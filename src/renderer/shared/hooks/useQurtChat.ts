@@ -24,11 +24,12 @@ import {
   QURT_ATTACHMENT_PREFIX,
 } from "@/services/qurt-chat-transport";
 import type { ChatAttachment } from "@/types/chat-attachment";
+import type { QurtUIMessage } from "@/types/ui-message";
 
 interface UseQurtChatOptions {
   chatId?: string;
-  initialMessages?: UIMessage[];
-  onMessagesChange?: (messages: UIMessage[], sourceChatId?: string) => void;
+  initialMessages?: QurtUIMessage[];
+  onMessagesChange?: (messages: QurtUIMessage[], sourceChatId?: string) => void;
   /** Per-chat workspace root for terminal and file-patch tools; required in agent mode. */
   workspaceRoot?: string;
 }
@@ -165,12 +166,12 @@ export function useQurtChat({
   );
 
   const {
-    messages,
+    messages: rawMessages,
     sendMessage,
     status,
     stop,
     error,
-    setMessages,
+    setMessages: rawSetMessages,
     addToolApprovalResponse,
     clearError,
   } = useChat({
@@ -179,13 +180,16 @@ export function useQurtChat({
     transport,
     sendAutomaticallyWhen: (options) => lastAssistantMessageIsCompleteWithApprovalResponses(options),
     onFinish: ({ messages: finishedMessages }) => {
-      onMessagesChange?.(finishedMessages, inFlightChatIdRef.current);
+      onMessagesChange?.(finishedMessages as QurtUIMessage[], inFlightChatIdRef.current);
       void appendNewTurnsToMemory(
         finishedMessages,
         lastLoggedMessageCountRef,
       );
     },
   });
+
+  const messages = rawMessages as QurtUIMessage[];
+  const setMessages = rawSetMessages as (messages: QurtUIMessage[]) => void;
 
   const isLoading = status === "streaming" || status === "submitted";
   const displayError = error ?? attachmentError;
@@ -297,10 +301,21 @@ export function useQurtChat({
             reason: "Ignored by user: user submitted a new prompt while tool approvals were pending.",
           });
         }
+
+        // Create a baseline checkpoint after the user message is posted.
+        // Fire-and-forget — don't block the UI on backup I/O.
+        const ws = workspaceRootRef.current?.trim();
+        if (ws) {
+          window.qurt?.createCheckpoint?.({ workspaceRoot: ws })
+            .catch(() => { /* checkpoint is best-effort */ });
+        }
+        
         await sendMessage({
           text: prompt,
           files: fileParts,
+          metadata: { createdAt: new Date().toISOString() },
         });
+
         return true;
       } catch {
         return false;
@@ -340,9 +355,10 @@ export function useQurtChat({
   // Register setMessages/setInputValue so other hooks can mutate chat state without prop drilling
   useEffect(() => {
     const { register, unregister } = useChatActionsStore.getState();
-    register({ setMessages, setInputValue });
+    // The store uses the untyped UIMessage[] interface; cast at the boundary.
+    register({ setMessages: (msgs) => rawSetMessages(msgs as QurtUIMessage[]), setInputValue });
     return () => unregister();
-  }, [setMessages, setInputValue]);
+  }, [rawSetMessages, setInputValue]);
 
   return {
     messages,

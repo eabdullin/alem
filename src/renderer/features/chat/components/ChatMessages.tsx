@@ -1,5 +1,4 @@
 import { Message, MessageContent } from "@/components/ai-elements/message";
-import { getRestoreContextForUserMessage } from "@/services/checkpoint-service";
 import { ThinkingShimmer } from "./ThinkingShimmer";
 import { UserMessageItem } from "./UserMessageItem";
 import { AssistantMessageItem } from "./AssistantMessageItem";
@@ -11,6 +10,8 @@ type ChatMessagesProps = {
   error: Error | undefined;
   onOpenAttachment: (attachmentId: string) => void;
   onRestoreCheckpoint: (userMessageIndex: number) => void;
+  /** Simple predicate: should we show the restore button for index i? */
+  canRestore: (index: number) => boolean;
   wasStoppedByUser?: boolean;
 };
 
@@ -20,6 +21,7 @@ export function ChatMessages({
   error,
   onOpenAttachment,
   onRestoreCheckpoint,
+  canRestore,
   wasStoppedByUser,
 }: ChatMessagesProps) {
   const lastAssistantIndex = [...messages]
@@ -40,18 +42,15 @@ export function ChatMessages({
     <>
       {messages.map((message, index) => {
         if (message.role === "user") {
-          const restoreCtx = getRestoreContextForUserMessage(messages, index);
-          const showRestoreCheckpoint =
-            restoreCtx !== null && restoreCtx.checkpointIds.length > 0;
+          const showRestoreCheckpoint = canRestore(index);
           return (
             <UserMessageItem
               key={message.id}
               message={message}
-              showRestoreCheckpoint={showRestoreCheckpoint}
               onOpenAttachment={onOpenAttachment}
               onRestoreCheckpoint={
-                showRestoreCheckpoint && restoreCtx
-                  ? () => onRestoreCheckpoint(restoreCtx.userMessageIndex)
+                showRestoreCheckpoint
+                  ? () => onRestoreCheckpoint(index)
                   : undefined
               }
             />

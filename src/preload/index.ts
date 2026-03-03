@@ -14,6 +14,8 @@ const api = {
   openExternal: shellApi.openExternal,
   runTerminal: terminalApi.runTerminal,
   applyFilePatch: filePatchApi.applyFilePatch,
+  createCheckpoint: checkpointApi.createCheckpoint,
+  listCheckpoints: checkpointApi.listCheckpoints,
   restoreCheckpoints: checkpointApi.restoreCheckpoints,
   browserSetActiveChat: browserApi.setActiveChat,
   browserCloseWindow: browserApi.closeWindow,

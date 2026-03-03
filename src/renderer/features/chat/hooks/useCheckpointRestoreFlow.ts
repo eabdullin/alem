@@ -1,93 +1,49 @@
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { toast } from "react-hot-toast";
-import {
-  getCheckpointIdsFromMessage,
-  getRestoreContextForUserMessage,
-} from "@/services/checkpoint-service";
+import { canRestoreAtIndex } from "@/services/checkpoint-service";
 import { useCheckpointStore } from "@/stores/useCheckpointStore";
-import { useActiveChatStore } from "@/stores/useActiveChatStore";
-import { useChatActionsStore } from "@/stores/useChatActionsStore";
-import type { UIMessage } from "ai";
+import type { QurtUIMessage } from "@/types/ui-message";
 import { showRestoreCheckpointToast } from "../components/RestoreCheckpointToast";
 
 type UseCheckpointRestoreFlowOptions = {
-  messages: UIMessage[];
+  messages: QurtUIMessage[];
 };
 
 export function useCheckpointRestoreFlow({ messages }: UseCheckpointRestoreFlowOptions) {
-  const restoreFromCheckpoint = useCheckpointStore((s) => s.restoreFromCheckpoint);
-  const { activeChat, setActiveChat } = useActiveChatStore();
-  const setMessages = useChatActionsStore((s) => s.setMessages);
-  const setInputValue = useChatActionsStore((s) => s.setInputValue);
+  const restoreToMessage = useCheckpointStore((s) => s.restoreToMessage);
 
-  const workspaceRoot = activeChat?.terminalWorkspacePath;
-
-  const filePatchCheckpointIds = useMemo(() => {
-    const lastAssistant = [...messages]
-      .reverse()
-      .find((m) => m.role === "assistant");
-    if (!lastAssistant) return [];
-    return getCheckpointIdsFromMessage(lastAssistant);
-  }, [messages]);
-
-  const lastUserMessageRestoreContext = useMemo(() => {
-    const revIdx = [...messages]
-      .reverse()
-      .findIndex((m) => m.role === "user");
-    const lastUserIndex =
-      revIdx >= 0 ? messages.length - 1 - revIdx : -1;
-    if (lastUserIndex < 0) return null;
-    return getRestoreContextForUserMessage(messages, lastUserIndex);
-  }, [messages]);
-
-  const handleRestoreFromUserMessage = useCallback(
+  const handleRestore = useCallback(
     async (userMessageIndex: number) => {
-      const chatId = activeChat?.id;
-      if (!chatId || !setMessages || !setInputValue) return;
-
-      const ctx = getRestoreContextForUserMessage(messages, userMessageIndex);
-      if (!ctx || ctx.checkpointIds.length === 0) {
-        toast.error("No checkpoint to restore.");
-        return;
-      }
-
-      if (!workspaceRoot?.trim()) {
-        toast.error("Workspace not set. Cannot restore checkpoint.");
-        return;
-      }
-
-      const result = await restoreFromCheckpoint(ctx, {
-        messages,
-        chatId,
-        workspaceRoot: workspaceRoot.trim(),
-        setMessages,
-        setInputValue,
-        onChatUpdate: (chat) => setActiveChat(chat),
-      });
-
+      const result = await restoreToMessage(userMessageIndex, messages);
       if (!result.ok) {
         toast.error(result.error ?? "Failed to restore checkpoint.");
+      } else {
+        toast.success("Checkpoint restored.");
       }
     },
-    [activeChat?.id, messages, restoreFromCheckpoint, setActiveChat, setInputValue, setMessages, workspaceRoot],
+    [messages, restoreToMessage],
   );
 
+  /**
+   * Show a confirmation toast before restoring.
+   */
   const showRestoreConfirmation = useCallback(
     (userMessageIndex: number) => {
-      showRestoreCheckpointToast(userMessageIndex, handleRestoreFromUserMessage);
+      showRestoreCheckpointToast(userMessageIndex, handleRestore);
     },
-    [handleRestoreFromUserMessage],
+    [handleRestore],
   );
 
-  const handleRestoreFilePatch = useCallback(() => {
-    const ctx = lastUserMessageRestoreContext;
-    if (!ctx) return;
-    showRestoreConfirmation(ctx.userMessageIndex);
-  }, [showRestoreConfirmation, lastUserMessageRestoreContext]);
+  /**
+   * Simple check used by the message list to show/hide the restore button.
+   */
+  const canRestore = useCallback(
+    (index: number) => canRestoreAtIndex(messages, index),
+    [messages],
+  );
 
   return {
-    filePatchCheckpointIds,
     showRestoreConfirmation,
-    handleRestoreFilePatch,
+    canRestore,
   };
 }

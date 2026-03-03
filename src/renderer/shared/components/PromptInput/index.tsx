@@ -3,7 +3,9 @@ import {
   type ClipboardEvent,
   type FormEventHandler,
   type KeyboardEvent,
+  useEffect,
   useMemo,
+  useRef,
 } from "react";
 import { useNavigate } from "react-router-dom";
 import TextareaAutosize from "react-textarea-autosize";
@@ -22,6 +24,7 @@ import {
   type AttachmentData,
 } from "@/components/ai-elements/attachments";
 import { useAppStore } from "@/stores/useAppStore";
+import { useChatActionsStore } from "@/stores/useChatActionsStore";
 import { providerFactory } from "@/ai-providers/provider-factory";
 import Notify from "@/components/Notify";
 
@@ -60,6 +63,22 @@ const PromptInput = ({
 }: PromptInputProps) => {
   const { settings } = useAppStore();
   const navigate = useNavigate();
+  const inputHighlighted = useChatActionsStore((s) => s.inputHighlighted);
+  const clearInputHighlight = useChatActionsStore((s) => s.clearInputHighlight);
+  const borderRef = useRef<HTMLDivElement>(null);
+
+  // Auto-clear highlight after animation completes
+  useEffect(() => {
+    if (!inputHighlighted) return;
+    const el = borderRef.current;
+    if (!el) {
+      clearInputHighlight();
+      return;
+    }
+    const handleEnd = () => clearInputHighlight();
+    el.addEventListener("animationend", handleEnd);
+    return () => el.removeEventListener("animationend", handleEnd);
+  }, [inputHighlighted, clearInputHighlight]);
 
   const enabledModels: Record<string, string[]> = useMemo(
     () => settings?.enabledModels ?? {},
@@ -163,7 +182,14 @@ const PromptInput = ({
       }`}
     >
       <form onSubmit={handleSubmit}>
-        <div className="relative z-2 border-2 border-n-3 rounded-2xl dark:border-n-5">
+        <div
+            ref={borderRef}
+            className={`relative z-2 border-2 rounded-2xl transition-colors ${
+              inputHighlighted
+                ? "animate-prompt-highlight border-primary-1"
+                : "border-n-3 dark:border-n-5"
+            }`}
+          >
           {hasAttachments && (
             <div className="overflow-hidden rounded-t-2xl border-b-2 border-n-3 px-4 py-3 dark:border-n-5">
               <Attachments className="w-full" variant="list">

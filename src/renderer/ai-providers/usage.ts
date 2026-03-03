@@ -1,4 +1,4 @@
-import type { UIMessage } from "ai";
+import type { QurtUIMessage } from "@/types/ui-message";
 
 export interface TokenUsageSummary {
   totalTokens: number;
@@ -9,10 +9,10 @@ export interface TokenUsageSummary {
 }
 
 /**
- * Calculate total token usage from assistant/user messages.
+ * Calculate total token usage from assistant messages.
  * Usage is read from message.metadata.totalUsage per AI SDK UI metadata shape.
  */
-export function calculateTokenUsage(messages: UIMessage[]): TokenUsageSummary {
+export function calculateTokenUsage(messages: QurtUIMessage[]): TokenUsageSummary {
   const result: TokenUsageSummary = {
     totalTokens: 0,
     inputTokens: 0,
@@ -22,22 +22,7 @@ export function calculateTokenUsage(messages: UIMessage[]): TokenUsageSummary {
   };
 
   for (const msg of messages) {
-    const metadata = (
-      msg as {
-        metadata?: {
-          totalUsage?: {
-            totalTokens?: number;
-            inputTokens?: number;
-            outputTokens?: number;
-            reasoningTokens?: number;
-            cachedInputTokens?: number;
-            outputTokenDetails?: { reasoningTokens?: number };
-            inputTokenDetails?: { cacheReadTokens?: number };
-          };
-        };
-      }
-    ).metadata;
-    const usage = metadata?.totalUsage;
+    const usage = msg.metadata?.totalUsage;
     if (!usage) continue;
 
     if (usage.totalTokens) result.totalTokens = usage.totalTokens;

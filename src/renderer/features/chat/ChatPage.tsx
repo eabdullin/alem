@@ -3,6 +3,7 @@ import Layout from "@/components/Layout";
 import Chat from "@/components/Chat";
 import PromptInput from "@/components/PromptInput";
 import { ChatMessages } from "./components/ChatMessages";
+import type { QurtUIMessage } from "@/types/ui-message";
 import { useChatRouteState } from "./hooks/useChatRouteState";
 import { useChatSession } from "./hooks/useChatSession";
 import { useQurtChat } from "@/hooks/useQurtChat";
@@ -25,7 +26,7 @@ const ChatPage = () => {
   const activeChat = storedChat?.id === chatId ? storedChat : null;
 
   const initialMessages = useMemo(
-    () => activeChat?.messages ?? [],
+    () => (activeChat?.messages ?? []) as QurtUIMessage[],
     [activeChat?.messages],
   );
 
@@ -53,7 +54,7 @@ const ChatPage = () => {
 
   useAutoToolApproval({ messages });
 
-  const { filePatchCheckpointIds, showRestoreConfirmation, handleRestoreFilePatch } =
+  const { showRestoreConfirmation, canRestore } =
     useCheckpointRestoreFlow({ messages });
 
   const { tokenUsage, maxTokens, resolvedModelId } = useChatMetrics({ model, messages });
@@ -124,8 +125,6 @@ const ChatPage = () => {
         downloadMessages={downloadableMessages}
         title={activeChat.title}
         workspacePath={activeChat.terminalWorkspacePath}
-        filePatchCheckpointIds={filePatchCheckpointIds}
-        onRestoreFilePatch={handleRestoreFilePatch}
         tokenUsage={tokenUsage}
         maxTokens={maxTokens}
         modelId={resolvedModelId}
@@ -136,6 +135,7 @@ const ChatPage = () => {
           error={error}
           onOpenAttachment={openAttachment}
           onRestoreCheckpoint={showRestoreConfirmation}
+          canRestore={canRestore}
           wasStoppedByUser={wasStoppedByUser}
         />
       </Chat>

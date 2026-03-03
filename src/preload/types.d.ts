@@ -35,6 +35,14 @@ export interface QurtApi {
   openFolderDialog: () => Promise<string | null>;
   openExternal: (url: string) => Promise<void>;
   applyFilePatch: (request: unknown) => Promise<unknown>;
+  listCheckpoints: (payload: {
+    workspaceRoot: string;
+  }) => Promise<{ timestamp: string; toolName: string; createdAt: string; messageId?: string }[]>;
+  createCheckpoint: (payload: {
+    workspaceRoot: string;
+    toolName?: string;
+    messageId?: string;
+  }) => Promise<{ created: boolean; timestamp?: string }>;
   restoreCheckpoints: (payload: {
     workspaceRoot: string;
     checkpointIds: string[];

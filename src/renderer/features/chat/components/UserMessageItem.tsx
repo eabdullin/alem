@@ -18,14 +18,12 @@ import type { UIMessage } from "ai";
 
 type UserMessageItemProps = {
   message: UIMessage;
-  showRestoreCheckpoint: boolean;
   onOpenAttachment: (attachmentId: string) => void;
   onRestoreCheckpoint?: () => void;
 };
 
 export function UserMessageItem({
   message,
-  showRestoreCheckpoint,
   onOpenAttachment,
   onRestoreCheckpoint,
 }: UserMessageItemProps) {
@@ -71,7 +69,7 @@ export function UserMessageItem({
         )}
         {!!text && <div className="whitespace-pre-wrap">{text}</div>}
       </MessageContent>
-      {showRestoreCheckpoint && onRestoreCheckpoint && (
+      {onRestoreCheckpoint && (
         <MessageActions className="ml-auto -mt-6">
           <MessageAction
             onClick={onRestoreCheckpoint}

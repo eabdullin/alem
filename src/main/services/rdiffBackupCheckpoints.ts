@@ -1,7 +1,7 @@
 /**
  * Workspace checkpointing via rdiff-backup.
- * Creates incremental snapshots before tool calls (terminal, apply_file_patch)
- * and restores workspace to any prior checkpoint.
+ * Creates incremental snapshots on each user message and restores workspace
+ * to any prior checkpoint.
  *
  * Storage: {userData}/checkpoints/{workspaceId}/mirror/
  * workspaceId = sha256(workspaceRoot) for filesystem-safe paths.
@@ -19,38 +19,28 @@ import os from "node:os";
 import path from "node:path";
 
 const CHECKPOINTS_DIR = "checkpoints";
-const MIRROR_DIR = "mirror";
-const WORKSPACES_FILE = "workspaces.json";
-const CHECKPOINTS_META_FILE = "checkpoints.json";
 const RDIFF_BINARY_DIR = "rdiff-backup";
 const RDIFF_API_VERSION = "201";
 const QURT_DIR = ".qurt";
 const CHECKPOINT_TRASH_SUBDIR = "checkpoint-trash";
 
 /**
- * Convert ISO timestamp to rdiff-backup time string.
- * rdiff-backup expects W3 datetime like "2002-01-25T07:00:00+02:00" (not "Z").
+ * Convert a timestamp to W3 datetime for rdiff-backup.
+ * Accepts ISO strings, epoch seconds (from --parsable-output), or Date-parseable strings.
+ * Output: "YYYY-MM-DDTHH:MM:SS+00:00" (no "Z", no milliseconds).
  * @see https://rdiff-backup.net/examples.html TIME FORMATS
  */
-function toRdiffTimeSpec(isoString: string): string {
-  return isoString
-    .replace(/\.\d{3}Z$/i, "+00:00")
-    .replace(/Z$/i, "+00:00");
-}
-
-/** Tools that trigger a checkpoint before execution. */
-export const CHECKPOINT_TRIGGER_TOOLS = ["run_terminal", "apply_file_patch"] as const;
-
-export interface WorkspaceMeta {
-  workspaceRoot: string;
-  workspaceId: string;
-  displayName: string;
-}
-
-export interface CheckpointMeta {
-  timestamp: string; // ISO string, used as rdiff-backup timeSpec
-  toolName: string;
-  createdAt: string;
+function toRdiffTimeSpec(input: string): string {
+  let date: Date;
+  if (/^\d+$/.test(input.trim())) {
+    date = new Date(Number(input.trim()) * 1000);
+  } else {
+    date = new Date(input);
+  }
+  if (isNaN(date.getTime())) {
+    return input;
+  }
+  return date.toISOString().replace(/\.\d{3}Z$/, "+00:00");
 }
 
 function getCheckpointsBaseDir(): string {
@@ -81,37 +71,12 @@ function workspaceId(workspaceRoot: string): string {
   return createHash("sha256").update(normalized).digest("hex");
 }
 
-function getWorkspaceDir(wsId: string): string {
+function getMirrorDir(wsId: string): string {
   return path.join(getCheckpointsBaseDir(), wsId);
 }
 
-function getMirrorDir(wsId: string): string {
-  return path.join(getWorkspaceDir(wsId), MIRROR_DIR);
-}
-
-async function ensureWorkspace(wsId: string, workspaceRoot: string): Promise<string> {
-  const base = getCheckpointsBaseDir();
-  await fs.mkdir(base, { recursive: true });
-
-  const wsDir = getWorkspaceDir(wsId);
-  await fs.mkdir(wsDir, { recursive: true });
-
-  const workspacesPath = path.join(base, WORKSPACES_FILE);
-  let workspaces: Record<string, WorkspaceMeta> = {};
-  try {
-    const raw = await fs.readFile(workspacesPath, "utf8");
-    workspaces = JSON.parse(raw);
-  } catch {
-    // File may not exist
-  }
-  workspaces[wsId] = {
-    workspaceRoot,
-    workspaceId: wsId,
-    displayName: path.basename(workspaceRoot) || workspaceRoot,
-  };
-  await fs.writeFile(workspacesPath, JSON.stringify(workspaces, null, 0), "utf8");
-
-  return wsDir;
+async function ensureMirrorDir(wsId: string): Promise<void> {
+  await fs.mkdir(path.join(getCheckpointsBaseDir(), wsId), { recursive: true });
 }
 
 function execRdiff(
@@ -147,12 +112,11 @@ function execRdiff(
 }
 
 /**
- * Create a checkpoint (rdiff-backup backup) before a tool runs.
+ * Create a checkpoint (rdiff-backup backup) for the current workspace state.
  * Returns ISO timestamp if successful, undefined otherwise.
  */
 export async function createCheckpoint(
   workspaceRoot: string,
-  toolName: string
 ): Promise<string | undefined> {
   const bin = getRdiffBackupPath();
   if (!bin) return undefined;
@@ -166,13 +130,21 @@ export async function createCheckpoint(
   }
 
   const wsId = workspaceId(workspaceRoot);
-  await ensureWorkspace(wsId, workspaceRoot);
+  await ensureMirrorDir(wsId);
   const mirrorDir = getMirrorDir(wsId);
 
+  const excludeDir = "**/" + QURT_DIR;
+  // try {
+  //   // The { recursive: true } option prevents an error if the directory exists.
+  //   await fs.mkdir(excludeDir, { recursive: true });
+  //   console.log(`Directory created or already exists: ${excludeDir}`);
+  // } catch (err ) {
+  //   console.error(`Error creating directory`);
+  // }
   const { code, stderr } = await execRdiff([
     "backup",
     "--exclude",
-    QURT_DIR,
+    excludeDir,
     path.resolve(workspaceRoot),
     mirrorDir,
   ]);
@@ -182,20 +154,7 @@ export async function createCheckpoint(
     return undefined;
   }
 
-  const timestamp = new Date().toISOString();
-
-  const metaPath = path.join(getWorkspaceDir(wsId), CHECKPOINTS_META_FILE);
-  let meta: CheckpointMeta[] = [];
-  try {
-    const raw = await fs.readFile(metaPath, "utf8");
-    meta = JSON.parse(raw);
-  } catch {
-    // Ignore
-  }
-  meta.push({ timestamp, toolName, createdAt: timestamp });
-  await fs.writeFile(metaPath, JSON.stringify(meta, null, 0), "utf8");
-
-  return timestamp;
+  return new Date().toISOString();
 }
 
 /**
@@ -211,20 +170,16 @@ async function moveEntry(src: string, dest: string): Promise<void> {
 }
 
 /**
- * Restore workspace to the given timestamp (or earliest of multiple).
+ * Restore workspace to the given timestamp.
  * Safe strategy:
- * 1. Optionally create pre-restore checkpoint
- * 2. Restore into temp dir
- * 3. Move current workspace to .qurt/checkpoint-trash/<ts>/
- * 4. Move temp contents into workspace
+ * 1. Restore into temp dir
+ * 2. Move current workspace to .qurt/checkpoint-trash/<ts>/
+ * 3. Move temp contents into workspace
  */
 export async function restoreToCheckpoint(
   workspaceRoot: string,
-  timestamps: string[],
-  options?: { createPreRestoreCheckpoint?: boolean }
+  timestamp: string,
 ): Promise<{ restored: boolean; error?: string }> {
-  if (timestamps.length === 0) return { restored: true };
-
   const bin = getRdiffBackupPath();
   if (!bin) {
     return { restored: false, error: "rdiff-backup binary not found." };
@@ -240,16 +195,6 @@ export async function restoreToCheckpoint(
     return { restored: false, error: "No checkpoint mirror found for this workspace." };
   }
 
-  const earliest = [...timestamps].sort()[0];
-  const createPreRestore = options?.createPreRestoreCheckpoint !== false;
-
-  if (createPreRestore) {
-    const preTs = await createCheckpoint(resolvedRoot, "pre_restore");
-    if (!preTs) {
-      console.warn("[rdiff-backup] pre-restore checkpoint failed, continuing anyway");
-    }
-  }
-
   const tempRestoreDir = path.join(
     os.tmpdir(),
     `qurt-restore-${Date.now()}-${randomUUID()}`
@@ -257,11 +202,11 @@ export async function restoreToCheckpoint(
   await fs.mkdir(tempRestoreDir, { recursive: true });
 
   try {
-    const rdiffTimeSpec = toRdiffTimeSpec(earliest);
+    const rdiffTime = toRdiffTimeSpec(timestamp);
     const { code: restoreCode, stderr: restoreStderr } = await execRdiff([
       "restore",
       "--at",
-      rdiffTimeSpec,
+      rdiffTime,
       mirrorDir,
       tempRestoreDir,
     ]);
@@ -294,8 +239,43 @@ export async function restoreToCheckpoint(
 
     return { restored: true };
   } finally {
-    await fs.rm(tempRestoreDir, { recursive: true, force: true }).catch(() => {});
+    await fs.rm(tempRestoreDir, { recursive: true, force: true }).catch(() => { });
   }
+}
+
+/**
+ * List all checkpoint timestamps for a workspace by querying rdiff-backup's
+ * own increment records (sorted ascending).
+ */
+export async function listCheckpoints(
+  workspaceRoot: string,
+): Promise<string[]> {
+  const bin = getRdiffBackupPath();
+  if (!bin) return [];
+
+  const wsId = workspaceId(workspaceRoot);
+  const mirrorDir = getMirrorDir(wsId);
+
+  try {
+    await fs.stat(mirrorDir);
+  } catch {
+    return [];
+  }
+
+  const { code, stdout } = await execRdiff([
+    "list",
+    "increments",
+    "--parsable-output",
+    mirrorDir,
+  ]);
+
+  if (code !== 0) return [];
+
+  return stdout
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+    .sort();
 }
 
 /**

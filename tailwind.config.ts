@@ -189,6 +189,20 @@ const config: Config = {
 					opacity: '1',
 					transform: 'translateY(0)'
 				}
+			},
+			'prompt-highlight': {
+				'0%': {
+					borderColor: 'var(--tw-prompt-hl, #E9A341)',
+					boxShadow: '0 0 0 0 rgba(233,163,65,0.4)'
+				},
+				'40%': {
+					borderColor: 'var(--tw-prompt-hl, #E9A341)',
+					boxShadow: '0 0 8px 2px rgba(233,163,65,0.25)'
+				},
+				'100%': {
+					borderColor: 'var(--tw-prompt-hl-end, #E8ECEF)',
+					boxShadow: '0 0 0 0 rgba(233,163,65,0)'
+				}
 			}
     	},
     		borderRadius: {
@@ -199,7 +213,8 @@ const config: Config = {
 		animation: {
 			'accordion-down': 'accordion-down 0.2s ease-out',
 			'accordion-up': 'accordion-up 0.2s ease-out',
-			'slideIn': 'slide-in 0.35s ease-out'
+			'slideIn': 'slide-in 0.35s ease-out',
+			'prompt-highlight': 'prompt-highlight 1.2s ease-out forwards'
 		}
     	}
     },

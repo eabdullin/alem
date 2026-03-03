@@ -1,11 +1,11 @@
 import { useMemo } from "react";
 import { providerFactory } from "@/ai-providers/provider-factory";
 import { calculateTokenUsage } from "@/ai-providers/usage";
-import type { UIMessage } from "ai";
+import type { QurtUIMessage } from "@/types/ui-message";
 
 type UseChatMetricsOptions = {
   model: string;
-  messages: UIMessage[];
+  messages: QurtUIMessage[];
 };
 
 export function useChatMetrics({ model, messages }: UseChatMetricsOptions) {

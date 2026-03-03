@@ -5,6 +5,7 @@ import {
   type ChatTransport,
   type UIMessage,
 } from "ai";
+import type { QurtMessageMetadata } from "@/types/ui-message";
 
 /** URL prefix for file parts that reference Electron file-store attachments. */
 export const QURT_ATTACHMENT_PREFIX = "qurt-attachment://";
@@ -55,7 +56,10 @@ export class QurtChatTransport implements ChatTransport<UIMessage> {
     const inner = new DirectChatTransport({
       agent,
       sendReasoning: this.sendReasoning,
-      messageMetadata: ({ part }) => {
+      messageMetadata: ({ part }): Partial<QurtMessageMetadata> | undefined => {
+        if (part.type === "start") {
+          return { createdAt: new Date().toISOString() };
+        }
         if (part.type === "finish" && part.totalUsage) {
           return { totalUsage: part.totalUsage };
         }

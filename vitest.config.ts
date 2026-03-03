@@ -30,6 +30,7 @@ export default defineConfig({
       { find: "@/shared", replacement: path.resolve(__dirname, "src/shared") },
       { find: "@/features", replacement: path.resolve(__dirname, "src/renderer/features") },
       { find: "@/ai-providers", replacement: path.resolve(__dirname, "src/renderer/ai-providers") },
+      { find: "@/search-providers", replacement: path.resolve(__dirname, "src/renderer/search-providers") },
     ],
   },
 });

@@ -3,14 +3,12 @@ import { getRestoreContextForUserMessage } from "@/services/checkpoint-service";
 import { ThinkingShimmer } from "./ThinkingShimmer";
 import { UserMessageItem } from "./UserMessageItem";
 import { AssistantMessageItem } from "./AssistantMessageItem";
-import type { ToolApprovalResponseParams } from "../hooks/useChatPageController";
 import type { UIMessage } from "ai";
 
 type ChatMessagesProps = {
   messages: UIMessage[];
   isLoading: boolean;
   error: Error | undefined;
-  addToolApprovalResponse: (params: ToolApprovalResponseParams) => void;
   onOpenAttachment: (attachmentId: string) => void;
   onRestoreCheckpoint: (userMessageIndex: number) => void;
   wasStoppedByUser?: boolean;
@@ -20,7 +18,6 @@ export function ChatMessages({
   messages,
   isLoading,
   error,
-  addToolApprovalResponse,
   onOpenAttachment,
   onRestoreCheckpoint,
   wasStoppedByUser,
@@ -30,7 +27,7 @@ export function ChatMessages({
     .filter((i) => i >= 0)
     .pop();
 
-  const messageHasContent = (message: UIMessage) => message.parts.some((part) => 
+  const messageHasContent = (message: UIMessage) => message.parts.some((part) =>
     part.type === "reasoning" && part.text.trim() !== ""
     || part.type === "text" && part.text.trim() !== ""
     || part.type === "dynamic-tool"
@@ -65,7 +62,6 @@ export function ChatMessages({
           <AssistantMessageItem
             key={message.id}
             message={message}
-            addToolApprovalResponse={addToolApprovalResponse}
             isStopped={
               wasStoppedByUser &&
               !isLoading &&
@@ -75,7 +71,7 @@ export function ChatMessages({
           />
         );
       })}
-      {isLoading && (messages[messages.length - 1]?.role === "user" || !messageHasContent(messages[messages.length - 1])) && ( 
+      {isLoading && (messages[messages.length - 1]?.role === "user" || !messageHasContent(messages[messages.length - 1])) && (
         <Message from="assistant">
           <MessageContent className="max-w-[50rem] rounded-[1.25rem] bg-n-2 px-5 py-4 dark:bg-n-7">
             <ThinkingShimmer text="Thinking..." />

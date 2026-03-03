@@ -5,7 +5,6 @@ import { TruncatedOutput } from "@/utils/truncated-output";
 import { ToolOutput } from "@/components/ai-elements/tool";
 import { getToolPartName, getToolStepStatus } from "../utils/messageParts";
 import { ToolApprovalRequest } from "./ToolApprovalRequest";
-import type { ToolApprovalResponseParams } from "../hooks/useChatPageController";
 import type { ToolDefinition, ToolDisplayProps } from "@/tools";
 import type { UIMessage } from "ai";
 import { BrainIcon } from "lucide-react";
@@ -16,7 +15,6 @@ type ToolStepItemProps = {
   part: UIMessage["parts"][number];
   messageId: string;
   partIndex: number;
-  addToolApprovalResponse: (params: ToolApprovalResponseParams) => void;
   toolDef?: ToolDefinition | null;
   ToolDisplay?: ComponentType<ToolDisplayProps> | null;
 };
@@ -25,7 +23,6 @@ export function ToolStepItem({
   part,
   messageId,
   partIndex,
-  addToolApprovalResponse,
   toolDef,
   ToolDisplay: ToolDisplayComponent,
 }: ToolStepItemProps) {
@@ -91,7 +88,6 @@ export function ToolStepItem({
               <span className="text-sm">Allow this action?</span>
             )
           }
-          onApprovalResponse={addToolApprovalResponse}
         />
       ) : output !== undefined || errorText ? (
         (() => {

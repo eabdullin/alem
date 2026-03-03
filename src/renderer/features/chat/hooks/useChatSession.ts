@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { chatService, type ChatSession } from "@/services/chat-service";
+import { chatService } from "@/services/chat-service";
+import { useActiveChatStore } from "@/stores/useActiveChatStore";
 
 type UseChatSessionOptions = {
   chatId: string;
@@ -9,10 +10,6 @@ type UseChatSessionOptions = {
 
 export function useChatSession({ chatId, activeListId }: UseChatSessionOptions) {
   const navigate = useNavigate();
-  const [chat, setChat] = useState<ChatSession | null>(null);
-  const [isLoadingChat, setIsLoadingChat] = useState(true);
-
-  const activeChat = chat?.id === chatId ? chat : null;
 
   const redirectHome = useCallback(() => {
     navigate(
@@ -22,61 +19,28 @@ export function useChatSession({ chatId, activeListId }: UseChatSessionOptions) 
   }, [activeListId, navigate]);
 
   useEffect(() => {
+    if (!chatId) {
+      redirectHome();
+      return;
+    }
+
+    const { setActiveChat, setLoadingChat } = useActiveChatStore.getState();
+    setActiveChat(null);
+    setLoadingChat(true);
+
     let isMounted = true;
-
-    const loadChat = async () => {
-      if (!chatId) {
-        redirectHome();
-        return;
-      }
-
-      setChat(null);
-      setIsLoadingChat(true);
-      const existingChat = await chatService.getChat(chatId);
-
-      if (!isMounted) {
-        return;
-      }
-
+    chatService.getChat(chatId).then((existingChat) => {
+      if (!isMounted) return;
       if (!existingChat) {
         redirectHome();
         return;
       }
-
-      setChat(existingChat);
-      setIsLoadingChat(false);
-    };
-
-    void loadChat();
+      setActiveChat(existingChat);
+      setLoadingChat(false);
+    });
 
     return () => {
       isMounted = false;
     };
   }, [activeListId, chatId, redirectHome]);
-
-  const hasOpenFolderDialog =
-    !!chatId &&
-    typeof window !== "undefined" &&
-    window.qurt &&
-    typeof window.qurt.openFolderDialog === "function";
-
-  const handleSelectWorkspaceFolder = hasOpenFolderDialog
-    ? useCallback(async () => {
-        const path = await window.qurt!.openFolderDialog();
-        if (path && chatId) {
-          const updated = await chatService.updateChat(chatId, {
-            terminalWorkspacePath: path,
-          });
-          if (updated) setChat(updated);
-        }
-      }, [chatId])
-    : undefined;
-
-  return {
-    chat,
-    setChat,
-    activeChat,
-    isLoadingChat,
-    handleSelectWorkspaceFolder,
-  };
 }

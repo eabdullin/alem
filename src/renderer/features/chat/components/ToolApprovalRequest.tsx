@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { extractBrowserHosts } from "@/services/tool-approval-service";
-import type { ToolApprovalResponseParams } from "@/hooks/useToolApproval";
+import { useToolApprovalStore, type ToolApprovalScope } from "@/stores/useToolApprovalStore";
 import type { ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
 
@@ -21,7 +21,6 @@ type ToolApprovalRequestProps = {
   toolName: string;
   input: unknown;
   preview: ReactNode;
-  onApprovalResponse: (params: ToolApprovalResponseParams) => void;
 };
 
 export function ToolApprovalRequest({
@@ -29,10 +28,10 @@ export function ToolApprovalRequest({
   toolName,
   input,
   preview,
-  onApprovalResponse,
 }: ToolApprovalRequestProps) {
-  const respond = (scope: ToolApprovalResponseParams["scope"]) =>
-    onApprovalResponse({ approvalId, scope, toolName, input });
+  const respondToApproval = useToolApprovalStore((s) => s.respondToApproval);
+  const respond = (scope: ToolApprovalScope) =>
+    respondToApproval({ approvalId, scope, toolName, input });
 
   return (
     <Confirmation

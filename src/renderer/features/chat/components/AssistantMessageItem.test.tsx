@@ -7,6 +7,12 @@ vi.mock("@/tools", () => ({
   getToolDisplay: vi.fn(() => undefined),
 }));
 
+const mockRespondToApproval = vi.fn();
+vi.mock("@/stores/useToolApprovalStore", () => ({
+  useToolApprovalStore: (selector: (s: { respondToApproval: typeof mockRespondToApproval }) => unknown) =>
+    selector({ respondToApproval: mockRespondToApproval }),
+}));
+
 describe("AssistantMessageItem", () => {
   it("renders text-only message", () => {
     const message = {
@@ -14,12 +20,7 @@ describe("AssistantMessageItem", () => {
       role: "assistant" as const,
       parts: [{ type: "text" as const, text: "Hello, how can I help?" }],
     };
-    render(
-      <AssistantMessageItem
-        message={message}
-        addToolApprovalResponse={() => {}}
-      />,
-    );
+    render(<AssistantMessageItem message={message} />);
     expect(screen.getByText("Hello, how can I help?")).toBeInTheDocument();
   });
 
@@ -32,12 +33,7 @@ describe("AssistantMessageItem", () => {
         { type: "text" as const, text: "The answer is 42." },
       ],
     };
-    render(
-      <AssistantMessageItem
-        message={message}
-        addToolApprovalResponse={() => {}}
-      />,
-    );
+    render(<AssistantMessageItem message={message} />);
     expect(screen.getByText("The answer is 42.")).toBeInTheDocument();
     expect(screen.getByText("Reasoning")).toBeInTheDocument();
     // Reasoning content is truncated by default; expand to see full text
@@ -61,12 +57,7 @@ describe("AssistantMessageItem", () => {
         },
       ],
     };
-    render(
-      <AssistantMessageItem
-        message={message}
-        addToolApprovalResponse={() => {}}
-      />,
-    );
+    render(<AssistantMessageItem message={message} />);
     expect(screen.getByText("Tool result")).toBeInTheDocument();
   });
 
@@ -85,20 +76,14 @@ describe("AssistantMessageItem", () => {
         },
       ],
     };
-    const onResponse = vi.fn();
-    render(
-      <AssistantMessageItem
-        message={message}
-        addToolApprovalResponse={onResponse}
-      />,
-    );
+    render(<AssistantMessageItem message={message} />);
     const allowBtn = screen.getByRole("button", { name: /allow/i });
     const rejectBtn = screen.getByRole("button", { name: /reject/i });
     expect(allowBtn).toBeInTheDocument();
     expect(rejectBtn).toBeInTheDocument();
 
     fireEvent.click(rejectBtn);
-    expect(onResponse).toHaveBeenCalledWith(
+    expect(mockRespondToApproval).toHaveBeenCalledWith(
       expect.objectContaining({
         approvalId: "approval-1",
         scope: "reject",

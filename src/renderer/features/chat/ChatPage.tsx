@@ -1,38 +1,107 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Layout from "@/components/Layout";
 import Chat from "@/components/Chat";
 import PromptInput from "@/components/PromptInput";
 import { ChatMessages } from "./components/ChatMessages";
-import { useChatPageController } from "./hooks/useChatPageController";
+import { useChatRouteState } from "./hooks/useChatRouteState";
+import { useChatSession } from "./hooks/useChatSession";
+import { useQurtChat } from "@/hooks/useQurtChat";
+import { useChatMetrics } from "./hooks/useChatMetrics";
+import { useCheckpointRestoreFlow } from "./hooks/useCheckpointRestoreFlow";
+import { useBrowserChatBinding } from "./hooks/useBrowserChatBinding";
+import { useAutoToolApproval } from "./hooks/useAutoToolApproval";
+import { useActiveChatStore } from "@/stores/useActiveChatStore";
+import { toDownloadableMessages } from "./utils/downloadableMessages";
 
 const ChatPage = () => {
+  const [hideRightSidebar, setHideRightSidebar] = useState(false);
+  const sentInitialPromptRef = useRef(false);
+
+  const { chatId, activeListId, initialPrompt, initialAttachments } = useChatRouteState();
+  useChatSession({ chatId, activeListId });
+
+  const { activeChat: storedChat, isLoadingChat, selectWorkspaceFolder, saveMessages } = useActiveChatStore();
+  // Guard against stale activeChat while a new chatId is loading
+  const activeChat = storedChat?.id === chatId ? storedChat : null;
+
+  const initialMessages = useMemo(
+    () => activeChat?.messages ?? [],
+    [activeChat?.messages],
+  );
+
   const {
-    activeChat,
-    isLoadingChat,
-    hideRightSidebar,
-    setHideRightSidebar,
     messages,
     input,
     pendingAttachments,
     handleInputChange,
     handleSubmit,
+    submitPrompt,
     addAttachments,
     removePendingAttachment,
     isLoading,
     error,
-    filePatchCheckpointIds,
-    downloadableMessages,
-    addToolApprovalResponse,
-    openAttachment,
-    showRestoreConfirmation,
-    handleRestoreFilePatch,
-    handleSelectWorkspaceFolder,
+    model,
+    setMessages,
     stop,
     wasStoppedByUser,
-    tokenUsage,
-    maxTokens,
-    model,
-    resolvedModelId,
-  } = useChatPageController();
+  } = useQurtChat({
+    chatId,
+    initialMessages,
+    onMessagesChange: saveMessages,
+    workspaceRoot: activeChat?.terminalWorkspacePath,
+  });
+
+  useAutoToolApproval({ messages });
+
+  const { filePatchCheckpointIds, showRestoreConfirmation, handleRestoreFilePatch } =
+    useCheckpointRestoreFlow({ messages });
+
+  const { tokenUsage, maxTokens, resolvedModelId } = useChatMetrics({ model, messages });
+
+  const downloadableMessages = useMemo(
+    () => toDownloadableMessages(messages),
+    [messages],
+  );
+
+  const openAttachment = useCallback((attachmentId: string) => {
+    if (!window.qurt) return;
+    void window.qurt.openAttachment(attachmentId);
+  }, []);
+
+  useEffect(() => {
+    sentInitialPromptRef.current = false;
+  }, [chatId]);
+
+  useEffect(() => {
+    return () => {
+      stop();
+    };
+  }, [chatId, stop]);
+
+  useEffect(() => {
+    if (isLoadingChat || !activeChat) return;
+    setMessages(initialMessages);
+  }, [activeChat, initialMessages, isLoadingChat, setMessages]);
+
+  useEffect(() => {
+    if (
+      !activeChat ||
+      sentInitialPromptRef.current ||
+      (!initialPrompt && initialAttachments.length === 0)
+    ) {
+      return;
+    }
+
+    if (activeChat.messages.length > 0) {
+      sentInitialPromptRef.current = true;
+      return;
+    }
+
+    sentInitialPromptRef.current = true;
+    void submitPrompt(initialPrompt, initialAttachments);
+  }, [activeChat, initialAttachments, initialPrompt, submitPrompt]);
+
+  useBrowserChatBinding(chatId);
 
   if (isLoadingChat || !activeChat) {
     return (
@@ -65,7 +134,6 @@ const ChatPage = () => {
           messages={messages}
           isLoading={isLoading}
           error={error}
-          addToolApprovalResponse={addToolApprovalResponse}
           onOpenAttachment={openAttachment}
           onRestoreCheckpoint={showRestoreConfirmation}
           wasStoppedByUser={wasStoppedByUser}
@@ -79,7 +147,7 @@ const ChatPage = () => {
         onAddFiles={addAttachments}
         onRemoveAttachment={removePendingAttachment}
         terminalWorkspacePath={activeChat.terminalWorkspacePath}
-        onSelectWorkspaceFolder={handleSelectWorkspaceFolder}
+        onSelectWorkspaceFolder={window.qurt ? selectWorkspaceFolder : undefined}
         placeholder="Ask anything"
         isLoading={isLoading}
         onStop={stop}

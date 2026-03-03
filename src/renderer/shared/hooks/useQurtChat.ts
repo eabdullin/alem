@@ -2,7 +2,6 @@ import {
   type ChangeEvent,
   type FormEvent,
   useCallback,
-
   useEffect,
   useMemo,
   useRef,
@@ -11,11 +10,12 @@ import {
 import { useChat } from "@ai-sdk/react";
 import {
   lastAssistantMessageIsCompleteWithApprovalResponses,
-  lastAssistantMessageIsCompleteWithToolCalls,
   type UIMessage,
   ToolUIPart,
 } from "ai";
 import { useAppStore } from "@/stores/useAppStore";
+import { useToolApprovalStore } from "@/stores/useToolApprovalStore";
+import { useChatActionsStore } from "@/stores/useChatActionsStore";
 import { getTextFromParts } from "@/lib/chat/messageParts";
 import { createAgent } from "@/services/ai-service";
 import { providerFactory } from "@/ai-providers/provider-factory";
@@ -172,13 +172,12 @@ export function useQurtChat({
     error,
     setMessages,
     addToolApprovalResponse,
-    addToolOutput,
     clearError,
   } = useChat({
     id: chatId,
     messages: initialMessages,
     transport,
-    sendAutomaticallyWhen: (options) => lastAssistantMessageIsCompleteWithApprovalResponses(options), //  || lastAssistantMessageIsCompleteWithToolCalls(options)
+    sendAutomaticallyWhen: (options) => lastAssistantMessageIsCompleteWithApprovalResponses(options),
     onFinish: ({ messages: finishedMessages }) => {
       onMessagesChange?.(finishedMessages, inFlightChatIdRef.current);
       void appendNewTurnsToMemory(
@@ -190,6 +189,13 @@ export function useQurtChat({
 
   const isLoading = status === "streaming" || status === "submitted";
   const displayError = error ?? attachmentError;
+
+  // Register addToolApprovalResponse so the approval store can call it directly
+  useEffect(() => {
+    const { registerAddApprovalResponse } = useToolApprovalStore.getState();
+    registerAddApprovalResponse(addToolApprovalResponse);
+    return () => registerAddApprovalResponse(null);
+  }, [addToolApprovalResponse]);
 
   useEffect(() => {
     setWasStoppedByUser(false);
@@ -331,6 +337,13 @@ export function useQurtChat({
     setInput(value);
   }, []);
 
+  // Register setMessages/setInputValue so other hooks can mutate chat state without prop drilling
+  useEffect(() => {
+    const { register, unregister } = useChatActionsStore.getState();
+    register({ setMessages, setInputValue });
+    return () => unregister();
+  }, [setMessages, setInputValue]);
+
   return {
     messages,
     input,
@@ -339,7 +352,6 @@ export function useQurtChat({
     handleInputChange,
     handleSubmit,
     submitPrompt,
-    addToolApprovalResponse,
     addAttachments,
     removePendingAttachment,
     pendingAttachments,

@@ -7,12 +7,10 @@ import { getToolDefinition, getToolDisplay } from "@/tools";
 import { Icon } from "@/utils/icons";
 import { getTextFromParts, getToolPartName } from "../utils/messageParts";
 import { ToolStepItem } from "./ToolStepItem";
-import type { ToolApprovalResponseParams } from "../hooks/useChatPageController";
 import type { UIMessage } from "ai";
 
 type AssistantMessageItemProps = {
   message: UIMessage;
-  addToolApprovalResponse: (params: ToolApprovalResponseParams) => void;
   isStopped?: boolean;
 };
 
@@ -30,7 +28,6 @@ function getStepKey(
 
 export function AssistantMessageItem({
   message,
-  addToolApprovalResponse,
   isStopped,
 }: AssistantMessageItemProps) {
   const text = getTextFromParts(message.parts);
@@ -46,7 +43,6 @@ export function AssistantMessageItem({
         part={part}
         messageId={message.id}
         partIndex={index}
-        addToolApprovalResponse={addToolApprovalResponse}
         toolDef={toolDef}
         ToolDisplay={ToolDisplay}
       />

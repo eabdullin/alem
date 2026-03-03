@@ -5,26 +5,21 @@ import {
   getRestoreContextForUserMessage,
 } from "@/services/checkpoint-service";
 import { useCheckpointStore } from "@/stores/useCheckpointStore";
+import { useActiveChatStore } from "@/stores/useActiveChatStore";
+import { useChatActionsStore } from "@/stores/useChatActionsStore";
 import type { UIMessage } from "ai";
-import type { ChatSession } from "@/services/chat-service";
 import { showRestoreCheckpointToast } from "../components/RestoreCheckpointToast";
 
 type UseCheckpointRestoreFlowOptions = {
   messages: UIMessage[];
-  chatId: string;
-  setMessages: (messages: UIMessage[]) => void;
-  setInputValue: (value: string) => void;
-  setChat: (chat: ChatSession | null) => void;
 };
 
-export function useCheckpointRestoreFlow({
-  messages,
-  chatId,
-  setMessages,
-  setInputValue,
-  setChat,
-}: UseCheckpointRestoreFlowOptions) {
+export function useCheckpointRestoreFlow({ messages }: UseCheckpointRestoreFlowOptions) {
   const restoreFromCheckpoint = useCheckpointStore((s) => s.restoreFromCheckpoint);
+  const { activeChat, setActiveChat } = useActiveChatStore();
+  const setMessages = useChatActionsStore((s) => s.setMessages);
+  const setInputValue = useChatActionsStore((s) => s.setInputValue);
+
   const filePatchCheckpointIds = useMemo(() => {
     const lastAssistant = [...messages]
       .reverse()
@@ -45,6 +40,9 @@ export function useCheckpointRestoreFlow({
 
   const handleRestoreFromUserMessage = useCallback(
     async (userMessageIndex: number) => {
+      const chatId = activeChat?.id;
+      if (!chatId || !setMessages || !setInputValue) return;
+
       const ctx = getRestoreContextForUserMessage(messages, userMessageIndex);
       if (!ctx || ctx.checkpointIds.length === 0) {
         toast.error("No checkpoint to restore.");
@@ -56,14 +54,14 @@ export function useCheckpointRestoreFlow({
         chatId,
         setMessages,
         setInputValue,
-        onChatUpdate: setChat,
+        onChatUpdate: (chat) => setActiveChat(chat),
       });
 
       if (!result.ok) {
         toast.error(result.error ?? "Failed to restore checkpoint.");
       }
     },
-    [chatId, messages, setMessages, setInputValue, setChat],
+    [activeChat?.id, messages, restoreFromCheckpoint, setActiveChat, setInputValue, setMessages],
   );
 
   const showRestoreConfirmation = useCallback(

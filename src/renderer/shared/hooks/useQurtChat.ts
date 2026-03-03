@@ -2,7 +2,7 @@ import {
   type ChangeEvent,
   type FormEvent,
   useCallback,
-  useContext,
+
   useEffect,
   useMemo,
   useRef,
@@ -15,7 +15,7 @@ import {
   type UIMessage,
   ToolUIPart,
 } from "ai";
-import { QurtContext } from "@/App";
+import { useAppStore } from "@/stores/useAppStore";
 import { getTextFromParts } from "@/lib/chat/messageParts";
 import { createAgent } from "@/services/ai-service";
 import { providerFactory } from "@/ai-providers/provider-factory";
@@ -113,7 +113,7 @@ export function useQurtChat({
   onMessagesChange,
   workspaceRoot,
 }: UseQurtChatOptions = {}) {
-  const { settings } = useContext(QurtContext);
+  const { settings } = useAppStore();
   const [input, setInput] = useState("");
   const [pendingAttachments, setPendingAttachments] = useState<ChatAttachment[]>(
     [],

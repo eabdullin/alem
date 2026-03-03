@@ -1,5 +1,5 @@
-import { useContext, useCallback } from "react";
-import { QurtContext } from "@/App";
+import { useCallback } from "react";
+import { useAppStore } from "@/stores/useAppStore";
 
 export type Theme = "light" | "dark";
 
@@ -8,7 +8,7 @@ export type Theme = "light" | "dark";
  * Syncs with app settings (persisted via electron-store).
  */
 export function useTheme() {
-  const { settings, updateSettings } = useContext(QurtContext);
+  const { settings, updateSettings } = useAppStore();
   const theme = (settings?.theme as Theme) ?? "dark";
 
   const setTheme = useCallback(

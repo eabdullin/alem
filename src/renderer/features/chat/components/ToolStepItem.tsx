@@ -10,8 +10,7 @@ import type { ToolDefinition, ToolDisplayProps } from "@/tools";
 import type { UIMessage } from "ai";
 import { BrainIcon } from "lucide-react";
 import type { ComponentType } from "react";
-import { useContext } from "react";
-import { QurtContext } from "@/App";
+import { useAppStore } from "@/stores/useAppStore";
 
 type ToolStepItemProps = {
   part: UIMessage["parts"][number];
@@ -64,7 +63,7 @@ export function ToolStepItem({
   const input = "input" in part ? part.input : {};
   const output = "output" in part ? part.output : undefined;
   const errorText = "errorText" in part ? part.errorText : undefined;
-  const { settings, updateSettings } = useContext(QurtContext);
+  const { settings, updateSettings } = useAppStore();
   const toolContext = {
     searchProviderId: settings?.activeSearchProvider as string | undefined,
     hideDuckDuckGoBrowserSearchHint: settings?.hideDuckDuckGoBrowserSearchHint as boolean | undefined,

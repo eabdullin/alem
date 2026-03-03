@@ -1,5 +1,5 @@
-import { useContext, useMemo } from "react";
-import { QurtContext } from "@/App";
+import { useMemo } from "react";
+import { useAppStore } from "@/stores/useAppStore";
 import { providerFactory } from "@/ai-providers/provider-factory";
 import type { AiProvider } from "@/ai-providers/types";
 import {
@@ -26,7 +26,7 @@ const ModelSelector = ({
   direction = "down",
   compact = false,
 }: ModelSelectorProps) => {
-  const { settings, updateSettings } = useContext(QurtContext);
+  const { settings, updateSettings } = useAppStore();
 
   const activeModel = settings?.activeModel ?? "";
   const providers = useMemo(() => providerFactory.listProviders(), []);

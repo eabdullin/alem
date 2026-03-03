@@ -1,5 +1,5 @@
-import { useState, useEffect, useContext, useRef } from "react";
-import { QurtContext } from "@/App";
+import { useState, useEffect, useRef } from "react";
+import { useAppStore } from "@/stores/useAppStore";
 import { getVisibleSearchProviderInfos } from "@/search-providers/provider-catalog";
 import type { SearchProviderId } from "@/shared/search-providers/types";
 
@@ -10,7 +10,7 @@ const SEARCH_API_KEY_IDS: Record<SearchProviderId, string> = {
 };
 
 const SearchProviders = () => {
-  const { settings, updateSettings } = useContext(QurtContext);
+  const { settings, updateSettings } = useAppStore();
   const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
   const [editingProvider, setEditingProvider] = useState<string | null>(null);
   const [tempKey, setTempKey] = useState("");

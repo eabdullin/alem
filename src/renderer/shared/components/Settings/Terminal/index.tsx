@@ -1,8 +1,8 @@
-import { useContext, useState, useEffect } from "react";
-import { QurtContext } from "@/App";
+import { useState, useEffect } from "react";
+import { useAppStore } from "@/stores/useAppStore";
 
 const Terminal = () => {
-  const { settings, updateSettings } = useContext(QurtContext);
+  const { settings, updateSettings } = useAppStore();
   const [value, setValue] = useState(settings?.terminalShell ?? "");
 
   useEffect(() => {

@@ -5,7 +5,7 @@ import type { UIMessage } from "ai";
 import { toDownloadableMessages } from "../utils/downloadableMessages";
 import { useChatRouteState } from "./useChatRouteState";
 import { useChatSession } from "./useChatSession";
-import { useChatRuntime } from "./useChatRuntime";
+import { useQurtChat } from "@/hooks/useQurtChat";
 import { useChatMetrics } from "./useChatMetrics";
 import { useCheckpointRestoreFlow } from "./useCheckpointRestoreFlow";
 import { useBrowserChatBinding } from "./useBrowserChatBinding";
@@ -68,7 +68,7 @@ export function useChatPageController() {
     setInputValue,
     stop,
     wasStoppedByUser,
-  } = useChatRuntime({
+  } = useQurtChat({
     chatId,
     initialMessages,
     onMessagesChange: handleMessagesChange,

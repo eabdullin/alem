@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import type { ComponentType, ReactNode } from "react";
 import type { ToolSet } from "ai";
+import type { AppSettings } from "@/stores/useAppStore";
 export type { AiProvider } from "@/ai-providers/types";
 
 /** Options passed when building the tool set (e.g. per-chat overrides). */
@@ -44,8 +45,8 @@ export interface ToolDefinition {
     context?: {
       searchProviderId?: string;
       hideDuckDuckGoBrowserSearchHint?: boolean;
-      updateSettings?: (settings: Record<string, unknown>) => Promise<void>;
-      settings?: Record<string, unknown>;
+      updateSettings?: (settings: AppSettings) => Promise<void>;
+      settings?: AppSettings;
     }
   ) => ReactNode;
   /** Optional full preview for the approval confirmation UI (includes "Allow X?" and tool-specific details). */

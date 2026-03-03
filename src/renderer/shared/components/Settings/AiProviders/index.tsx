@@ -1,11 +1,11 @@
-import { useState, useEffect, useContext, useMemo } from "react";
-import { QurtContext } from "@/App";
+import { useState, useEffect, useMemo } from "react";
+import { useAppStore } from "@/stores/useAppStore";
 import ProviderLogo from "@/components/ProviderLogos";
 import { providerFactory } from "@/ai-providers/provider-factory";
 import type { ProviderInfo } from "@/ai-providers/types";
 
 const AiProviders = () => {
-  const { settings, updateSettings } = useContext(QurtContext);
+  const { settings, updateSettings } = useAppStore();
   const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
   const [editingProvider, setEditingProvider] = useState<string | null>(null);
   const [tempKey, setTempKey] = useState("");

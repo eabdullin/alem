@@ -3,7 +3,6 @@ import {
   type ClipboardEvent,
   type FormEventHandler,
   type KeyboardEvent,
-  useContext,
   useMemo,
 } from "react";
 import { useNavigate } from "react-router-dom";
@@ -22,7 +21,7 @@ import {
   Attachments,
   type AttachmentData,
 } from "@/components/ai-elements/attachments";
-import { QurtContext } from "@/App";
+import { useAppStore } from "@/stores/useAppStore";
 import { providerFactory } from "@/ai-providers/provider-factory";
 import Notify from "@/components/Notify";
 
@@ -59,7 +58,7 @@ const PromptInput = ({
   isLoading,
   onStop,
 }: PromptInputProps) => {
-  const { settings } = useContext(QurtContext);
+  const { settings } = useAppStore();
   const navigate = useNavigate();
 
   const enabledModels: Record<string, string[]> = useMemo(

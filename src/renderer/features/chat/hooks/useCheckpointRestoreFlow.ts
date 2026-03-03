@@ -4,7 +4,7 @@ import {
   getCheckpointIdsFromMessage,
   getRestoreContextForUserMessage,
 } from "@/services/checkpoint-service";
-import { restoreFromCheckpoint } from "@/stores/checkpoint-store";
+import { useCheckpointStore } from "@/stores/useCheckpointStore";
 import type { UIMessage } from "ai";
 import type { ChatSession } from "@/services/chat-service";
 import { showRestoreCheckpointToast } from "../components/RestoreCheckpointToast";
@@ -24,6 +24,7 @@ export function useCheckpointRestoreFlow({
   setInputValue,
   setChat,
 }: UseCheckpointRestoreFlowOptions) {
+  const restoreFromCheckpoint = useCheckpointStore((s) => s.restoreFromCheckpoint);
   const filePatchCheckpointIds = useMemo(() => {
     const lastAssistant = [...messages]
       .reverse()

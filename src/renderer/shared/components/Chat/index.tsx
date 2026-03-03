@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { useCheckpointStore } from "@/hooks/useCheckpointStore";
+import { useCheckpointStore } from "@/stores/useCheckpointStore";
 import { Icon } from "@/utils/icons";
 import {
   Conversation,

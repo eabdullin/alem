@@ -1,5 +1,5 @@
-import { useCallback, useContext, useEffect, useMemo, useRef } from "react";
-import { QurtContext } from "@/App";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useAppStore } from "@/stores/useAppStore";
 import { toolApprovalStore } from "@/stores/tool-approval-store";
 import {
   shouldAutoApprove,
@@ -48,7 +48,7 @@ export function useToolApproval({
   addToolApprovalResponse,
   setChat,
 }: UseToolApprovalOptions) {
-  const { settings, updateSettings } = useContext(QurtContext);
+  const { settings, updateSettings } = useAppStore();
   const autoApprovedIdsRef = useRef<Set<string>>(new Set());
 
   const browserAllowedHosts = useMemo(

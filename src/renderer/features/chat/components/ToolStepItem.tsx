@@ -35,15 +35,9 @@ export function ToolStepItem({
         icon={BrainIcon}
         label="Reasoning"
         status={part.state === "streaming" ? "active" : "complete"}
+        defaultOpen={false}
       >
-        <TruncatedOutput
-          text={part.text}
-          className="text-muted-foreground text-sm"
-          maxLength={0}
-          render={(content) => (
-            <Streamdown plugins={streamdownPlugins}>{content}</Streamdown>
-          )}
-        />
+        <Streamdown plugins={streamdownPlugins}>{part.text}</Streamdown>
       </ChainOfThoughtStep>
     );
   }
@@ -77,7 +71,7 @@ export function ToolStepItem({
       icon={def?.stepIcon}
       label={def?.getStepLabel?.(input, toolContext) ?? toolName.replace(/_/g, " ")}
       status={getToolStepStatus(part)}
-      defaultOpen={needsApproval as boolean}
+      defaultOpen={(needsApproval && part.approval) as boolean}
     >
       {needsApproval && part.approval ? (
         <ToolApprovalRequest

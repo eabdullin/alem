@@ -147,12 +147,14 @@ export const ChainOfThoughtStep = memo(
           <div className="flex-1 space-y-2 overflow-hidden">
             <CollapsibleTrigger className="inline-flex items-center gap-1 cursor-pointer">
               {label}
-              <ChevronDownIcon
-                className={cn(
-                  "size-3.5 shrink-0 text-muted-foreground transition-transform",
-                  isOpen ? "rotate-180" : "rotate-0"
-                )}
-              />
+              {
+                children && <ChevronDownIcon
+                  className={cn(
+                    "size-3.5 shrink-0 text-muted-foreground transition-transform",
+                    isOpen ? "rotate-180" : "rotate-0"
+                  )}
+                />
+              }
             </CollapsibleTrigger>
             {description && (
               <div className="text-muted-foreground text-xs">{description}</div>

@@ -38,9 +38,6 @@ describe("AssistantMessageItem", () => {
     expect(screen.getByText("Reasoning")).toBeInTheDocument();
     // Expand the collapsed reasoning step first
     fireEvent.click(screen.getByText("Reasoning"));
-    // Reasoning content is truncated by default; expand to see full text
-    const showBtn = screen.getByRole("button", { name: /show/i });
-    fireEvent.click(showBtn);
     expect(screen.getByText("Let me think...")).toBeInTheDocument();
   });
 

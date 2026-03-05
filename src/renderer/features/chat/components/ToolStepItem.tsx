@@ -71,7 +71,7 @@ export function ToolStepItem({
       icon={def?.stepIcon}
       label={def?.getStepLabel?.(input, toolContext) ?? toolName.replace(/_/g, " ")}
       status={getToolStepStatus(part)}
-      defaultOpen={(needsApproval && part.approval) as boolean}
+      defaultOpen={!!(needsApproval && part.approval)}
     >
       {needsApproval && part.approval ? (
         <ToolApprovalRequest

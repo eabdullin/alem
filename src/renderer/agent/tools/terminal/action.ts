@@ -7,7 +7,6 @@ import { DENYLIST_COMMANDS } from "@/shared/tools/terminal/denylist";
 const terminalInputSchema = z.object({
   description: z
     .string()
-    .optional()
     .describe(
       "Short label for this run (e.g. 'Check git status'). Shown in the chain of thought.",
     ),

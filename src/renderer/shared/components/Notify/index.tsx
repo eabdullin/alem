@@ -13,9 +13,7 @@ const Notify = ({
     iconDelete,
     children,
 }: NotifyProps) => (
-    <div
-        className={`flex items-center p-4 rounded-2xl bg-n-7 text-n-1 md:-mb-5 ${className}`}
-    >
+    <>
         {iconCheck && (
             <div className="flex justify-center items-center shrink-0 w-10 h-10 rounded-full bg-primary-2">
                 <Icon className="stroke-n-7" name="check-thin" />
@@ -27,7 +25,7 @@ const Notify = ({
             </div>
         )}
         {children}
-    </div>
+    </>
 );
 
 export default Notify;

@@ -4,12 +4,14 @@ import { browserTool } from "./browser";
 import { fetchTool } from "./fetch";
 import { filePatchTool } from "./file-patch";
 import { memoryTool } from "./memory";
+import { readFileTool } from "./read-file";
 import { terminalTool } from "./terminal";
 import { webSearchTool } from "./web-search";
 
 const definitions = [
   webSearchTool,
   fetchTool,
+  readFileTool,
   terminalTool,
   filePatchTool,
   browserTool,
@@ -26,6 +28,7 @@ for (const def of definitions) {
 const GENERAL_TOOL_DEFINITION_IDS = new Set([
   "web-search",
   "fetch",
+  "read-file",
   "terminal",
   "file-patch",
   "browser",

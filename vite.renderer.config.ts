@@ -25,6 +25,7 @@ export default defineConfig({
       { find: "@/features", replacement: path.resolve(__dirname, "src/renderer/features") },
       { find: "@/ai-providers", replacement: path.resolve(__dirname, "src/renderer/ai-providers") },
       { find: "@/search-providers", replacement: path.resolve(__dirname, "src/renderer/search-providers") },
+      { find: "@/logger", replacement: path.resolve(__dirname, "src/renderer/logger.ts") },
     ],
   },
 });

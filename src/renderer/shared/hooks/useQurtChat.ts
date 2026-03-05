@@ -25,6 +25,7 @@ import {
 } from "@/services/qurt-chat-transport";
 import type { ChatAttachment } from "@/types/chat-attachment";
 import type { QurtUIMessage } from "@/types/ui-message";
+import log from "@/logger";
 
 interface UseQurtChatOptions {
   chatId?: string;
@@ -101,8 +102,8 @@ async function appendNewTurnsToMemory(
         content,
         timestamp,
       });
-    } catch {
-      // Ignore append failures; do not block chat flow
+    } catch (err) {
+      log.warn("Memory: append failed", err);
     }
   }
   lastLoggedRef.current = to;
@@ -238,11 +239,12 @@ export function useQurtChat({
           nextAttachments.push(attachment);
         }
       } catch (err) {
+        log.error("Attachments: upload failed", err);
         for (const attachment of nextAttachments) {
           try {
             await window.qurt.deleteAttachment(attachment.id);
-          } catch {
-            // Ignore cleanup failures after a partial upload error.
+          } catch (cleanupErr) {
+            log.warn("Attachments: cleanup failed", cleanupErr);
           }
         }
 
@@ -267,8 +269,8 @@ export function useQurtChat({
 
     try {
       await window.qurt.deleteAttachment(attachmentId);
-    } catch {
-      // Ignore delete failures in the draft state.
+    } catch (err) {
+      log.warn("Attachments: delete failed", attachmentId, err);
     }
   }, []);
 
@@ -294,7 +296,7 @@ export function useQurtChat({
       try {
         const pendingToolApproval = getPendingToolApproval(messages);
         if (pendingToolApproval) {
-          console.log("Pending tool approval found, rejecting it");
+          log.info("Pending tool approval found, rejecting it");
           await addToolApprovalResponse({
             id: pendingToolApproval.toolCallId,
             approved: false,
@@ -310,6 +312,7 @@ export function useQurtChat({
             .catch(() => { /* checkpoint is best-effort */ });
         }
         
+        log.info("Chat: sending message", chatId);
         await sendMessage({
           text: prompt,
           files: fileParts,
@@ -317,7 +320,8 @@ export function useQurtChat({
         });
 
         return true;
-      } catch {
+      } catch (err) {
+        log.error("Chat: send failed", err);
         return false;
       }
     },

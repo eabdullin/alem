@@ -79,6 +79,9 @@
       ],
       "@/search-providers/*": [
         "src/renderer/search-providers/*"
+      ],
+      "@/logger": [
+        "src/renderer/logger.ts"
       ]
     }
   },

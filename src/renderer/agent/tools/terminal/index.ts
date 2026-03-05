@@ -11,7 +11,7 @@ function getStepLabel(input: unknown): string {
     if (desc) return desc;
     const cmd = o.command;
     if (Array.isArray(cmd) && cmd.length > 0) {
-      return cmd.join(" ");
+      return cmd.slice(0, 2).join(" ");
     }
   }
   return "Run terminal command";

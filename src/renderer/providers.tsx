@@ -1,35 +1,23 @@
-import { Toaster, resolveValue } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 import { UpdateToastListener } from "./features/updates/UpdateToastListener";
 
-export function Providers({ children }: { children: React.ReactNode }) {
+export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <>
       {children}
       <UpdateToastListener />
       <Toaster
-        containerStyle={{
-          bottom: 40,
-          left: 20,
-          right: 20,
-        }}
         position="bottom-center"
         gutter={10}
         toastOptions={{
-          duration: 4000,
+          duration: 6000,
+          className: 'flex items-center p-4 rounded-2xl bg-n-7 text-n-1 md:-mb-5',
+          style: {
+            maxWidth: '60%'
+          },
         }}
-      >
-        {(t) => (
-          <div
-            style={{
-              opacity: t.visible ? 1 : 0,
-              transform: t.visible ? "translatey(0)" : "translatey(0.75rem)",
-              transition: "all .2s",
-            }}
-          >
-            {resolveValue(t.message, t)}
-          </div>
-        )}
-      </Toaster>
+        
+      />
     </>
   );
 }

@@ -49,6 +49,16 @@ export interface QurtApi {
   }) => Promise<{ restored: boolean; error?: string }>;
   browserSetActiveChat: (chatId: string | null) => Promise<void>;
   browserCloseWindow: () => Promise<void>;
+  readFile: (input: {
+    path: string;
+    workspaceRoot: string;
+  }) => Promise<{
+    content: string;
+    path: string;
+    truncated?: boolean;
+    format: string;
+    error?: string;
+  }>;
   browserExecute: (request: unknown) => Promise<unknown>;
   browserGetStatus: () => Promise<{
     activeChatId: string | null;

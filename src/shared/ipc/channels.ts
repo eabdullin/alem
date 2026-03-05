@@ -36,6 +36,8 @@ export const IPC_CHANNELS = {
   SEARCH_WEB: "search-web",
   // Fetch
   FETCH_URL: "fetch-url",
+  // Read file
+  READ_FILE: "read-file",
   // Updates
   CHECK_FOR_UPDATES: "check-for-updates",
   APPLY_UPDATE: "apply-update",

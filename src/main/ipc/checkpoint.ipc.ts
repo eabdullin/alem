@@ -1,4 +1,5 @@
 import { ipcMain } from "electron";
+import log from "../logger";
 import { createCheckpoint, listCheckpoints, restoreToCheckpoint } from "../services/rdiffBackupCheckpoints";
 
 export function registerCheckpointIpc(): void {
@@ -10,7 +11,13 @@ export function registerCheckpointIpc(): void {
     if (!workspaceRoot || typeof workspaceRoot !== "string") {
       return { created: false };
     }
+    log.debug("Checkpoint: creating");
     const ts = await createCheckpoint(workspaceRoot.trim());
+    if (ts) {
+      log.info("Checkpoint: created at", ts);
+    } else {
+      log.warn("Checkpoint: creation failed");
+    }
     return ts ? { created: true, timestamp: ts } : { created: false };
   });
 
@@ -36,6 +43,13 @@ export function registerCheckpointIpc(): void {
     if (!timestamp || typeof timestamp !== "string") {
       return { restored: false, error: "Timestamp required for restore." };
     }
-    return restoreToCheckpoint(workspaceRoot.trim(), timestamp);
+    log.info("Checkpoint: restoring to", timestamp);
+    const result = await restoreToCheckpoint(workspaceRoot.trim(), timestamp);
+    if (result.restored) {
+      log.info("Checkpoint: restored successfully");
+    } else {
+      log.error("Checkpoint: restore failed", result.error);
+    }
+    return result;
   });
 }

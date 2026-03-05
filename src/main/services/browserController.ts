@@ -9,6 +9,7 @@
 import type { WebContents } from "electron";
 import { app, BrowserWindow } from "electron";
 import path from "node:path";
+import log from "../logger";
 import { injectGridOverlay, removeGridOverlay } from "../utils/draw-grid";
 import type {
   BrowserAction,
@@ -138,9 +139,12 @@ export class BrowserController {
 
   async execute(request: BrowserActionRequest): Promise<BrowserActionResult> {
     const { chatId, actions } = request;
+    const actionNames = actions.map((a) => a.action).join(", ");
+    log.info("Browser: executing", actionNames);
 
     const hasClose = actions.some((a) => a.action === "close");
     if (hasClose) {
+      log.info("Browser: closing window");
       if (this.activeChatId === chatId && this.window && !this.window.isDestroyed()) {
         this.closeWindow();
       }
@@ -187,6 +191,7 @@ export class BrowserController {
       };
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
+      log.error("Browser: action failed:", msg);
       return { ok: false, error: msg };
     }
   }
@@ -205,8 +210,10 @@ export class BrowserController {
 
       case "navigate": {
         if (!isUrlAllowed(action.url)) {
+          log.warn("Browser: URL scheme not allowed:", action.url);
           return { ok: false, error: `URL scheme not allowed: ${action.url}` };
         }
+        log.debug("Browser: navigating to", action.url);
         await wc.loadURL(action.url);
         await this.pause(1000);
         return null;

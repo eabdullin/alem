@@ -24,13 +24,14 @@ function DuckDuckGoBrowserSearchHint({
   return (
     <HoverCard openDelay={200} closeDelay={100}>
       <HoverCardTrigger asChild>
-        <button
-          type="button"
-          className="inline-flex size-4 shrink-0 items-center justify-center rounded text-amber-500 hover:text-amber-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-1"
+        <span
+          role="button"
+          tabIndex={0}
+          className="inline-flex size-4 shrink-0 cursor-pointer items-center justify-center rounded text-amber-500 hover:text-amber-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-1"
           aria-label="Search provider info"
         >
           <AlertTriangle className="size-3.5" />
-        </button>
+        </span>
       </HoverCardTrigger>
       <HoverCardContent
         align="start"

@@ -114,7 +114,7 @@ export class GoogleProvider extends BaseProvider {
     return {
       google: {
         thinkingConfig: {
-          includeThoughts: false,
+          includeThoughts: true,
           thinkingLevel,
         },
       },

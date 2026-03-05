@@ -1,4 +1,5 @@
 import { ipcMain, BrowserWindow, app, autoUpdater } from "electron";
+import log from "../logger";
 import { IPC_CHANNELS } from "../../shared/ipc/channels";
 
 let manualCheckPending = false;
@@ -20,18 +21,21 @@ export function registerUpdateIpc(): void {
     if (!app.isPackaged) {
       return Promise.resolve({ ok: false, reason: "dev" });
     }
+    log.info("Update: checking for updates");
     manualCheckPending = true;
     autoUpdater.checkForUpdates();
     return Promise.resolve({ ok: true });
   });
 
   ipcMain.handle(IPC_CHANNELS.APPLY_UPDATE, () => {
+    log.info("Update: applying update, quitting and installing");
     autoUpdater.quitAndInstall();
     return Promise.resolve();
   });
 
   autoUpdater.on("update-not-available", () => {
     if (manualCheckPending) {
+      log.info("Update: app is up to date");
       manualCheckPending = false;
       sendToRenderer(IPC_CHANNELS.UP_TO_DATE);
     }
@@ -39,6 +43,7 @@ export function registerUpdateIpc(): void {
 }
 
 export function notifyUpdateReady(): void {
+  log.info("Update: update ready, notifying renderer");
   manualCheckPending = false;
   sendToRenderer(IPC_CHANNELS.UPDATE_READY);
 }

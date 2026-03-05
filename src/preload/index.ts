@@ -7,6 +7,7 @@ import { filePatchApi } from "./api/filePatch.api";
 import { checkpointApi } from "./api/checkpoint.api";
 import { searchApi } from "./api/search.api";
 import { fetchApi } from "./api/fetch.api";
+import { readFileApi } from "./api/readFile.api";
 
 const api = {
   ...appApi,
@@ -23,6 +24,7 @@ const api = {
   browserGetStatus: browserApi.getStatus,
   searchWeb: searchApi.searchWeb,
   fetchUrl: fetchApi.fetchUrl,
+  readFile: readFileApi.readFile,
   platform: process.platform,
 };
 

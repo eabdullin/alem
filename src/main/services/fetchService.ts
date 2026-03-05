@@ -6,6 +6,7 @@
 
 import { BrowserWindow } from "electron";
 import TurndownService from "turndown";
+import log from "../logger";
 
 const MAX_CONTENT_BYTES = 100 * 1024; // 100KB
 const LOAD_TIMEOUT_MS = 15_000;
@@ -61,6 +62,7 @@ export async function fetchUrl(url: string): Promise<FetchUrlResult> {
       if (!win.isDestroyed()) {
         win.close();
       }
+      log.warn("Fetch: page load timed out", url);
       reject(new Error("Page load timed out. Try again."));
     }, LOAD_TIMEOUT_MS);
 
@@ -89,6 +91,7 @@ export async function fetchUrl(url: string): Promise<FetchUrlResult> {
         const content = turndown.turndown(toProcess);
         resolve({ content, url, truncated });
       } catch (e) {
+        log.error("Fetch: content extraction failed", url, e);
         clearTimeout(timeout);
         win.close();
         reject(e);
@@ -96,6 +99,7 @@ export async function fetchUrl(url: string): Promise<FetchUrlResult> {
     });
 
     wc.loadURL(url).catch((err) => {
+      log.error("Fetch: failed to load URL", url, err);
       clearTimeout(timeout);
       win.close();
       reject(err);

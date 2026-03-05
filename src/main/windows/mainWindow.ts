@@ -1,6 +1,7 @@
 /// <reference types="@electron-forge/plugin-vite/forge-vite-env" />
 import { app, BrowserWindow } from "electron";
 import path from "node:path";
+import log from "../logger";
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -42,6 +43,7 @@ export async function createMainWindow(): Promise<BrowserWindow> {
   });
 
   if (typeof MAIN_WINDOW_VITE_DEV_SERVER_URL !== "undefined") {
+    log.info("Window: loading dev server", MAIN_WINDOW_VITE_DEV_SERVER_URL);
     mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
   } else {
     mainWindow.removeMenu();

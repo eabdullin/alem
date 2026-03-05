@@ -1,4 +1,5 @@
 /// <reference types="@electron-forge/plugin-vite/forge-vite-env" />
+import log from "./logger";
 import { app, BrowserWindow } from "electron";
 import squirrelStartup from "electron-squirrel-startup";
 import { UpdateSourceType, updateElectronApp } from "update-electron-app";
@@ -32,10 +33,12 @@ function setupAutoUpdates(): void {
 }
 
 app.whenReady().then(async () => {
+  log.info("App starting");
   await ensureMemoryFilesystem();
   registerAllIpc();
   setupAutoUpdates();
   await createMainWindow();
+  log.info("App ready");
 });
 
 app.on("window-all-closed", () => {

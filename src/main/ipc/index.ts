@@ -6,6 +6,7 @@ import { registerFilePatchIpc } from "./filePatch.ipc";
 import { registerCheckpointIpc } from "./checkpoint.ipc";
 import { registerSearchIpc } from "./search.ipc";
 import { registerFetchIpc } from "./fetch.ipc";
+import { registerReadFileIpc } from "./readFile.ipc";
 import { registerUpdateIpc } from "./update.ipc";
 
 export function registerAllIpc(): void {
@@ -17,5 +18,6 @@ export function registerAllIpc(): void {
   registerCheckpointIpc();
   registerSearchIpc();
   registerFetchIpc();
+  registerReadFileIpc();
   registerUpdateIpc();
 }

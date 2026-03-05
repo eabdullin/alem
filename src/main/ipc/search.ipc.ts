@@ -1,4 +1,5 @@
 import { ipcMain } from "electron";
+import log from "../logger";
 import { getStore } from "../services/appStore";
 import { createSearchProvider, searchProviderNeedsApiKey } from "../search-providers/provider-factory";
 import { IPC_CHANNELS } from "../../shared/ipc/channels";
@@ -27,11 +28,13 @@ export function registerSearchIpc(): void {
         apiKey = keys[keyId];
       }
 
+      log.info("Search:", providerId, query.trim());
       const provider = createSearchProvider(
         providerId as "duckduckgo-browser" | "brave" | "exa",
         apiKey
       );
       const results = await provider.executeSearch(query.trim());
+      log.info("Search: got", results.length, "results");
       return { results };
     }
   );

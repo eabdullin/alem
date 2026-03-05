@@ -17,6 +17,7 @@ import { spawn } from "node:child_process";
 import { promises as fs } from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import log from "../logger";
 
 const CHECKPOINTS_DIR = "checkpoints";
 const RDIFF_BINARY_DIR = "rdiff-backup";
@@ -150,7 +151,7 @@ export async function createCheckpoint(
   ]);
 
   if (code !== 0) {
-    console.warn("[rdiff-backup] backup failed:", stderr);
+    log.warn("rdiff-backup: backup failed:", stderr);
     return undefined;
   }
 
@@ -212,6 +213,7 @@ export async function restoreToCheckpoint(
     ]);
 
     if (restoreCode !== 0) {
+      log.error("rdiff-backup: restore failed:", restoreStderr || `code ${restoreCode}`);
       return {
         restored: false,
         error: restoreStderr || `rdiff-backup restore failed with code ${restoreCode}`,

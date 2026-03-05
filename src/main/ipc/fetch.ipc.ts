@@ -1,4 +1,5 @@
 import { ipcMain } from "electron";
+import log from "../logger";
 import { fetchUrl } from "../services/fetchService";
 import { IPC_CHANNELS } from "../../shared/ipc/channels";
 
@@ -10,6 +11,7 @@ export function registerFetchIpc(): void {
       if (!url?.trim()) {
         throw new Error("URL is required.");
       }
+      log.info("Fetch:", url.trim());
       return fetchUrl(url.trim());
     }
   );

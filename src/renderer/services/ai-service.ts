@@ -81,7 +81,7 @@ export function createAgent({
     model: provider.chatModel(model),
     tools: provider.tools,
     providerOptions: provider.options,
-    stopWhen: stepCountIs(5),
+    stopWhen: stepCountIs(20),
     instructions: AGENT_INSTRUCTIONS,
    
     prepareCall: async (settings) => {

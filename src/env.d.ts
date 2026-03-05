@@ -42,6 +42,7 @@ interface QurtApi {
   browserGetStatus: () => Promise<{ activeChatId: string | null; hasWindow: boolean }>;
   searchWeb: (input: { query: string; providerId: string }) => Promise<{ results: Array<{ url: string; title?: string; snippet?: string }> }>;
   fetchUrl: (input: { url: string }) => Promise<{ content: string; url: string; truncated?: boolean }>;
+  readFile: (request: import("@/shared/tools/read-file/types").ReadFileRequest) => Promise<import("@/shared/tools/read-file/types").ReadFileResult>;
   checkForUpdates?: () => Promise<{ ok: true } | { ok: false; reason: string }>;
   applyUpdate?: () => Promise<void>;
   onUpdateReady?: (callback: () => void) => () => void;

@@ -9,6 +9,7 @@
 import { spawn } from "node:child_process";
 import os from "node:os";
 import path from "node:path";
+import log from "../logger";
 
 import {
   type TerminalRunRequest,
@@ -119,7 +120,10 @@ export async function runTerminal({
   const maxBytes = request.max_output_bytes ?? DEFAULT_MAX_OUTPUT_BYTES;
 
   const denied = isCommandDenied(request.command);
-  if (denied) return createDeniedResult(denied, start);
+  if (denied) {
+    log.warn("Terminal: command denied:", denied);
+    return createDeniedResult(denied, start);
+  }
 
   if (request.network?.enabled === true) {
     return createDeniedResult(
@@ -170,6 +174,7 @@ export async function runTerminal({
     proc.stderr?.on("data", (data: Buffer | string) => stderrCap.append(data));
 
     proc.on("error", (err) => {
+      log.error("Terminal: process error:", err.message);
       clearTimeout(timeout);
       resolve({
         stdout: stdoutCap.text,

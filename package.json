@@ -20,9 +20,12 @@
   },
   "dependencies": {
     "diff": "^5.2.0",
+    "electron-log": "^5.4.3",
     "electron-squirrel-startup": "^1.0.1",
     "electron-store": "^8.2.0",
     "exa-js": "^1.0.0",
+    "mammoth": "^1.11.0",
+    "pdf-parse": "^2.4.5",
     "turndown": "^7.2.0",
     "update-electron-app": "^3.1.2",
     "zustand": "^5.0.11"

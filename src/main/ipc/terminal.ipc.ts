@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { ipcMain } from "electron";
+import log from "../logger";
 import { getStore } from "../services/appStore";
 import {
   runTerminal,
@@ -17,6 +18,7 @@ export function registerTerminalIpc(): void {
     async (_event, request: TerminalRunRequest): Promise<TerminalRunResult> => {
       const root = request.workspaceRoot?.trim();
       if (!root) {
+        log.warn("Terminal: workspace not set");
         return {
           stdout: "",
           stderr: WORKSPACE_NOT_SET_MESSAGE,
@@ -28,6 +30,7 @@ export function registerTerminalIpc(): void {
       try {
         const resolved = path.resolve(root);
         if (!fs.existsSync(resolved) || !fs.statSync(resolved).isDirectory()) {
+          log.warn("Terminal: invalid workspace path", root);
           return {
             stdout: "",
             stderr: "Workspace path is invalid or not a directory.",
@@ -38,8 +41,12 @@ export function registerTerminalIpc(): void {
         }
         const settings = getStore().get("settings", {}) as { terminalShell?: string };
         const shell = settings.terminalShell?.trim() || undefined;
-        return await runTerminal({ request, workspaceRoot: resolved, shell });
-      } catch {
+        log.info("Terminal: running", request.command.join(" "));
+        const result = await runTerminal({ request, workspaceRoot: resolved, shell });
+        log.info("Terminal: completed", result.outcome.type, `${result.duration_ms}ms`);
+        return result;
+      } catch (err) {
+        log.error("Terminal: workspace resolution failed", err);
         return {
           stdout: "",
           stderr: "Workspace path is invalid.",

@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import log from "@/logger";
 import {
   getTextFromParts,
   listCheckpoints,
@@ -49,6 +50,7 @@ export const useCheckpointStore = create<CheckpointState>()((set, get) => ({
       return { ok: false, error: "Chat not ready." };
     }
 
+    log.info("Checkpoint: restoring to message index", userMessageIndex);
     set({ isRestoring: true });
     try {
       // ── 1. Query rdiff-backup for workspace checkpoints ───────
@@ -60,6 +62,7 @@ export const useCheckpointStore = create<CheckpointState>()((set, get) => ({
         if (timestamp) {
           const result = await restoreCheckpoint(workspaceRoot, timestamp);
           if (!result.restored) {
+            log.error("Checkpoint: file restore failed", result.error);
             return {
               ok: false,
               error: result.error ?? "Failed to restore files.",
@@ -84,6 +87,7 @@ export const useCheckpointStore = create<CheckpointState>()((set, get) => ({
         setActiveChat(updated);
       }
 
+      log.info("Checkpoint: restore complete");
       return { ok: true };
     } finally {
       set({ isRestoring: false });

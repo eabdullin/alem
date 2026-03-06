@@ -18,6 +18,9 @@
     "test:coverage": "vitest run --coverage",
     "prepare": "husky"
   },
+  "optionalDependencies": {
+    "appdmg": "^0.6.0"
+  },
   "dependencies": {
     "diff": "^5.2.0",
     "electron-log": "^5.4.3",

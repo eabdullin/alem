@@ -143,6 +143,8 @@ jobs:
         shell: bash
         env:
           P11_KIT_SERVER_ADDRESS: ${{ env.P11_KIT_SERVER_ADDRESS }}
+          PKCS11_CERT: ${{ secrets.PKCS11_CERT }}
+          PKCS11_KEY: ${{ secrets.PKCS11_KEY }}
         run: |
           set -euo pipefail
           OSSLSIGN="$HOME/osslsigncode-src/build/osslsigncode"
@@ -155,8 +157,8 @@ jobs:
 
           "$OSSLSIGN" sign \
             -pkcs11module /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-client.so \
-            -pkcs11cert '***REMOVED***' \
-            -key '***REMOVED***' \
+            -pkcs11cert "$PKCS11_CERT" \
+            -key "$PKCS11_KEY" \
             -t http://time.certum.pl/ \
             -n "Qurt" \
             -i "https://qurt.ai" \
@@ -201,10 +203,17 @@ jobs:
       - name: Prepare release files
         run: |
           mkdir -p release-files
-          # Prefer signed exe
-          find release-artifacts/signed-windows -type f -name "*Setup.exe" -exec cp {} release-files/ \;
-          # macOS dmg (already signed/notarized by your mac steps)
-          find release-artifacts -type f -name "*.dmg" -exec cp {} release-files/ \;
+          VERSION="${{ github.ref_name }}"
+          # Prefer signed exe → Qurt-v1.0.0-Windows-Setup.exe
+          win_src="$(find release-artifacts/signed-windows -type f -name "*Setup-signed.exe" | head -n 1)"
+          if [ -n "$win_src" ]; then
+            cp "$win_src" "release-files/Qurt-${VERSION}-Windows-Setup.exe"
+          fi
+          # macOS dmg → Qurt-v1.0.0-macOS.dmg
+          mac_src="$(find release-artifacts -type f -name "*.dmg" | head -n 1)"
+          if [ -n "$mac_src" ]; then
+            cp "$mac_src" "release-files/Qurt-${VERSION}-macOS.dmg"
+          fi
       
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2

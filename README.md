@@ -93,7 +93,6 @@ Tags like `v0.1.0-beta.1` are marked as prereleases. The workflow runs on every 
 ## Documentation
 
 - Product and architecture docs live in [`docs/`](docs).
-- Reliability and security notes are available in [`docs/RELIABILITY.md`](docs/RELIABILITY.md) and [`docs/SECURITY.md`](docs/SECURITY.md).
 
 ## Contributing
 
@@ -101,4 +100,4 @@ Issues and pull requests are welcome. If you want to help shape the open-source 
 
 ## License
 
-License will be added as part of the open-source release process.
+MIT — see [LICENSE](LICENSE).

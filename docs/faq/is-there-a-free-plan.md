@@ -1,4 +1,4 @@
 ---
 question: Is there a free plan?
 ---
-You can get started without a subscription and explore core features first, then upgrade later if you need more.
+Qurt is free and open source. There is no subscription — just bring your own API keys from any supported provider and pay them directly for usage.

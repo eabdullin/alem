@@ -155,6 +155,9 @@ jobs:
           mkdir -p signed
           out_exe="signed/$(basename "$in_exe" .exe)-signed.exe"
 
+          # IMPORTANT: osslsigncode won't overwrite
+          rm -f "$out_exe"
+
           "$OSSLSIGN" sign \
             -pkcs11module /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-client.so \
             -pkcs11cert "$PKCS11_CERT" \

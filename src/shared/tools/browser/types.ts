@@ -11,10 +11,11 @@ export type BrowserAction =
   | { action: "click"; x: number; y: number }
   | { action: "move_mouse"; x: number; y: number }
   | { action: "type"; text: string }
-  | { action: "press"; key: string }
+  | { action: "press"; key: string; modifiers?: string[] }
   | { action: "scroll"; direction: "up" | "down"; amount?: number }
   | { action: "get_content"; selector: string }
   | { action: "wait"; seconds: number }
+  | { action: "refresh" }
   | { action: "close" };
 
 export interface BrowserActionRequest {

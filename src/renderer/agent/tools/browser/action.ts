@@ -31,8 +31,12 @@ const browserActionSchema = z.discriminatedUnion("action", [
     text: z.string(),
   }),
   z.object({
-    action: z.literal("press").describe("Press key (e.g. Enter, Tab, Escape)."),
+    action: z.literal("press").describe("Press key with optional modifiers (e.g. Enter, Tab, Escape, Backspace)."),
     key: z.string(),
+    modifiers: z
+      .array(z.enum(["shift", "control", "alt", "meta"]))
+      .optional()
+      .describe("Modifier keys to hold (e.g. [\"control\"] for Ctrl+A)."),
   }),
   z.object({
     action: z.literal("scroll").describe("Scroll direction."),
@@ -49,6 +53,9 @@ const browserActionSchema = z.discriminatedUnion("action", [
   z.object({
     action: z.literal("wait"),
     seconds: z.number().min(0).max(60).describe("Seconds to pause (0–60)."),
+  }),
+  z.object({
+    action: z.literal("refresh").describe("Reload the current page."),
   }),
   z.object({
     action: z.literal("close").describe("Close the browser window."),
@@ -73,24 +80,31 @@ export type BrowserToolInputSchema = z.infer<typeof browserToolInputSchema>;
 
 const description = `
 Control a built-in browser window to navigate and interact with web pages. One window per chat.
-Each request runs a list of actions atomically and returns one screenshot plus optional text.
+Each call runs a list of actions atomically and returns one screenshot plus optional extracted text.
 
-## Usage tips
-**Wait times**
-- After navigate: wait 2–3s for heavy pages before interacting.
-- After scroll: wait 0.5–1s for smooth scroll to finish.
-- After click: wait 0.2–0.5s before type or next action.
-- For SPAs/dynamic content: wait 1–3s after navigation.
+## Actions
+- open — launch the browser (call once before anything else)
+- navigate — load a URL (http/https only)
+- click — click at (x, y)
+- move_mouse — hover at (x, y) without clicking
+- type — type text into the focused element (click to focus first)
+- press — press a named key with optional modifiers: Enter, Tab, Escape, Backspace, ArrowUp/Down/Left/Right, etc. Use modifiers: ["control"] for Ctrl+A, ["control","shift"] for Ctrl+Shift+Z, etc.
+- scroll — scroll up or down (default 300 px; use amount to override)
+- get_content — extract inner text of a CSS selector (e.g. '#main', 'article', 'h1')
+- wait — pause N seconds (0–60) for dynamic content to load
+- refresh — reload the current page
+- close — close the browser window
 
-**Common flows**
-1. Search: open → navigate(url) → wait(2) → click(searchBox) → wait(0.5) → type(query) → press(Enter) → wait(2).
-2. Hover-then-scroll: move_mouse(x,y) → wait(0.3) → scroll(down) — some dropdowns/menus need hover before scroll.
-3. Form fill: click(input) → type(value) → press(Tab) → type(next) → … → click(submit).
-4. Extract text: get_content(selector) — use after page loads; selector by visible text or aria-label.
+## Coordinates
+- Screenshots include a 100 px grid overlay for accuracy.
+- Origin (0, 0) is the top-left corner. Click near the visual center of an element.
 
-**Coordinates**
-- Screenshots include a 100px grid for better accuracy.
-- Origin (0,0) is top-left. Click near element center for best results.
+## Tips
+- Always wait after navigation or page transitions (≥ 2 s) before clicking or reading.
+- Chain related actions in one call to reduce round-trips (e.g. navigate → wait → click).
+- Use get_content to reliably read text without relying on screenshot OCR.
+- For forms: click the input → type the text → press Enter (or click the submit button).
+- If an element is off-screen, scroll toward it first, then click.
 `;
 
 export function getBrowserToolSet(

@@ -2,12 +2,12 @@
  * Browser session controller for agent mode.
  * - One browser window per active chat; switching chats closes the previous window.
  * - Secure defaults: contextIsolation, nodeIntegration false, http/https only.
- * - Actions: open, navigate, click, type, press, scroll, wait, screenshot, close.
+ * - Actions: open, navigate, click, type, press, scroll, wait, refresh, screenshot, close.
  * - Uses screenshots for page state; mouse clicks, scrolls, and typing for interaction.
  */
 
 import type { WebContents } from "electron";
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, clipboard } from "electron";
 import path from "node:path";
 import log from "../logger";
 import { injectGridOverlay, removeGridOverlay } from "../utils/draw-grid";
@@ -174,6 +174,7 @@ export class BrowserController {
 
       await injectGridOverlay(wc);
       const image = await wc.capturePage();
+      await this.pause(500);
       await removeGridOverlay(wc);
 
       const viewport = this.getViewportSize(wc);
@@ -227,7 +228,7 @@ export class BrowserController {
           x: movePoint.x,
           y: movePoint.y,
         });
-        await this.pause(100);
+        await this.pause(200);
         return null;
       }
 
@@ -235,12 +236,19 @@ export class BrowserController {
         this.ensureInputFocus(wc);
         const clickPoint = this.clampPointToViewport(wc, action.x, action.y);
         wc.sendInputEvent({
+          type: "mouseMove",
+          x: clickPoint.x,
+          y: clickPoint.y,
+        });
+        await this.pause(200)
+        wc.sendInputEvent({
           type: "mouseDown",
           x: clickPoint.x,
           y: clickPoint.y,
           button: "left",
           clickCount: 1,
         });
+        await this.pause(10);
         wc.sendInputEvent({
           type: "mouseUp",
           x: clickPoint.x,
@@ -248,49 +256,29 @@ export class BrowserController {
           button: "left",
           clickCount: 1,
         });
-        await this.pause(100);
+        await this.pause(200);
         return null;
       }
 
       case "type": {
         this.ensureInputFocus(wc);
-        const text = JSON.stringify(action.text);
-        const result = await wc.executeJavaScript(`
-          (function() {
-            const el = document.activeElement;
-            if (!el) {
-              return { ok: false, error: "No focused input to type into. Use click first." };
-            }
-            if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
-              el.focus();
-              el.value = ${text};
-              el.dispatchEvent(new Event("input", { bubbles: true }));
-              el.dispatchEvent(new Event("change", { bubbles: true }));
-              return { ok: true };
-            }
-            if (el.isContentEditable) {
-              el.focus();
-              el.textContent = ${text};
-              el.dispatchEvent(new Event("input", { bubbles: true }));
-              return { ok: true };
-            }
-            return { ok: false, error: "No focused input to type into. Use click first." };
-          })()
-        `);
-        if (result?.ok === false) return result;
-        await this.pause(100);
+        clipboard.writeText(action.text);
+        wc.sendInputEvent({ type: "keyDown", keyCode: "V", modifiers: ["control"] });
+        wc.sendInputEvent({ type: "keyUp", keyCode: "V", modifiers: ["control"] });
+        await this.pause(200);
         return null;
       }
 
       case "press": {
         this.ensureInputFocus(wc);
         const keyCode = action.key;
-        wc.sendInputEvent({ type: "keyDown", keyCode });
+        const modifiers = action.modifiers as Parameters<typeof wc.sendInputEvent>[0]["modifiers"];
+        wc.sendInputEvent({ type: "keyDown", keyCode, modifiers });
         if (keyCode.length === 1) {
-          wc.sendInputEvent({ type: "char", keyCode });
+          wc.sendInputEvent({ type: "char", keyCode, modifiers });
         }
-        wc.sendInputEvent({ type: "keyUp", keyCode });
-        await this.pause(100);
+        wc.sendInputEvent({ type: "keyUp", keyCode, modifiers });
+        await this.pause(200);
         return null;
       }
 
@@ -326,6 +314,13 @@ export class BrowserController {
       case "wait": {
         const seconds = Math.min(Math.max(0, action.seconds), 60);
         await new Promise((resolve) => setTimeout(resolve, seconds * 1000));
+        return null;
+      }
+
+      case "refresh": {
+        log.debug("Browser: refreshing page");
+        wc.reload();
+        await this.pause(1000);
         return null;
       }
 

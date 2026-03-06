@@ -11,6 +11,8 @@ AI Coworker and assistant with provider freedom: bring your own API keys, choose
 [![Electron](https://img.shields.io/badge/Electron-40-47848F?logo=electron&logoColor=white)](https://www.electronjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
+![Showcase](public/showcase.gif)
+
 ## Why Qurt
 
 - **Provider freedom first**: connect your own provider keys and avoid lock-in.

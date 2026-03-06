@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { BrainIcon, ChevronDownIcon, DotIcon } from "lucide-react";
-import { createContext, memo, useContext, useMemo, useState } from "react";
+import { createContext, memo, useContext, useEffect, useMemo, useState } from "react";
 
 interface ChainOfThoughtContextValue {
   isOpen: boolean;
@@ -128,6 +128,12 @@ export const ChainOfThoughtStep = memo(
     ...props
   }: ChainOfThoughtStepProps) => {
     const [isOpen, setIsOpen] = useState(defaultOpen ?? status === "active");
+
+    useEffect(() => {
+      if (defaultOpen) {
+        setIsOpen(true);
+      }
+    }, [defaultOpen]);
 
     return (
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>

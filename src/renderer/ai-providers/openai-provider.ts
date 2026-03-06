@@ -17,10 +17,35 @@ type OpenAiModelRuntime = {
 export const OPENAI_PROVIDER_INFO: ProviderInfo = {
   id: "openai",
   name: "OpenAI",
-  description: "GPT-5.2, GPT-5 mini, GPT-5 nano",
+  description: "GPT-5.4, GPT-5.2, GPT-5 mini, GPT-5 nano",
   apiKeyUrl: "https://platform.openai.com/api-keys",
   logoPath: "./provider-logos/openai.svg",
   models: [
+    {
+      id: "gpt-5.4-none",
+      displayName: "GPT-5.4",
+      description: "OpenAI's most capable frontier model for professional work.",
+    },
+    {
+      id: "gpt-5.4-low",
+      displayName: "GPT-5.4 (Low)",
+      description: "Fast reasoning for complex professional tasks.",
+    },
+    {
+      id: "gpt-5.4-medium",
+      displayName: "GPT-5.4 (Medium)",
+      description: "Balanced reasoning depth for strong quality with practical latency.",
+    },
+    {
+      id: "gpt-5.4-high",
+      displayName: "GPT-5.4 (High)",
+      description: "Deeper reasoning for harder tasks that need extra thought.",
+    },
+    {
+      id: "gpt-5.4-xhigh",
+      displayName: "GPT-5.4 (XHigh)",
+      description: "Maximum reasoning effort for the most complex problem-solving tasks.",
+    },
     {
       id: "gpt-5.2-low",
       displayName: "GPT-5.2 (Low)",
@@ -75,6 +100,11 @@ export const OPENAI_PROVIDER_INFO: ProviderInfo = {
 };
 
 const OPENAI_MODEL_RUNTIME: Record<string, OpenAiModelRuntime> = {
+  "gpt-5.4-none": { modelId: "gpt-5.4" },
+  "gpt-5.4-low": { modelId: "gpt-5.4", reasoningEffort: "low" },
+  "gpt-5.4-medium": { modelId: "gpt-5.4", reasoningEffort: "medium" },
+  "gpt-5.4-high": { modelId: "gpt-5.4", reasoningEffort: "high" },
+  "gpt-5.4-xhigh": { modelId: "gpt-5.4", reasoningEffort: "xhigh" },
   "gpt-5.2-low": { modelId: "gpt-5.2", reasoningEffort: "low" },
   "gpt-5.2-medium": { modelId: "gpt-5.2", reasoningEffort: "medium" },
   "gpt-5.2-high": { modelId: "gpt-5.2", reasoningEffort: "high" },
@@ -123,6 +153,7 @@ export class OpenAIProvider extends BaseProvider {
     if (resolvedModel.modelId.includes("gpt-5")) {
       if (resolvedModel.modelId.includes("nano")) return 200000;
       if (resolvedModel.modelId.includes("mini")) return 200000;
+      if (resolvedModel.modelId.includes("5.4")) return 1050000;
       return 1000000;
     }
     return 200000;

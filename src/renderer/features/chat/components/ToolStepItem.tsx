@@ -66,14 +66,16 @@ export function ToolStepItem({
     part.state === "approval-requested" &&
     part.approval;
 
+  const showToolApproval = !!(needsApproval && part.approval);
+
   return (
     <ChainOfThoughtStep
       icon={def?.stepIcon}
       label={def?.getStepLabel?.(input, toolContext) ?? toolName.replace(/_/g, " ")}
       status={getToolStepStatus(part)}
-      defaultOpen={!!(needsApproval && part.approval)}
+      defaultOpen={showToolApproval}
     >
-      {needsApproval && part.approval ? (
+      {showToolApproval ? (
         <ToolApprovalRequest
           approvalId={part.approval.id}
           toolName={toolName}

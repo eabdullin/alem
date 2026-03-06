@@ -111,74 +111,72 @@ jobs:
           path: out/**
           if-no-files-found: error
           retention-days: 14
-
   sign_windows:
-    if: startsWith(github.ref, 'refs/tags/v')
     needs: build
-    name: Sign Windows installer (Certum PKCS#11)
-    runs-on: [self-hosted, linux, x64]
+    name: Sign Windows installer (Certum SimplySign)
+    runs-on: [self-hosted, linux]
+
     steps:
-      - name: Download artifacts
+      - name: Download Windows build artifact
         uses: actions/download-artifact@v4
         with:
           name: qurt-windows-dist
-          path: unsigned-windows
+          path: unsigned
 
-      - name: Ensure Certum container is running
-        run: |
-          if ! docker ps --format '{{.Names}}' | grep -q '^certum$'; then
-            echo "Certum container not running. Start it on the runner host and log in via VNC/OTP first."
-            exit 1
-          fi
-
-      - name: Install signing deps
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y osslsigncode p11-kit-modules
-
-      - name: Sign Setup.exe files
-        env:
-          P11_KIT_SERVER_ADDRESS: "unix:path=/run/user/1000/p11-kit/p11kit.sock"
-          PRODUCT_NAME: "Qurt"
-          PRODUCT_URL: "https://github.com/${{ github.repository }}"
+      - name: Start p11-kit server bridge
+        shell: bash
         run: |
           set -euo pipefail
-          mkdir -p signed-windows
+          SOCK_DIR="/run/user/$(id -u)/p11-kit"
+          SOCK_PATH="$SOCK_DIR/p11kit.sock"
+          mkdir -p "$SOCK_DIR"
 
-          # Find your installer(s)
-          mapfile -t files < <(find unsigned-windows -type f -name "*Setup.exe")
-          if [ "${#files[@]}" -eq 0 ]; then
-            echo "No *Setup.exe found to sign."
-            exit 1
-          fi
+          pkill -f "p11-kit server.*p11kit.sock" || true
 
-          for f in "${files[@]}"; do
-            out="signed-windows/$(basename "$f")"
+          p11-kit server -f -n "$SOCK_PATH" 'pkcs11:token=Code%20Signing' &
+          echo "P11_KIT_SERVER_ADDRESS=unix:path=$SOCK_PATH" >> "$GITHUB_ENV"
 
-            # Authenticode signing on Linux via osslsigncode + PKCS#11
-            # PKCS#11 token URI matches the container README examples.
-            osslsigncode sign \
-              -pkcs11module /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-client.so \
-              -pkcs11cert 'pkcs11:model=SimplySign%20C' \
-              -key 'pkcs11:model=SimplySign%20C' \
-              -t http://time.certum.pl/ \
-              -n "$PRODUCT_NAME" \
-              -i "$PRODUCT_URL" \
-              -in "$f" \
-              -out "$out"
-          done
+          export P11_KIT_SERVER_ADDRESS="unix:path=$SOCK_PATH"
+          pkcs11-tool --module /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-client.so -L
 
-      - name: Upload signed installer artifact
+      - name: Sign installer
+        shell: bash
+        env:
+          P11_KIT_SERVER_ADDRESS: ${{ env.P11_KIT_SERVER_ADDRESS }}
+        run: |
+          set -euo pipefail
+          OSSLSIGN="$HOME/osslsigncode-src/build/osslsigncode"
+
+          in_exe="$(find unsigned -type f -name '*Setup.exe' | head -n 1)"
+          test -n "$in_exe"
+
+          mkdir -p signed
+          out_exe="signed/$(basename "$in_exe" .exe)-signed.exe"
+
+          "$OSSLSIGN" sign \
+            -pkcs11module /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-client.so \
+            -pkcs11cert '***REMOVED***' \
+            -key '***REMOVED***' \
+            -t http://time.certum.pl/ \
+            -n "Qurt" \
+            -i "https://qurt.ai" \
+            -in "$in_exe" \
+            -out "$out_exe"
+
+          "$OSSLSIGN" verify -in "$out_exe" || true
+          echo "Signed: $out_exe"
+
+      - name: Upload signed Windows installer
         uses: actions/upload-artifact@v4
         with:
           name: qurt-windows-signed
-          path: signed-windows/*.exe
+          path: signed/*.exe
           if-no-files-found: error
           retention-days: 14
-
+          
   release:
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: build
+    needs: sign_windows
     name: Create Release
     runs-on: ubuntu-latest
     permissions:
